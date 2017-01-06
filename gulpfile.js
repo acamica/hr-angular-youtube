@@ -113,12 +113,13 @@ gulp.task('build', ['process-scripts-with-tpl']);
 gulp.task('watch', function() {
     // This should be process script, but for some reason is not updating :(
     //    gulp.watch('./src/**/*.js', ['process-scripts']);
-    gulp.watch('./src/**/*.js', ['docs']);
+    // gulp.watch('./src/**/*.js', ['docs']);
 
     gulp.watch('./assets/**/*.css', ['process-styles']);
-    gulp.watch('./demo/**/*', ['docs']);
-    gulp.watch(['./docs/**/*', '!./docs/custom-generator/bower_components/**'], ['docs']);
+    // gulp.watch('./demo/**/*', ['docs']);
+    // gulp.watch(['./docs/**/*', '!./docs/custom-generator/bower_components/**'], ['docs']);
 });
 
 
-gulp.task('default', ['process-scripts-with-tpl', 'process-styles', 'docs','watch']);
+// gulp.task('default', ['process-scripts-with-tpl', 'process-styles', 'docs','watch']);
+gulp.task('default', ['process-scripts-with-tpl', 'process-styles', 'watch']);
