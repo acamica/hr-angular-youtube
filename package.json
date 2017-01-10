@@ -11,7 +11,8 @@
     "test": "test"
   },
   "scripts": {
-      "commitmsg": "validate-commit-msg"
+    "start": "http-server -p 8000",
+    "commitmsg": "validate-commit-msg"
   },
   "keywords": [
     "angular",
@@ -31,6 +32,7 @@
     "gulp-replace": "^0.4.0",
     "gulp-rimraf": "^0.1.0",
     "gulp-uglify": "~0.3.1",
+    "http-server": "^0.9.0",
     "husky": "^0.12.0",
     "validate-commit-msg": "^2.8.2",
     "when": "~3.3.1"
