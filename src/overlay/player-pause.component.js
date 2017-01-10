@@ -1,16 +1,16 @@
 /* global angular */
 (function(angular) {
     angular.module('hrAngularYoutube')
-    .directive('playerPlay',  function() {
+    .directive('playerPause',  function() {
         return {
             restrict: 'E',
             require: '^youtubePlayer',
-            templateUrl: '/template/overlay/player-play.html',
+            templateUrl: '/template/overlay/player-pause.component.html',
             transclude: true,
             link: function(scope, elm, attrs,youtubePlayerCtrl) {
                 youtubePlayerCtrl.getPlayer().then(function(player){
                     elm.on('click', function() {
-                        player.playVideo();
+                        player.pauseVideo();
                     });
                 });
             }

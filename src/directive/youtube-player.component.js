@@ -18,7 +18,7 @@
         return {
             restrict: 'EA',
             require: ['youtubePlayer', '?ngModel'],
-            templateUrl: '/template/youtubePlayer.html',
+            templateUrl: '/template/directive/youtube-player.component.html',
             scope: {
                 videoId: '='
             },

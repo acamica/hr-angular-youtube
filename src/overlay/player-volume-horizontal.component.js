@@ -5,7 +5,7 @@
         return {
             restrict: 'E',
             require: '^youtubePlayer',
-            templateUrl: '/template/overlay/player-volume-horizontal.html',
+            templateUrl: '/template/overlay/player-volume-horizontal.component.html',
             transclude: true,
             scope: {},
             link: function(scope, elm, attrs,youtubePlayerCtrl) {

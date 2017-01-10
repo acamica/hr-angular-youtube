@@ -23,7 +23,7 @@ gulp.task('process-scripts', function() {
 });
 
 gulp.task('process-templates', function() {
-    return gulp.src('template/**/*.html')
+    return gulp.src('./src/**/*.html')
         .pipe(html2js({
             moduleName: 'hrAngularYoutubeTpls',
             prefix :'/template/'
@@ -112,7 +112,8 @@ gulp.task('build', ['process-scripts-with-tpl']);
 
 gulp.task('watch', function() {
     // This should be process script, but for some reason is not updating :(
-    //    gulp.watch('./src/**/*.js', ['process-scripts']);
+    gulp.watch('./src/**/*.js', ['process-scripts-with-tpl']);
+    gulp.watch('./src/**/*.html', ['process-scripts-with-tpl']);
     // gulp.watch('./src/**/*.js', ['docs']);
 
     gulp.watch('./assets/**/*.css', ['process-styles']);

@@ -5,7 +5,7 @@ try {
   module = angular.module('hrAngularYoutubeTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/template/youtubePlayer.html',
+  $templateCache.put('/template/directive/youtube-player.component.html',
     '<div class="hr-yt-wrapper">\n' +
     '    <div class="hr-yt-video-place-holder"></div>\n' +
     '    <div class="hr-yt-overlay" ng-transclude=""></div>\n' +
@@ -21,7 +21,46 @@ try {
   module = angular.module('hrAngularYoutubeTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/template/overlay/hover-indicator.html',
+  $templateCache.put('/template/overlay/player-panel.component.html',
+    '<div ng-transclude=""></div>\n' +
+    '');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('hrAngularYoutubeTpls');
+} catch (e) {
+  module = angular.module('hrAngularYoutubeTpls', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/template/overlay/player-pause.component.html',
+    '<div style="display: inherit" ng-transclude=""></div>\n' +
+    '');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('hrAngularYoutubeTpls');
+} catch (e) {
+  module = angular.module('hrAngularYoutubeTpls', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/template/overlay/player-play.component.html',
+    '<div style="display: inherit" ng-transclude=""></div>\n' +
+    '');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('hrAngularYoutubeTpls');
+} catch (e) {
+  module = angular.module('hrAngularYoutubeTpls', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/template/overlay/player-progress-bar-hover-indicator.html',
     '<div class="hr-hover-indicator">\n' +
     '    <span ng-bind="time"></span>\n' +
     '</div>\n' +
@@ -36,46 +75,7 @@ try {
   module = angular.module('hrAngularYoutubeTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/template/overlay/player-panel.html',
-    '<div ng-transclude=""></div>\n' +
-    '');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('hrAngularYoutubeTpls');
-} catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/template/overlay/player-pause.html',
-    '<div style="display: inherit" ng-transclude=""></div>\n' +
-    '');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('hrAngularYoutubeTpls');
-} catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/template/overlay/player-play.html',
-    '<div style="display: inherit" ng-transclude=""></div>\n' +
-    '');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('hrAngularYoutubeTpls');
-} catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/template/overlay/player-progress-bar.html',
+  $templateCache.put('/template/overlay/player-progress-bar.component.html',
     '<div yt-slider="onSliderUp($percentage)"\n' +
     '     yt-slider-down="onSliderDown()"\n' +
     '     yt-slider-move="onSliderMove($percentage)"\n' +
@@ -97,7 +97,7 @@ try {
   module = angular.module('hrAngularYoutubeTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/template/overlay/player-volume-horizontal.html',
+  $templateCache.put('/template/overlay/player-volume-horizontal.component.html',
     '<div ng-click="toggleMute()" class="ng-transclude"></div>\n' +
     '    <div class="hr-yt-volume-hr-bar"\n' +
     '         yt-slider-move="onSliderMove($percentage)"\n' +
@@ -158,7 +158,7 @@ module.run(['$templateCache', function($templateCache) {
         return {
             restrict: 'EA',
             require: ['youtubePlayer', '?ngModel'],
-            templateUrl: '/template/youtubePlayer.html',
+            templateUrl: '/template/directive/youtube-player.component.html',
             scope: {
                 videoId: '='
             },
@@ -494,7 +494,7 @@ module.run(['$templateCache', function($templateCache) {
         return {
             restrict: 'E',
             require: '^youtubePlayer',
-            templateUrl: '/template/overlay/player-panel.html',
+            templateUrl: '/template/overlay/player-panel.component.html',
             transclude: true,
             link: function(scope, elm, attrs,youtubePlayerCtrl) {
                 youtubePlayerCtrl.getPlayer().then(function(player){
@@ -566,7 +566,7 @@ module.run(['$templateCache', function($templateCache) {
         return {
             restrict: 'E',
             require: '^youtubePlayer',
-            templateUrl: '/template/overlay/player-pause.html',
+            templateUrl: '/template/overlay/player-pause.component.html',
             transclude: true,
             link: function(scope, elm, attrs,youtubePlayerCtrl) {
                 youtubePlayerCtrl.getPlayer().then(function(player){
@@ -587,7 +587,7 @@ module.run(['$templateCache', function($templateCache) {
         return {
             restrict: 'E',
             require: '^youtubePlayer',
-            templateUrl: '/template/overlay/player-play.html',
+            templateUrl: '/template/overlay/player-play.component.html',
             transclude: true,
             link: function(scope, elm, attrs,youtubePlayerCtrl) {
                 youtubePlayerCtrl.getPlayer().then(function(player){
@@ -608,7 +608,7 @@ module.run(['$templateCache', function($templateCache) {
         return {
             restrict: 'E',
             require: ['^youtubePlayer'],
-            templateUrl: '/template/overlay/player-progress-bar.html',
+            templateUrl: '/template/overlay/player-progress-bar.component.html',
 
             scope: {
 
@@ -718,7 +718,7 @@ module.run(['$templateCache', function($templateCache) {
                     return xpercent;
                 };
                 // TODO: check how bootstrap does this
-                var template = $http.get('/template/overlay/hover-indicator.html', { cache: $templateCache }).then(function(response) {
+                var template = $http.get('/template/overlay/player-progress-bar-hover-indicator.html', { cache: $templateCache }).then(function(response) {
                     return response.data;
                 });
                 var indicatorElm = null;
@@ -944,7 +944,7 @@ module.run(['$templateCache', function($templateCache) {
         return {
             restrict: 'E',
             require: '^youtubePlayer',
-            templateUrl: '/template/overlay/player-volume-horizontal.html',
+            templateUrl: '/template/overlay/player-volume-horizontal.component.html',
             transclude: true,
             scope: {},
             link: function(scope, elm, attrs,youtubePlayerCtrl) {
@@ -989,6 +989,42 @@ module.run(['$templateCache', function($templateCache) {
 (function(angular) {
     angular.module('hrAngularYoutube')
 
+    .directive('showIfMuted', ['$animate', function($animate) {
+        return {
+            restrict: 'A',
+            require: '^youtubePlayer',
+            link: function(scope, elm, attrs,youtubePlayerCtrl) {
+                // By default hide
+                $animate.addClass(elm, 'ng-hide');
+                youtubePlayerCtrl.getPlayer().then(function(player){
+                    var hideOrShow = function () {
+                        var show = !player.isMuted();
+                        if (attrs.showIfMuted === 'true') {
+                            show = !show;
+                        }
+
+                        if ( show ) {
+                            $animate.removeClass(elm, 'ng-hide');
+                        } else {
+                            $animate.addClass(elm, 'ng-hide');
+                        }
+                    };
+                    hideOrShow();
+                    player.on('muteChange', hideOrShow);
+                });
+            }
+        };
+    }])
+    ;
+
+})(angular);
+
+
+
+/* global angular, YT */
+(function(angular) {
+    angular.module('hrAngularYoutube')
+
     .directive('showIfPlayerIs', ['$animate', function($animate) {
         return {
             restrict: 'AE',
@@ -1025,37 +1061,6 @@ module.run(['$templateCache', function($templateCache) {
             }
         };
     }])
-
-
-
-    .directive('showIfMuted', ['$animate', function($animate) {
-        return {
-            restrict: 'A',
-            require: '^youtubePlayer',
-            link: function(scope, elm, attrs,youtubePlayerCtrl) {
-                // By default hide
-                $animate.addClass(elm, 'ng-hide');
-                youtubePlayerCtrl.getPlayer().then(function(player){
-                    var hideOrShow = function () {
-                        var show = !player.isMuted();
-                        if (attrs.showIfMuted === 'true') {
-                            show = !show;
-                        }
-
-                        if ( show ) {
-                            $animate.removeClass(elm, 'ng-hide');
-                        } else {
-                            $animate.addClass(elm, 'ng-hide');
-                        }
-                    };
-                    hideOrShow();
-                    player.on('muteChange', hideOrShow);
-                });
-            }
-        };
-    }])
-    ;
-
 })(angular);
 
 

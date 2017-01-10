@@ -5,7 +5,7 @@
         return {
             restrict: 'E',
             require: ['^youtubePlayer'],
-            templateUrl: '/template/overlay/player-progress-bar.html',
+            templateUrl: '/template/overlay/player-progress-bar.component.html',
 
             scope: {
 
@@ -115,7 +115,7 @@
                     return xpercent;
                 };
                 // TODO: check how bootstrap does this
-                var template = $http.get('/template/overlay/hover-indicator.html', { cache: $templateCache }).then(function(response) {
+                var template = $http.get('/template/overlay/player-progress-bar-hover-indicator.html', { cache: $templateCache }).then(function(response) {
                     return response.data;
                 });
                 var indicatorElm = null;
