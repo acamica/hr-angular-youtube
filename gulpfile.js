@@ -1,19 +1,27 @@
-var gulp      = require('gulp'),
-    concat    = require('gulp-concat'),
-    prefix    = require('gulp-autoprefixer'),
-    uglify    = require('gulp-uglify'),
-    minifycss = require('gulp-minify-css'),
-    rimraf    = require('gulp-rimraf'),
-    rename    = require('gulp-rename'),
-    html2js   = require('gulp-ng-html2js'),
-    replace   = require('gulp-replace');
+const gulp      = require('gulp'),
+      concat    = require('gulp-concat'),
+      prefix    = require('gulp-autoprefixer'),
+      uglify    = require('gulp-uglify'),
+      minifycss = require('gulp-minify-css'),
+      rimraf    = require('gulp-rimraf'),
+      rename    = require('gulp-rename'),
+      html2js   = require('gulp-ng-html2js'),
+      replace   = require('gulp-replace');
 
-var fs = require('fs');
+const fs = require('fs');
 
-var options = JSON.parse(fs.readFileSync ('.env'));
+const options = JSON.parse(fs.readFileSync ('.env'));
+
+const ts = require('gulp-typescript');
+
+const tsProject = ts.createProject('tsconfig.json', {
+    allowJs: true,
+    typescript: require('typescript')
+});
 
 gulp.task('process-scripts', function() {
-    return gulp.src('./src/**/*.js')
+    return gulp.src(['./src/**/*.js', './src/**/*.ts'])
+        .pipe(tsProject())
         .pipe(concat('hr-angular-youtube.js'))
         .pipe(gulp.dest('./dist/'))
         .pipe(uglify())
@@ -32,7 +40,7 @@ gulp.task('process-templates', function() {
         .pipe(gulp.dest('./dist/'));
 });
 //gulp.task('process-scripts-with-tpl',['process-templates'], function() {
-gulp.task('process-scripts-with-tpl',['process-templates','process-scripts'], function() {
+gulp.task('process-scripts-with-tpl', ['process-templates','process-scripts'], function() {
     //
     return gulp.src(['./dist/templates.js','./dist/hr-angular-youtube.js'])
         .pipe(concat('hr-angular-youtube-tpl.js'))
@@ -113,6 +121,7 @@ gulp.task('build', ['process-scripts-with-tpl']);
 gulp.task('watch', function() {
     // This should be process script, but for some reason is not updating :(
     gulp.watch('./src/**/*.js', ['process-scripts-with-tpl']);
+    gulp.watch('./src/**/*.ts', ['process-scripts-with-tpl']);
     gulp.watch('./src/**/*.html', ['process-scripts-with-tpl']);
     // gulp.watch('./src/**/*.js', ['docs']);
 

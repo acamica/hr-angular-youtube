@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "module": "system",
+        "target": "es5",
+        "noImplicitAny": false,
+        "sourceMap": false,
+        "rootDir": ".",
+        "outFile": "main.js",
+        "moduleResolution": "classic",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata" : true
+    },
+    "exclude": [
+      "dist",
+      "node_modules"
+    ]
+}
+
