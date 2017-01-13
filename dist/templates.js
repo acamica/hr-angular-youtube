@@ -60,7 +60,7 @@ try {
   module = angular.module('hrAngularYoutubeTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/template/overlay/player-progress-bar-hover-indicator.html',
+  $templateCache.put('/template/overlay/player-progress-bar-hover-indicator.component.html',
     '<div class="hr-hover-indicator">\n' +
     '    <span ng-bind="time"></span>\n' +
     '</div>\n' +

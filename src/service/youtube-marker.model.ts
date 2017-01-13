@@ -1,13 +1,11 @@
-/* global angular */
-(function(angular) {
+import * as angular from 'angular';
+import {uuid} from 'src/util/uuid.service';
 
-
-    angular.module('hrAngularYoutube')
-
-    .factory('YoutubeMarker',['youtubeUuid', function (youtubeUuid) {
+angular.module('hrAngularYoutube')
+    .factory('YoutubeMarker', function() {
 
         /*jshint maxcomplexity:false */
-        var YoutubeMarker = function(options) {
+        const YoutubeMarker = function(options) {
             // Set default values
             this.startTime = options.startTime || null;
             this.endTime =  options.endTime || null;
@@ -19,12 +17,11 @@
             this.launchOnSeek = options.launchOnSeek || false;
             // Block when user fast forwards past the marker
             this.blockFF = options.blockFF || false;
-            //Wether to show the marker in a status bar
-            this.showMarker = typeof options.showMarker !== 'undefined'?options.showMarker : true;
+            // Wether to show the marker in a status bar
+            this.showMarker = typeof options.showMarker !== 'undefined' ? options.showMarker : true;
             // Extra css class that can be added to the marker bar
-            this.barCss = typeof options.barCss !== 'undefined'?options.barCss:'';
+            this.barCss = typeof options.barCss !== 'undefined' ? options.barCss : '';
 
-//            this.name =  null;
 
             this._runCount = 0;
             this._isRunning = false;
@@ -32,8 +29,7 @@
             this.player = null;
 
             // Override with user options
-//            angular.extend(this, options);
-            this.id = this.id || options.id || youtubeUuid.getHash();
+            this.id = this.id || options.id || uuid();
 
             // Duration implies end time
             if (this.duration !== null) {
@@ -149,7 +145,4 @@
 
         return YoutubeMarker;
 
-    }]);
-
-
-})(angular);
+    });

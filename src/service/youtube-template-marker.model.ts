@@ -1,12 +1,9 @@
-/* global angular */
-(function(angular) {
+import * as angular from 'angular';
 
-
-    angular.module('hrAngularYoutube')
-
-    .factory('YoutubeTemplateMarker', ['$rootScope','$compile','YoutubeMarker','$q','$http','$templateCache',
-                                       function($rootScope, $compile,YoutubeMarker, $q,$http,$templateCache) {
-        var YoutubeTemplateMarker = function (options) {
+angular.module('hrAngularYoutube')
+    .factory('YoutubeTemplateMarker', ['$rootScope', '$compile', 'YoutubeMarker', '$q', '$http', '$templateCache',
+                                       function($rootScope, $compile, YoutubeMarker, $q, $http, $templateCache) {
+        const YoutubeTemplateMarker = function (options) {
             YoutubeMarker.call(this, options);
 
             this._elm = null;
@@ -89,6 +86,3 @@
 
         return YoutubeTemplateMarker;
     }]);
-
-
-})(angular);

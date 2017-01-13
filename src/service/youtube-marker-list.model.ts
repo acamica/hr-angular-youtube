@@ -1,12 +1,9 @@
-/* global angular */
-(function(angular) {
+import * as angular from 'angular';
 
+angular.module('hrAngularYoutube')
+    .factory('YoutubeMarkerList', function () {
 
-    angular.module('hrAngularYoutube')
-
-    .factory('YoutubeMarkerList',[function () {
-
-        var YoutubeMarkerList = function () {
+        const YoutubeMarkerList = function () {
             this.markersById = {};
             this.player = null;
         };
@@ -14,6 +11,7 @@
         YoutubeMarkerList.prototype.getMarkers = function () {
             return this.markersById;
         };
+
         YoutubeMarkerList.prototype.add = function (marker) {
             this.markersById[marker.id] = marker;
             // Notify who might be interested
@@ -22,7 +20,7 @@
         };
 
         YoutubeMarkerList.prototype.remove = function (id) {
-            var marker = this.markersById[id];
+            const marker = this.markersById[id];
             if (marker) {
                 delete this.markersById[id];
                 // Notify who might be interested
@@ -39,7 +37,4 @@
         };
         return YoutubeMarkerList;
 
-    }]);
-
-
-})(angular);
+    });

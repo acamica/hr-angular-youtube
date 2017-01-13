@@ -1,8 +1,9 @@
 import * as angular from 'angular';
+import './module';
 
 export interface IComponentDefinition {
     selector: string;
-    template?: string;
+    template?: string | ((tElement: JQuery, tAttrs: ng.IAttributes) => string);
     templateUrl?: string;
     providers?: any[];
     scope?: any;
