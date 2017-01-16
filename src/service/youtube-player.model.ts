@@ -6,8 +6,8 @@ import {uuid} from 'src/util/uuid.service';
 
 angular.module('hrAngularYoutube')
 
-.factory('YoutubePlayer', ['$q', '$interval', '$rootScope', 'YoutubeMarkerList', 'hrAngularExtend',
-    function ($q, $interval, $rootScope, YoutubeMarkerList, hrAngularExtend) {
+.factory('YoutubePlayer', ['$q', '$interval', '$rootScope', 'YoutubeMarkerList',
+    function ($q, $interval, $rootScope, YoutubeMarkerList) {
 
 
         const YoutubePlayer = function(elmOrId, options) {
@@ -46,8 +46,6 @@ angular.module('hrAngularYoutube')
             });
 
         };
-
-        hrAngularExtend.factory(YoutubePlayer);
 
         // TODO: Inherit better than these :S once i know if this is the way I want to access the object
         angular.forEach([

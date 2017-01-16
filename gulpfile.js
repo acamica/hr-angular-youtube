@@ -44,7 +44,7 @@ gulp.task('process-scripts-with-tpl', ['process-templates','process-scripts'], f
     //
     return gulp.src(['./dist/templates.js','./dist/hr-angular-youtube.js'])
         .pipe(concat('hr-angular-youtube-tpl.js'))
-        .pipe(replace('/*--TEMPLATE-DEPENDENCIES--*/',',\'hrAngularYoutubeTpls\''))
+        .pipe(replace('/*!--TEMPLATE-DEPENDENCIES--*/',',\'hrAngularYoutubeTpls\''))
         .pipe(gulp.dest('./dist/'))
         .pipe(uglify())
         .pipe(rename({suffix: '.min'}))
@@ -69,7 +69,7 @@ gulp.task('demo-cp', function() {
 });
 
 gulp.task('docs-dist-cp',['process-scripts-with-tpl', 'process-styles'], function() {
-    return gulp.src(['./dist/**/*','./bower_components/hr-angular-extend/src/hrAngularExtend.js'])
+    return gulp.src(['./dist/**/*'])
         .pipe(gulp.dest(options.pagesDir + '/dist'));
 });
 

@@ -137,7 +137,8 @@ System.register("src/ng-helper/module", ["angular"], function (exports_1, contex
             }
         ],
         execute: function () {
-            angular.module('hrAngularYoutube', ['hrAngularExtend' ,'hrAngularYoutubeTpls']);
+            // Do not touch the next comment, is used by gulp to inject template as dependency if needed
+            angular.module('hrAngularYoutube', ['ng' ,'hrAngularYoutubeTpls']);
         }
     };
 });
@@ -1949,8 +1950,8 @@ System.register("src/service/youtube-player.model", ["angular", "src/service/you
         ],
         execute: function () {
             angular.module('hrAngularYoutube')
-                .factory('YoutubePlayer', ['$q', '$interval', '$rootScope', 'YoutubeMarkerList', 'hrAngularExtend',
-                function ($q, $interval, $rootScope, YoutubeMarkerList, hrAngularExtend) {
+                .factory('YoutubePlayer', ['$q', '$interval', '$rootScope', 'YoutubeMarkerList',
+                function ($q, $interval, $rootScope, YoutubeMarkerList) {
                     var YoutubePlayer = function (elmOrId, options) {
                         this.options = options;
                         var op = angular.copy(options);
@@ -1979,7 +1980,6 @@ System.register("src/service/youtube-player.model", ["angular", "src/service/you
                             marker.end();
                         });
                     };
-                    hrAngularExtend.factory(YoutubePlayer);
                     // TODO: Inherit better than these :S once i know if this is the way I want to access the object
                     angular.forEach([
                         'getOptions', 'loadModule', 'loadVideoById', 'loadVideoByUrl', 'cueVideoById', 'cueVideoByUrl', 'cuePlaylist',
@@ -2500,8 +2500,6 @@ System.register("src/main", ["src/directive/youtube-player.component", "src/dire
                     }, 100);
                 };
             }
-            // Do not touch the next comment, is used by gulp to inject template as dependency if needed
-            // angular.module('hrAngularYoutube', ['hrAngularExtend','hrAngularYoutubeTpls'])
             angular.module('hrAngularYoutube')
                 .run(['youtube', function (youtube) {
                     if (youtube.getAutoLoad()) {

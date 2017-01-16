@@ -13,7 +13,6 @@ module.exports = function(mddoc) {
 
         'inject-scripts' : [
             'dist/hr-angular-youtube-tpl.js',
-            'dist/hrAngularExtend.js',
             'demo/controls/controls.js',
             'demo/fullscreen/fullscreen.js',
             'demo/overlay/overlay.js',

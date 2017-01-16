@@ -37,8 +37,7 @@ if (typeof window['onYouTubeIframeAPIReady'] === 'undefined') {
     };
 }
 
-// Do not touch the next comment, is used by gulp to inject template as dependency if needed
-// angular.module('hrAngularYoutube', ['hrAngularExtend'/*--TEMPLATE-DEPENDENCIES--*/])
+
 angular.module('hrAngularYoutube')
 
 .run(['youtube', function (youtube) {
