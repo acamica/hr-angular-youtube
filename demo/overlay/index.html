@@ -2,34 +2,47 @@
 <html>
     <head>
         <!--/*<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>*/-->
-        <script src="/node_modules/angular/angular.js"></script>
+        <!--/*<script src="/node_modules/angular/angular.js"></script>*/-->
         <script src="/node_modules/systemjs/dist/system.js"></script>
-        <script src="/node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
-        <script src="/dist/hr-angular-youtube-tpl.js"></script>
-
+        <!--/*<script src="/node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>*/-->
+        <!--script src="/dist/hr-angular-youtube.js"></script-->
 
         <script>
         SystemJS.config({
-              meta: {
-        // 'jquery': {
-        //     format: 'global',
-        //     exports: 'jquery'
-        // },
-        'angular': {
-            format: 'global',
-            exports: 'angular'
-            // deps: ['jquery']
-        },
-        // 'Application': {
-        //     format: 'global',
-        //     deps: ['angular']
-        // }
-    },
+            globalEvaluationScope: false,
+            meta: {
+                'angular': {
+                    format: 'global',
+                    exports: 'angular'
+                    // deps: ['jquery']
+                },
+                'ui.bootstrap': {
+                    format: 'global'
+                    // exports: ''
+                },
+                'src/main': {
+                    format: 'register'
+                },
+
+                'hrAngularYoutubeTpl': {
+                    format: 'global'
+                }
+            },
             map: {
-            //     src: 'demo/overlay/src'
+                    //  src: 'demo/overlay/src',
+                    'src/main': '/dist/hr-angular-youtube.js',
+                    'hrAngularYoutubeTpl': '/dist/templates.js',
+                    'ui.bootstrap': '/node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js',
                     angular: '/node_modules/angular/angular.js'
             }
         });
+        System.import('overlay.js').then(function () {
+            // Manually bootstrap angular (same as ng-app but after the module loader kicks in)
+            angular.element(document).ready(function() {
+                angular.bootstrap(document, ['demoOverlay'], {strictDi: true, debugInfoEnabled: true});
+            });
+        });
+
 
         </script>
 
@@ -38,7 +51,7 @@
         <link rel="stylesheet" href="../assets/font-awesome/css/font-awesome.min.css">
         <link rel="stylesheet" href="../../dist/hr-angular-youtube.css">
 
-        <script src="overlay.js"></script>
+
         <!--<script>System.import("/dist/hr-angular-youtube-tpl.js")</script>-->
         <!-- If I dont add the bootstrap-ui the speed and hd wont work -->
         <!-- We need this for the speed and hd control -->

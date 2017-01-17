@@ -62,6 +62,21 @@ gulp.task('process-styles', function() {
         .pipe(gulp.dest('./dist/'));
 });
 
+
+const tsDemo = ts.createProject('tsconfig.json', {
+    allowJs: true,
+    typescript: require('typescript'),
+    outDir:"demo/",
+    outFile: null
+});
+
+gulp.task('process-demo', function() {
+    return gulp.src('./demo/**/*.ts')
+        .pipe(tsDemo({}))
+        .pipe(gulp.dest('./demo/'))
+
+});
+
 gulp.task('demo-cp', function() {
     return gulp.src('./demo/**/*')
         .pipe(gulp.dest(options.pagesDir + '/demo'));
@@ -116,13 +131,15 @@ gulp.task('docs',['docs-clean'], function(){
     return gulp.start('build-docs');
 });
 
-gulp.task('build', ['process-scripts-with-tpl']);
+gulp.task('build', ['process-scripts-with-tpl', 'process-demo']);
 
 gulp.task('watch', function() {
     // This should be process script, but for some reason is not updating :(
     gulp.watch('./src/**/*.js', ['process-scripts-with-tpl']);
     gulp.watch('./src/**/*.ts', ['process-scripts-with-tpl']);
     gulp.watch('./src/**/*.html', ['process-scripts-with-tpl']);
+    gulp.watch('./demo/**/*.ts', ['process-demo']);
+
     // gulp.watch('./src/**/*.js', ['docs']);
 
     gulp.watch('./assets/**/*.css', ['process-styles']);
@@ -132,4 +149,4 @@ gulp.task('watch', function() {
 
 
 // gulp.task('default', ['process-scripts-with-tpl', 'process-styles', 'docs','watch']);
-gulp.task('default', ['process-scripts-with-tpl', 'process-styles', 'watch']);
+gulp.task('default', ['build', 'process-styles', 'watch']);
