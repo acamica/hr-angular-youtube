@@ -1,4 +1,5 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 // TODO: this is similar to a behaviour directive, refactor so we don't
 // need to use the repeat logic
 @Directive({
@@ -25,7 +26,7 @@ export class PlayerRepeatAvailableSpeedDirective {
     ngOnInit() {
         this.youtubePlayer
             .getPlayer()
-            .then(player => {
+            .then((player: YoutubePlayer) => {
                 this.scope.availableSpeeds = player.getAvailablePlaybackRates();
                 if (this.attrs.hasOwnProperty('reverse')) {
                     this.scope.availableSpeeds.reverse();

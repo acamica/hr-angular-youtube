@@ -1,4 +1,5 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 
 @Directive({
     selector: 'playerCurrentQuality',
@@ -15,7 +16,7 @@ export class PlayerCurrentQualityComponent {
     ngOnInit() {
         this.youtubePlayer
             .getPlayer()
-            .then(player => {
+            .then((player: YoutubePlayer) => {
                 const setPlaybackQuality = () => {
                     let quality;
                     if (this.attrs.hasOwnProperty('intendedQuality')) {

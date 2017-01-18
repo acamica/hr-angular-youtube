@@ -1,5 +1,7 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {youtubeReadableTime} from 'src/service/youtube-readable-time.service';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
+
 // TODO: This had restrict A so its a directive, but it also has an html template soooo its a
 // component? Refactor :D
 @Directive({
@@ -45,7 +47,7 @@ export class HoverIndicatorComponent {
 
         this.youtubePlayer
             .getPlayer()
-            .then(player => {
+            .then((player: YoutubePlayer) => {
                 const duration = player.getDuration();
 
                 const barMove = (event) => {

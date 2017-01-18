@@ -1,4 +1,5 @@
 import * as angular from 'angular';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 import {bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 
 export class YoutubeMarker {
@@ -11,7 +12,7 @@ export class YoutubeMarker {
 
         this.youtubePlayer
             .getPlayer()
-            .then(player => {
+            .then((player: YoutubePlayer) => {
                 const duration = player.getDuration();
                 const marker = this.scope.marker;
                 // If the marker has extra css, add it

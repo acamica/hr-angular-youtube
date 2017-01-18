@@ -1,4 +1,5 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 
 @Directive({
     selector: 'playerCurrentSpeed',
@@ -15,7 +16,7 @@ export class PlayerCurrentSpeedDirective {
     ngOnInit() {
         this.youtubePlayer
             .getPlayer()
-            .then(player => {
+            .then((player: YoutubePlayer) => {
                 const setPlaybackRate = () => this.elm.html(player.getPlaybackRate());
                 player.on('onPlaybackRateChange', setPlaybackRate);
                 setPlaybackRate();

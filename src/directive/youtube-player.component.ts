@@ -1,4 +1,5 @@
 import {Component, bindRequireToCtrl} from 'src/ng-helper/facade';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 import * as angular from 'angular';
 
 const playerAttrs = ['id', 'height', 'width'];
@@ -19,7 +20,7 @@ const playerVarAttrs = ['autohide', 'autoplay', 'ccLoadPolicy', 'color', 'contro
 })
 // TODO: Refacto Heavily
 export class YoutubePlayerComponent {
-    private player: any;
+    private player: ng.IDeferred<YoutubePlayer>;
 
     static $inject = ['$element', '$attrs', '$scope', 'youtube', '$q'];
 

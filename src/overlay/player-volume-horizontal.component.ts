@@ -1,4 +1,5 @@
 import {Component, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 import * as angular from 'angular';
 
 @Component({
@@ -22,7 +23,7 @@ export class PlayerVolumeHorizontalComponent {
 
         this.youtubePlayer
             .getPlayer()
-            .then(player => {
+            .then((player: YoutubePlayer) => {
                 const updateVolumeBar = (volume) => {
                     let handleX = volume * $volumeBar[0].clientWidth - $handle[0].clientWidth / 2  ;
                     handleX = Math.min(Math.max(0, handleX),$volumeBar[0].clientWidth - $handle[0].clientWidth / 2);

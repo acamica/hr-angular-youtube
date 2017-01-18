@@ -1,4 +1,5 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 
 @Directive({
     selector: 'playerCurrentTime',
@@ -15,7 +16,7 @@ export class PlayerCurrentTimeComponent {
     ngOnInit() {
         this.youtubePlayer
             .getPlayer()
-            .then(player => {
+            .then((player: YoutubePlayer) => {
                 player.onProgress(() =>
                     this.elm.html(player.getHumanReadableCurrentTime())
                 , 250);

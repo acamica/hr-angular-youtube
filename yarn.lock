@@ -12,6 +12,10 @@
   version "2.0.39"
   resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-2.0.39.tgz#917fe65300dbc6ccbdfa7e2ee51159fbd29d7689"
 
+"@types/youtube@^0.0.28":
+  version "0.0.28"
+  resolved "https://registry.yarnpkg.com/@types/youtube/-/youtube-0.0.28.tgz#f0fee2d89b4303f62b27d6de53044c3a1e6e6a83"
+
 amdefine@>=0.0.4:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"

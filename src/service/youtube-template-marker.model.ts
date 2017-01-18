@@ -47,7 +47,7 @@ angular.module('hrAngularYoutube')
             // Create the element from the template
             this.template.then(function(template) {
                 // Add the element where its supposed to be
-                var elm = angular.element(template);
+                const elm = angular.element(template);
                 self._parentElm[self._addMethod](elm);
 
                 // Compile and link it

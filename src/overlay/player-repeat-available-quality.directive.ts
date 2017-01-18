@@ -1,6 +1,7 @@
 declare const YT;
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {convertToYoutubeArray} from 'src/service/youtube-quality-map.service';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 
 // TODO: this is similar to a behaviour directive, refactor so we don't
 // need to use the repeat logic
@@ -28,7 +29,7 @@ export class PlayerRepeatAvailableSpeedDirective {
     ngOnInit() {
         this.youtubePlayer
             .getPlayer()
-            .then(player => {
+            .then((player: YoutubePlayer) => {
                 // Youtube doesnt inform you on the available qualities until loading video
                 const unbind = player.on('onStateChange', (event) => {
                     if (event.data === YT.PlayerState.PLAYING) {

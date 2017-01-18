@@ -1,4 +1,5 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 
 @Directive({
     selector: 'playerTotalTime',
@@ -15,8 +16,8 @@ export class PlayerTotalTimeDirective {
     ngOnInit() {
         this.youtubePlayer
             .getPlayer()
-            .then(player => {
-                this.elm.html(player.getHumanReadableDuration());
-            });
+            .then((player: YoutubePlayer) =>
+                this.elm.html(player.getHumanReadableDuration())
+            );
     }
 }

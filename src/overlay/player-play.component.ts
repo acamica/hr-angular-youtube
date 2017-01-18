@@ -1,4 +1,5 @@
 import {Component, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 
 @Component({
     selector: 'playerPlay',
@@ -17,6 +18,9 @@ export class PlayerPlayComponent {
     ngOnInit() {
         this.youtubePlayer
             .getPlayer()
-            .then(player => this.elm.on('click', () => player.playVideo()));
+            .then((player: YoutubePlayer) =>
+                this.elm.on('click', () => player.playVideo())
+            );
+
     }
 }

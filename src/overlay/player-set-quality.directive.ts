@@ -1,5 +1,5 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
-
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 @Directive({
     selector: 'playerSetQuality',
     link: bindToCtrlCallOnInit(['youtubePlayer']),
@@ -17,7 +17,7 @@ export class PlayerCurrentTimeComponent {
 
         this.youtubePlayer
             .getPlayer()
-            .then(player =>
+            .then((player: YoutubePlayer) =>
                 this.elm.on('click', () =>
                         this.scope.$apply(() =>
                             player.setHumanPlaybackQuality(fn(this.scope))

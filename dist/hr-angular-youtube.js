@@ -1,4 +1,3 @@
-
 var __assign = (this && this.__assign) || Object.assign || function(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
         s = arguments[i];
@@ -300,9 +299,546 @@ System.register("src/ng-helper/facade", ["src/ng-helper/component", "src/ng-help
         }
     };
 });
-System.register("src/directive/youtube-player.component", ["src/ng-helper/facade", "angular"], function (exports_8, context_8) {
+System.register("src/ng-helper/plain-model", ["angular"], function (exports_8, context_8) {
     "use strict";
     var __moduleName = context_8 && context_8.id;
+    function PlainModel(options) {
+        return function (target) {
+            var ng1Injects = Object.keys(options.$inject || {});
+            angular
+                .module('hrAngularYoutube')
+                .factory(options.name, factory);
+            factory.$inject = ng1Injects;
+            function factory() {
+                var deps = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    deps[_i] = arguments[_i];
+                }
+                ng1Injects.forEach(function (dep, i) {
+                    options.$inject[dep] = deps[i];
+                });
+                if (options.onDepsLoad) {
+                    options.onDepsLoad();
+                }
+                return target;
+            }
+        };
+    }
+    exports_8("PlainModel", PlainModel);
+    var angular;
+    return {
+        setters: [
+            function (angular_4) {
+                angular = angular_4;
+            }
+        ],
+        execute: function () {
+        }
+    };
+});
+System.register("src/service/youtube-quality-map.service", [], function (exports_9, context_9) {
+    "use strict";
+    var __moduleName = context_9 && context_9.id;
+    function invertKeyValues(map) {
+        var inverseMap = {};
+        var value;
+        for (var key in map) {
+            value = map[key];
+            inverseMap[value] = key;
+        }
+        return inverseMap;
+    }
+    var map, inverseMap, convertToYoutube, convertFromYoutube, convertToYoutubeArray;
+    return {
+        setters: [],
+        execute: function () {
+            // YoutubeQualityStr: PlayerQualityStr
+            map = {
+                'hd1080': '1080p',
+                'hd720': '720p',
+                'large': '480p',
+                'medium': '360p',
+                'small': '240p',
+                'tiny': '144p',
+                'auto': 'Auto'
+            };
+            inverseMap = invertKeyValues(map);
+            exports_9("convertToYoutube", convertToYoutube = function (q) { return map[q] ? map[q] : 'Auto'; });
+            exports_9("convertFromYoutube", convertFromYoutube = function (q) { return inverseMap[q] ? inverseMap[q] : 'default'; });
+            exports_9("convertToYoutubeArray", convertToYoutubeArray = function (qArr) { return qArr.map(convertToYoutube); });
+        }
+    };
+});
+System.register("src/service/youtube-readable-time.service", [], function (exports_10, context_10) {
+    "use strict";
+    var __moduleName = context_10 && context_10.id;
+    function youtubeReadableTime(t) {
+        t = Math.floor(t);
+        var seconds = t % 60;
+        var minutes = Math.floor(t / 60);
+        var hours = Math.floor(minutes / 60);
+        minutes = minutes % 60;
+        if (hours > 0) {
+            return hours + ':' + String('00' + minutes).slice(-2) + ':' + String('00' + seconds).slice(-2);
+        }
+        else {
+            return minutes + ':' + String('00' + seconds).slice(-2);
+        }
+    }
+    exports_10("youtubeReadableTime", youtubeReadableTime);
+    return {
+        setters: [],
+        execute: function () {
+        }
+    };
+});
+System.register("src/util/uuid.service", [], function (exports_11, context_11) {
+    "use strict";
+    var __moduleName = context_11 && context_11.id;
+    /**
+     * @description
+     * Creates a hash string that follows the UUID standard
+     */
+    function uuid() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    exports_11("uuid", uuid);
+    return {
+        setters: [],
+        execute: function () {
+        }
+    };
+});
+System.register("src/service/youtube-player.model", ["angular", "src/ng-helper/plain-model", "src/service/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/util/uuid.service"], function (exports_12, context_12) {
+    "use strict";
+    var __moduleName = context_12 && context_12.id;
+    var angular, plain_model_1, youtube_quality_map_service_1, youtube_readable_time_service_1, uuid_service_1, imports, YoutubePlayer;
+    return {
+        setters: [
+            function (angular_5) {
+                angular = angular_5;
+            },
+            function (plain_model_1_1) {
+                plain_model_1 = plain_model_1_1;
+            },
+            function (youtube_quality_map_service_1_1) {
+                youtube_quality_map_service_1 = youtube_quality_map_service_1_1;
+            },
+            function (youtube_readable_time_service_1_1) {
+                youtube_readable_time_service_1 = youtube_readable_time_service_1_1;
+            },
+            function (uuid_service_1_1) {
+                uuid_service_1 = uuid_service_1_1;
+            }
+        ],
+        execute: function () {
+            imports = {
+                // TODO: Remove in favour of plain promises
+                '$q': undefined,
+                // TODO: Remove in favour of rxjs
+                '$interval': undefined,
+                // TODO: Remove at all cost (events, rxjs)
+                '$rootScope': undefined,
+                // TODO: Remove in favour of separating logic
+                'YoutubeMarkerList': undefined
+            };
+            YoutubePlayer = (function () {
+                function YoutubePlayer(elmOrId, options) {
+                    var _this = this;
+                    this.options = options;
+                    this._muted = false;
+                    this._volume = 100;
+                    this._intendedQuality = 'default';
+                    this._eventsInitialized = false;
+                    this._markerListener = false;
+                    var op = angular.copy(options);
+                    // TODO: Add a fit to parent or something like that
+                    op.width = '100%';
+                    op.height = '100%';
+                    this.player = new YT.Player(elmOrId, op);
+                    this.markerList = new imports.YoutubeMarkerList();
+                    this.on('onStateChange', function (event) {
+                        if (event.data === YT.PlayerState.PLAYING) {
+                            _this.setVolume(_this.player.getVolume());
+                            _this._setMuted(_this.player.isMuted());
+                        }
+                    });
+                    // If a marker is added, make sure the marker listener is initialized
+                    this.on('markerAdd', function (marker) {
+                        _this._initializeMarkerListener();
+                        marker.setPlayer(_this);
+                    });
+                    // If a marker is removed make sure its stoped
+                    this.on('markerRemove', function (marker) { return marker.end(); });
+                }
+                YoutubePlayer.prototype.setOverlayElement = function (elm) {
+                    this._element = elm;
+                };
+                YoutubePlayer.prototype.getOverlayElement = function () {
+                    return this._element;
+                };
+                YoutubePlayer.prototype.getHumanReadableDuration = function () {
+                    return youtube_readable_time_service_1.youtubeReadableTime(this.getDuration());
+                };
+                YoutubePlayer.prototype.getHumanReadableCurrentTime = function () {
+                    return youtube_readable_time_service_1.youtubeReadableTime(this.getCurrentTime());
+                };
+                YoutubePlayer.prototype.onProgress = function (fn, resolution) {
+                    if (typeof resolution === 'undefined') {
+                        resolution = 100;
+                    }
+                    var promise = null;
+                    var startInterval = function () {
+                        if (promise === null) {
+                            promise = imports.$interval(fn, resolution);
+                        }
+                    };
+                    var stopInterval = function () {
+                        imports.$interval.cancel(promise);
+                        promise = null;
+                    };
+                    var cancel = function () {
+                        stopInterval();
+                        // TODO: something more to destroy / release stuff.
+                    };
+                    this.on('onStateChange', function (event) {
+                        if (event.data === YT.PlayerState.PLAYING) {
+                            startInterval();
+                        }
+                        else {
+                            stopInterval();
+                        }
+                    });
+                    if (this.getPlayerState() === YT.PlayerState.PLAYING) {
+                        startInterval();
+                    }
+                    return cancel;
+                };
+                /**
+                 * Its like seekTo, but fires an event when the seek is complete
+                 */
+                YoutubePlayer.prototype.eventSeekTo = function (sec, allowSeekAhead) {
+                    var _this = this;
+                    var initialTime = this.player.getCurrentTime();
+                    // If there is a blocking marker, don't allow to seek further than it
+                    angular.forEach(this.markerList.getMarkers(), function (marker) {
+                        // If its not blocking, we dont care
+                        if (!marker.getBlockOnFF()) {
+                            return;
+                        }
+                        // If the marker is in the seek time, force the sec to be at the marker time
+                        if (marker.startedIn(initialTime, sec)) {
+                            sec = marker.startTime;
+                        }
+                    });
+                    // Seek to sec
+                    this.player.seekTo(sec, allowSeekAhead);
+                    // Inform of the intent to seek
+                    this.emit('seekToBegin', { newTime: sec, oldTime: initialTime });
+                    var seekPromise = imports.$q.defer();
+                    // Check on a time interval that the seek has been completed
+                    var promise = imports.$interval(function () {
+                        var currentTime = _this.player.getCurrentTime();
+                        var seekCompleted = false;
+                        if (sec < initialTime) {
+                            // If we intent to go backwards, we complete when current time is lower
+                            // than the initial one
+                            if (currentTime < initialTime) {
+                                seekCompleted = true;
+                            }
+                        }
+                        else {
+                            // If we intent to go forward, we complete once we pass the intended mark
+                            if (currentTime >= sec) {
+                                seekCompleted = true;
+                            }
+                        }
+                        // There may be a third scenario where the player is paused, you pushed
+                        // forward and it complete but just next to sec.
+                        // Once its complete, for whatever reason, fire the event and cancel this interval
+                        if (seekCompleted) {
+                            imports.$interval.cancel(promise);
+                            var ans = { newTime: sec, oldTime: initialTime };
+                            _this.emit('seekToCompleted', ans);
+                            seekPromise.resolve(ans);
+                        }
+                    }, 50);
+                    return seekPromise.promise;
+                };
+                YoutubePlayer.prototype.startLoading = function (sec) {
+                    var _this = this;
+                    var unregister;
+                    var pauseAfterStart = function (event) {
+                        if (event.data === YT.PlayerState.PLAYING) {
+                            if (typeof sec === 'number') {
+                                _this.eventSeekTo(sec, true);
+                            }
+                            unregister();
+                            _this.player.pauseVideo();
+                        }
+                    };
+                    unregister = this.on('onStateChange', pauseAfterStart);
+                    this.player.playVideo();
+                };
+                YoutubePlayer.prototype._initializeEventListener = function () {
+                    var _this = this;
+                    if (this._eventsInitialized) {
+                        return;
+                    }
+                    this._eventHash = uuid_service_1.uuid();
+                    var events = ['onStateChange', 'onPlaybackQualityChange', 'onPlaybackRateChange',
+                        'onError', 'onApiChange', 'onReady'];
+                    angular.forEach(events, function (name) {
+                        _this.player.addEventListener(name, function (data) {
+                            _this.emit(name, data);
+                        });
+                    });
+                    this._eventsInitialized = true;
+                };
+                YoutubePlayer.prototype.on = function (name, handler) {
+                    this._initializeEventListener();
+                    return imports.$rootScope.$on(this._eventHash + name, function (e, eventData) {
+                        handler(eventData);
+                    });
+                };
+                ;
+                YoutubePlayer.prototype.emit = function (name, data) {
+                    imports.$rootScope.$emit(this._eventHash + name, data);
+                };
+                ;
+                YoutubePlayer.prototype._initializeMarkerListener = function () {
+                    var _this = this;
+                    // Only initialize markers once
+                    if (this._markerListener) {
+                        return;
+                    }
+                    this._markerListener = true;
+                    var runMarker = function (marker) {
+                        if (marker.start()) {
+                            // Emit an event with the marker
+                            _this.emit('markerRun', marker);
+                        }
+                    };
+                    var stopMarker = function (marker) {
+                        marker.end();
+                        // Emit an event with the marker
+                        _this.emit('markerStop', marker);
+                    };
+                    var lastMarkerTime = -1;
+                    this.onProgress(function () {
+                        var currentTime = _this.getCurrentTime();
+                        var newLastTime = lastMarkerTime;
+                        angular.forEach(_this.markerList.getMarkers(), function (marker) {
+                            // If the marker time has past and we haven't launched this marker yet
+                            if (marker.startedIn(lastMarkerTime, currentTime)) {
+                                runMarker(marker);
+                                newLastTime = Math.max(newLastTime, marker.startTime);
+                            }
+                            // If the marker has ended
+                            if (marker.endedIn(lastMarkerTime, currentTime) && marker.isRunning()) {
+                                stopMarker(marker);
+                                newLastTime = Math.max(newLastTime, marker.endTime);
+                            }
+                        });
+                        lastMarkerTime = newLastTime;
+                    });
+                    this.on('seekToCompleted', function (seekTime) {
+                        angular.forEach(_this.markerList.getMarkers(), function (marker) {
+                            if (marker.isRunning()) {
+                                // If the marker is running and the seek throws it out of range, stop it
+                                if (!marker.inRange(seekTime.newTime)) {
+                                    stopMarker(marker);
+                                }
+                            }
+                            else {
+                                // If the marker is not running, see if we need to start it
+                                if (marker.shouldLaunchOnSeek(seekTime)) {
+                                    runMarker(marker);
+                                }
+                            }
+                        });
+                        lastMarkerTime = seekTime.newTime;
+                    });
+                };
+                ;
+                // TODO: Revisit... I think with the addond of the player factory this
+                // shouldnt be needed
+                YoutubePlayer.prototype.setMarkerList = function (list) {
+                    this._initializeMarkerListener();
+                    this.markerList = list;
+                    this.markerList.setPlayer(this);
+                    this.emit('markerListChanged');
+                };
+                ;
+                YoutubePlayer.prototype.addMarker = function (marker) {
+                    return this.markerList.add(marker);
+                };
+                ;
+                YoutubePlayer.prototype.removeMarker = function (markerId) {
+                    return this.markerList.removeById(markerId);
+                };
+                ;
+                YoutubePlayer.prototype.getMarkers = function () {
+                    return this.markerList.getMarkers();
+                };
+                ;
+                YoutubePlayer.prototype.getMarker = function (id) {
+                    return this.markerList.getMarker(id);
+                };
+                ;
+                YoutubePlayer.prototype.setVolume = function (volume) {
+                    // If volume is 0, then set as muted, if not is unmuted
+                    this._setMuted(volume === 0);
+                    this._volume = volume;
+                    this.player.setVolume(volume);
+                };
+                ;
+                YoutubePlayer.prototype.getVolume = function () {
+                    if (this._muted) {
+                        return 0;
+                    }
+                    return this._volume;
+                };
+                ;
+                YoutubePlayer.prototype._setMuted = function (muted) {
+                    var changed = this._muted !== muted;
+                    this._muted = muted;
+                    if (changed) {
+                        this.emit('muteChange');
+                    }
+                };
+                ;
+                YoutubePlayer.prototype.mute = function () {
+                    this._setMuted(true);
+                    this.player.mute();
+                };
+                ;
+                YoutubePlayer.prototype.unMute = function () {
+                    this._setMuted(false);
+                    this.player.unMute();
+                };
+                ;
+                YoutubePlayer.prototype.isMuted = function () {
+                    return this._muted;
+                };
+                ;
+                YoutubePlayer.prototype.toggleMute = function () {
+                    if (this.isMuted()) {
+                        this.unMute();
+                    }
+                    else {
+                        this.mute();
+                    }
+                };
+                ;
+                YoutubePlayer.prototype.getHumanPlaybackQuality = function () {
+                    return youtube_quality_map_service_1.convertToYoutube(this.player.getPlaybackQuality());
+                };
+                ;
+                YoutubePlayer.prototype.getHumanIntendedPlaybackQuality = function (showRealAuto) {
+                    var ans = youtube_quality_map_service_1.convertToYoutube(this._intendedQuality);
+                    if (ans === 'Auto' && showRealAuto && this.getHumanPlaybackQuality() !== 'Auto') {
+                        ans += ' (' + this.getHumanPlaybackQuality() + ')';
+                    }
+                    return ans;
+                };
+                ;
+                YoutubePlayer.prototype.setHumanPlaybackQuality = function (q) {
+                    var quality = youtube_quality_map_service_1.convertFromYoutube(q);
+                    this.setPlaybackQuality(quality);
+                    this.emit('onIntentPlaybackQualityChange');
+                };
+                ;
+                YoutubePlayer.prototype.setPlaybackQuality = function (q) {
+                    this._intendedQuality = q;
+                    this.player.setPlaybackQuality(q);
+                };
+                ;
+                // TODO: See what to do with this proxy methods
+                YoutubePlayer.prototype.getDuration = function () {
+                    return this.player.getDuration();
+                };
+                YoutubePlayer.prototype.getCurrentTime = function () {
+                    return this.player.getCurrentTime();
+                };
+                YoutubePlayer.prototype.getPlayerState = function () {
+                    return this.player.getPlayerState();
+                };
+                YoutubePlayer.prototype.destroy = function () {
+                    return this.player.destroy();
+                };
+                YoutubePlayer.prototype.loadVideoById = function (videoId, startSeconds, suggestedQuality) {
+                    return this.player.loadVideoById(videoId, startSeconds, suggestedQuality);
+                };
+                YoutubePlayer.prototype.getPlaybackRate = function () {
+                    return this.player.getPlaybackRate();
+                };
+                YoutubePlayer.prototype.playVideo = function () {
+                    return this.player.playVideo();
+                };
+                YoutubePlayer.prototype.pauseVideo = function () {
+                    return this.player.pauseVideo();
+                };
+                YoutubePlayer.prototype.getVideoLoadedFraction = function () {
+                    return this.player.getVideoLoadedFraction();
+                };
+                YoutubePlayer.prototype.getAvailablePlaybackRates = function () {
+                    return this.player.getAvailablePlaybackRates();
+                };
+                YoutubePlayer.prototype.setPlaybackRate = function (suggestedRate) {
+                    return this.player.setPlaybackRate(suggestedRate);
+                };
+                YoutubePlayer.prototype.getAvailableQualityLevels = function () {
+                    return this.player.getAvailableQualityLevels();
+                };
+                return YoutubePlayer;
+            }());
+            YoutubePlayer = __decorate([
+                plain_model_1.PlainModel({
+                    name: 'YoutubePlayer',
+                    $inject: imports
+                }),
+                __metadata("design:paramtypes", [Object, Object])
+            ], YoutubePlayer);
+            exports_12("YoutubePlayer", YoutubePlayer);
+            // // TODO: Inherit better than these :S once i know if this is the way I want to access the object
+            // angular.forEach([
+            //     'getOptions', 'loadModule', 'loadVideoById', 'loadVideoByUrl', 'cueVideoById', 'cueVideoByUrl', 'cuePlaylist',
+            //     'loadPlaylist', 'playVideo', 'pauseVideo', 'stopVideo', 'seekTo', 'clearVideo',
+            //     'nextVideo', 'previousVideo', 'playVideoAt',
+            //     'setSize', 'getPlaybackRate', 'setPlaybackRate', 'getAvailablePlaybackRates',
+            //     'setLoop', 'setShuffle', 'getVideoLoadedFraction', 'getPlayerState', 'getCurrentTime',
+            //     'getPlaybackQuality', 'setPlaybackQuality', 'getAvailableQualityLevels', 'getDuration',
+            //     'getVideoUrl', 'getVideoEmbedCode', 'getPlaylist', 'getPlaylistIndex', 'getIframe', 'destroy'
+            //     // 'addEventListener', 'removeEventListener','mute',unMute,isMuted,getVolume,setVolume
+            // ], function(name) {
+            //     YoutubePlayer.prototype[name] = function() {
+            //         return this.player[name].apply(this.player, arguments);
+            //     };
+            // });
+        }
+    };
+});
+// // TODO: Inherit better than these :S once i know if this is the way I want to access the object
+// angular.forEach([
+//     'getOptions', 'loadModule', 'loadVideoById', 'loadVideoByUrl', 'cueVideoById', 'cueVideoByUrl', 'cuePlaylist',
+//     'loadPlaylist', 'playVideo', 'pauseVideo', 'stopVideo', 'seekTo', 'clearVideo',
+//     'nextVideo', 'previousVideo', 'playVideoAt',
+//     'setSize', 'getPlaybackRate', 'setPlaybackRate', 'getAvailablePlaybackRates',
+//     'setLoop', 'setShuffle', 'getVideoLoadedFraction', 'getPlayerState', 'getCurrentTime',
+//     'getPlaybackQuality', 'setPlaybackQuality', 'getAvailableQualityLevels', 'getDuration',
+//     'getVideoUrl', 'getVideoEmbedCode', 'getPlaylist', 'getPlaylistIndex', 'getIframe', 'destroy'
+//     // 'addEventListener', 'removeEventListener','mute',unMute,isMuted,getVolume,setVolume
+// ], function(name) {
+//     YoutubePlayer.prototype[name] = function() {
+//         return this.player[name].apply(this.player, arguments);
+//     };
+// });
+System.register("src/directive/youtube-player.component", ["src/ng-helper/facade", "angular"], function (exports_13, context_13) {
+    "use strict";
+    var __moduleName = context_13 && context_13.id;
     function convertToUnits(u) {
         // If its numbers, interpret pixels
         if (typeof u === 'number' || /^\d+$/.test(u)) {
@@ -316,8 +852,8 @@ System.register("src/directive/youtube-player.component", ["src/ng-helper/facade
             function (facade_1_1) {
                 facade_1 = facade_1_1;
             },
-            function (angular_4) {
-                angular = angular_4;
+            function (angular_6) {
+                angular = angular_6;
             }
         ],
         execute: function () {
@@ -483,21 +1019,21 @@ System.register("src/directive/youtube-player.component", ["src/ng-helper/facade
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
             ], YoutubePlayerComponent);
-            exports_8("YoutubePlayerComponent", YoutubePlayerComponent);
+            exports_13("YoutubePlayerComponent", YoutubePlayerComponent);
         }
     };
 });
-System.register("src/directive/yt-slider.directive", ["src/ng-helper/facade", "angular"], function (exports_9, context_9) {
+System.register("src/directive/yt-slider.directive", ["src/ng-helper/facade", "angular"], function (exports_14, context_14) {
     "use strict";
-    var __moduleName = context_9 && context_9.id;
+    var __moduleName = context_14 && context_14.id;
     var facade_2, angular, YoutubeSliderDirective;
     return {
         setters: [
             function (facade_2_1) {
                 facade_2 = facade_2_1;
             },
-            function (angular_5) {
-                angular = angular_5;
+            function (angular_7) {
+                angular = angular_7;
             }
         ],
         execute: function () {
@@ -574,18 +1110,18 @@ System.register("src/directive/yt-slider.directive", ["src/ng-helper/facade", "a
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
             ], YoutubeSliderDirective);
-            exports_9("YoutubeSliderDirective", YoutubeSliderDirective);
+            exports_14("YoutubeSliderDirective", YoutubeSliderDirective);
         }
     };
 });
-System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper/facade"], function (exports_10, context_10) {
+System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper/facade"], function (exports_15, context_15) {
     "use strict";
-    var __moduleName = context_10 && context_10.id;
+    var __moduleName = context_15 && context_15.id;
     var angular, facade_3, YoutubeMarker;
     return {
         setters: [
-            function (angular_6) {
-                angular = angular_6;
+            function (angular_8) {
+                angular = angular_8;
             },
             function (facade_3_1) {
                 facade_3 = facade_3_1;
@@ -628,7 +1164,7 @@ System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper
                 return YoutubeMarker;
             }());
             YoutubeMarker.$inject = ['$element', '$scope'];
-            exports_10("YoutubeMarker", YoutubeMarker);
+            exports_15("YoutubeMarker", YoutubeMarker);
             angular
                 .module('hrAngularYoutube')
                 .directive('hrYtMarker', function () {
@@ -645,9 +1181,9 @@ System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper
         }
     };
 });
-System.register("src/overlay/player-current-quality.directive", ["src/ng-helper/facade"], function (exports_11, context_11) {
+System.register("src/overlay/player-current-quality.directive", ["src/ng-helper/facade"], function (exports_16, context_16) {
     "use strict";
-    var __moduleName = context_11 && context_11.id;
+    var __moduleName = context_16 && context_16.id;
     var facade_4, PlayerCurrentQualityComponent;
     return {
         setters: [
@@ -696,13 +1232,13 @@ System.register("src/overlay/player-current-quality.directive", ["src/ng-helper/
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], PlayerCurrentQualityComponent);
-            exports_11("PlayerCurrentQualityComponent", PlayerCurrentQualityComponent);
+            exports_16("PlayerCurrentQualityComponent", PlayerCurrentQualityComponent);
         }
     };
 });
-System.register("src/overlay/player-current-speed.directive", ["src/ng-helper/facade"], function (exports_12, context_12) {
+System.register("src/overlay/player-current-speed.directive", ["src/ng-helper/facade"], function (exports_17, context_17) {
     "use strict";
-    var __moduleName = context_12 && context_12.id;
+    var __moduleName = context_17 && context_17.id;
     var facade_5, PlayerCurrentSpeedDirective;
     return {
         setters: [
@@ -736,13 +1272,13 @@ System.register("src/overlay/player-current-speed.directive", ["src/ng-helper/fa
                 }),
                 __metadata("design:paramtypes", [Object])
             ], PlayerCurrentSpeedDirective);
-            exports_12("PlayerCurrentSpeedDirective", PlayerCurrentSpeedDirective);
+            exports_17("PlayerCurrentSpeedDirective", PlayerCurrentSpeedDirective);
         }
     };
 });
-System.register("src/overlay/player-current-time.directive", ["src/ng-helper/facade"], function (exports_13, context_13) {
+System.register("src/overlay/player-current-time.directive", ["src/ng-helper/facade"], function (exports_18, context_18) {
     "use strict";
-    var __moduleName = context_13 && context_13.id;
+    var __moduleName = context_18 && context_18.id;
     var facade_6, PlayerCurrentTimeComponent;
     return {
         setters: [
@@ -779,13 +1315,13 @@ System.register("src/overlay/player-current-time.directive", ["src/ng-helper/fac
                 }),
                 __metadata("design:paramtypes", [Object])
             ], PlayerCurrentTimeComponent);
-            exports_13("PlayerCurrentTimeComponent", PlayerCurrentTimeComponent);
+            exports_18("PlayerCurrentTimeComponent", PlayerCurrentTimeComponent);
         }
     };
 });
-System.register("src/overlay/player-panel.component", ["src/ng-helper/facade"], function (exports_14, context_14) {
+System.register("src/overlay/player-panel.component", ["src/ng-helper/facade"], function (exports_19, context_19) {
     "use strict";
-    var __moduleName = context_14 && context_14.id;
+    var __moduleName = context_19 && context_19.id;
     var facade_7, PlayerPanelComponent;
     return {
         setters: [
@@ -867,13 +1403,13 @@ System.register("src/overlay/player-panel.component", ["src/ng-helper/facade"], 
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
             ], PlayerPanelComponent);
-            exports_14("PlayerPanelComponent", PlayerPanelComponent);
+            exports_19("PlayerPanelComponent", PlayerPanelComponent);
         }
     };
 });
-System.register("src/overlay/player-pause.component", ["src/ng-helper/facade"], function (exports_15, context_15) {
+System.register("src/overlay/player-pause.component", ["src/ng-helper/facade"], function (exports_20, context_20) {
     "use strict";
-    var __moduleName = context_15 && context_15.id;
+    var __moduleName = context_20 && context_20.id;
     var facade_8, PlayerPauseComponent;
     return {
         setters: [
@@ -890,7 +1426,9 @@ System.register("src/overlay/player-pause.component", ["src/ng-helper/facade"], 
                     var _this = this;
                     this.youtubePlayer
                         .getPlayer()
-                        .then(function (player) { return _this.elm.on('click', function () { return player.pauseVideo(); }); });
+                        .then(function (player) {
+                        return _this.elm.on('click', function () { return player.pauseVideo(); });
+                    });
                 };
                 return PlayerPauseComponent;
             }());
@@ -905,13 +1443,13 @@ System.register("src/overlay/player-pause.component", ["src/ng-helper/facade"], 
                 }),
                 __metadata("design:paramtypes", [Object])
             ], PlayerPauseComponent);
-            exports_15("PlayerPauseComponent", PlayerPauseComponent);
+            exports_20("PlayerPauseComponent", PlayerPauseComponent);
         }
     };
 });
-System.register("src/overlay/player-play.component", ["src/ng-helper/facade"], function (exports_16, context_16) {
+System.register("src/overlay/player-play.component", ["src/ng-helper/facade"], function (exports_21, context_21) {
     "use strict";
-    var __moduleName = context_16 && context_16.id;
+    var __moduleName = context_21 && context_21.id;
     var facade_9, PlayerPlayComponent;
     return {
         setters: [
@@ -928,7 +1466,9 @@ System.register("src/overlay/player-play.component", ["src/ng-helper/facade"], f
                     var _this = this;
                     this.youtubePlayer
                         .getPlayer()
-                        .then(function (player) { return _this.elm.on('click', function () { return player.playVideo(); }); });
+                        .then(function (player) {
+                        return _this.elm.on('click', function () { return player.playVideo(); });
+                    });
                 };
                 return PlayerPlayComponent;
             }());
@@ -943,44 +1483,21 @@ System.register("src/overlay/player-play.component", ["src/ng-helper/facade"], f
                 }),
                 __metadata("design:paramtypes", [Object])
             ], PlayerPlayComponent);
-            exports_16("PlayerPlayComponent", PlayerPlayComponent);
+            exports_21("PlayerPlayComponent", PlayerPlayComponent);
         }
     };
 });
-System.register("src/service/youtube-readable-time.service", [], function (exports_17, context_17) {
+System.register("src/overlay/player-progress-bar-hover-indicator.component", ["src/ng-helper/facade", "src/service/youtube-readable-time.service"], function (exports_22, context_22) {
     "use strict";
-    var __moduleName = context_17 && context_17.id;
-    function youtubeReadableTime(t) {
-        t = Math.floor(t);
-        var seconds = t % 60;
-        var minutes = Math.floor(t / 60);
-        var hours = Math.floor(minutes / 60);
-        minutes = minutes % 60;
-        if (hours > 0) {
-            return hours + ':' + String('00' + minutes).slice(-2) + ':' + String('00' + seconds).slice(-2);
-        }
-        else {
-            return minutes + ':' + String('00' + seconds).slice(-2);
-        }
-    }
-    exports_17("youtubeReadableTime", youtubeReadableTime);
-    return {
-        setters: [],
-        execute: function () {
-        }
-    };
-});
-System.register("src/overlay/player-progress-bar-hover-indicator.component", ["src/ng-helper/facade", "src/service/youtube-readable-time.service"], function (exports_18, context_18) {
-    "use strict";
-    var __moduleName = context_18 && context_18.id;
-    var facade_10, youtube_readable_time_service_1, HoverIndicatorComponent;
+    var __moduleName = context_22 && context_22.id;
+    var facade_10, youtube_readable_time_service_2, HoverIndicatorComponent;
     return {
         setters: [
             function (facade_10_1) {
                 facade_10 = facade_10_1;
             },
-            function (youtube_readable_time_service_1_1) {
-                youtube_readable_time_service_1 = youtube_readable_time_service_1_1;
+            function (youtube_readable_time_service_2_1) {
+                youtube_readable_time_service_2 = youtube_readable_time_service_2_1;
             }
         ],
         execute: function () {
@@ -1023,7 +1540,7 @@ System.register("src/overlay/player-progress-bar-hover-indicator.component", ["s
                         var barMove = function (event) {
                             var p = getPercentageFromPageX(event.pageX);
                             indicatorScope.$apply(function (scope) {
-                                scope.time = youtube_readable_time_service_1.youtubeReadableTime(p * duration);
+                                scope.time = youtube_readable_time_service_2.youtubeReadableTime(p * duration);
                             });
                             indicatorElm.css('left', (p * 100) + '%');
                         };
@@ -1049,21 +1566,21 @@ System.register("src/overlay/player-progress-bar-hover-indicator.component", ["s
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object])
             ], HoverIndicatorComponent);
-            exports_18("HoverIndicatorComponent", HoverIndicatorComponent);
+            exports_22("HoverIndicatorComponent", HoverIndicatorComponent);
         }
     };
 });
-System.register("src/overlay/player-progress-bar.component", ["src/ng-helper/facade", "angular"], function (exports_19, context_19) {
+System.register("src/overlay/player-progress-bar.component", ["src/ng-helper/facade", "angular"], function (exports_23, context_23) {
     "use strict";
-    var __moduleName = context_19 && context_19.id;
+    var __moduleName = context_23 && context_23.id;
     var facade_11, angular, PlayerProgressBar;
     return {
         setters: [
             function (facade_11_1) {
                 facade_11 = facade_11_1;
             },
-            function (angular_7) {
-                angular = angular_7;
+            function (angular_9) {
+                angular = angular_9;
             }
         ],
         execute: function () {
@@ -1156,54 +1673,21 @@ System.register("src/overlay/player-progress-bar.component", ["src/ng-helper/fac
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], PlayerProgressBar);
-            exports_19("PlayerProgressBar", PlayerProgressBar);
+            exports_23("PlayerProgressBar", PlayerProgressBar);
         }
     };
 });
-System.register("src/service/youtube-quality-map.service", [], function (exports_20, context_20) {
+System.register("src/overlay/player-repeat-available-quality.directive", ["src/ng-helper/facade", "src/service/youtube-quality-map.service"], function (exports_24, context_24) {
     "use strict";
-    var __moduleName = context_20 && context_20.id;
-    function invertKeyValues(map) {
-        var inverseMap = {};
-        var value;
-        for (var key in map) {
-            value = map[key];
-            inverseMap[value] = key;
-        }
-        return inverseMap;
-    }
-    var map, inverseMap, convertToYoutube, convertFromYoutube, convertToYoutubeArray;
-    return {
-        setters: [],
-        execute: function () {
-            // YoutubeQualityStr: PlayerQualityStr
-            map = {
-                'hd1080': '1080p',
-                'hd720': '720p',
-                'large': '480p',
-                'medium': '360p',
-                'small': '240p',
-                'tiny': '144p',
-                'auto': 'Auto'
-            };
-            inverseMap = invertKeyValues(map);
-            exports_20("convertToYoutube", convertToYoutube = function (q) { return map[q] ? map[q] : 'Auto'; });
-            exports_20("convertFromYoutube", convertFromYoutube = function (q) { return inverseMap[q] ? inverseMap[q] : 'default'; });
-            exports_20("convertToYoutubeArray", convertToYoutubeArray = function (qArr) { return qArr.map(convertToYoutube); });
-        }
-    };
-});
-System.register("src/overlay/player-repeat-available-quality.directive", ["src/ng-helper/facade", "src/service/youtube-quality-map.service"], function (exports_21, context_21) {
-    "use strict";
-    var __moduleName = context_21 && context_21.id;
-    var facade_12, youtube_quality_map_service_1, PlayerRepeatAvailableSpeedDirective;
+    var __moduleName = context_24 && context_24.id;
+    var facade_12, youtube_quality_map_service_2, PlayerRepeatAvailableSpeedDirective;
     return {
         setters: [
             function (facade_12_1) {
                 facade_12 = facade_12_1;
             },
-            function (youtube_quality_map_service_1_1) {
-                youtube_quality_map_service_1 = youtube_quality_map_service_1_1;
+            function (youtube_quality_map_service_2_1) {
+                youtube_quality_map_service_2 = youtube_quality_map_service_2_1;
             }
         ],
         execute: function () {
@@ -1222,7 +1706,7 @@ System.register("src/overlay/player-repeat-available-quality.directive", ["src/n
                         var unbind = player.on('onStateChange', function (event) {
                             if (event.data === YT.PlayerState.PLAYING) {
                                 unbind();
-                                _this.scope.availableQuality = youtube_quality_map_service_1.convertToYoutubeArray(player.getAvailableQualityLevels());
+                                _this.scope.availableQuality = youtube_quality_map_service_2.convertToYoutubeArray(player.getAvailableQualityLevels());
                                 if (_this.attrs.hasOwnProperty('reverse')) {
                                     _this.scope.availableQuality.reverse();
                                 }
@@ -1251,13 +1735,13 @@ System.register("src/overlay/player-repeat-available-quality.directive", ["src/n
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object])
             ], PlayerRepeatAvailableSpeedDirective);
-            exports_21("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
+            exports_24("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
         }
     };
 });
-System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-helper/facade"], function (exports_22, context_22) {
+System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-helper/facade"], function (exports_25, context_25) {
     "use strict";
-    var __moduleName = context_22 && context_22.id;
+    var __moduleName = context_25 && context_25.id;
     var facade_13, PlayerRepeatAvailableSpeedDirective;
     return {
         setters: [
@@ -1302,13 +1786,13 @@ System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object])
             ], PlayerRepeatAvailableSpeedDirective);
-            exports_22("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
+            exports_25("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
         }
     };
 });
-System.register("src/overlay/player-set-quality.directive", ["src/ng-helper/facade"], function (exports_23, context_23) {
+System.register("src/overlay/player-set-quality.directive", ["src/ng-helper/facade"], function (exports_26, context_26) {
     "use strict";
-    var __moduleName = context_23 && context_23.id;
+    var __moduleName = context_26 && context_26.id;
     var facade_14, PlayerCurrentTimeComponent;
     return {
         setters: [
@@ -1348,13 +1832,13 @@ System.register("src/overlay/player-set-quality.directive", ["src/ng-helper/faca
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
             ], PlayerCurrentTimeComponent);
-            exports_23("PlayerCurrentTimeComponent", PlayerCurrentTimeComponent);
+            exports_26("PlayerCurrentTimeComponent", PlayerCurrentTimeComponent);
         }
     };
 });
-System.register("src/overlay/player-set-speed.directive", ["src/ng-helper/facade"], function (exports_24, context_24) {
+System.register("src/overlay/player-set-speed.directive", ["src/ng-helper/facade"], function (exports_27, context_27) {
     "use strict";
-    var __moduleName = context_24 && context_24.id;
+    var __moduleName = context_27 && context_27.id;
     var facade_15, PlayerSetSpeedDirective;
     return {
         setters: [
@@ -1395,13 +1879,13 @@ System.register("src/overlay/player-set-speed.directive", ["src/ng-helper/facade
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
             ], PlayerSetSpeedDirective);
-            exports_24("PlayerSetSpeedDirective", PlayerSetSpeedDirective);
+            exports_27("PlayerSetSpeedDirective", PlayerSetSpeedDirective);
         }
     };
 });
-System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facade"], function (exports_25, context_25) {
+System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facade"], function (exports_28, context_28) {
     "use strict";
-    var __moduleName = context_25 && context_25.id;
+    var __moduleName = context_28 && context_28.id;
     var facade_16, PlayerTotalTimeDirective;
     return {
         setters: [
@@ -1419,7 +1903,7 @@ System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facad
                     this.youtubePlayer
                         .getPlayer()
                         .then(function (player) {
-                        _this.elm.html(player.getHumanReadableDuration());
+                        return _this.elm.html(player.getHumanReadableDuration());
                     });
                 };
                 return PlayerTotalTimeDirective;
@@ -1433,21 +1917,21 @@ System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facad
                 }),
                 __metadata("design:paramtypes", [Object])
             ], PlayerTotalTimeDirective);
-            exports_25("PlayerTotalTimeDirective", PlayerTotalTimeDirective);
+            exports_28("PlayerTotalTimeDirective", PlayerTotalTimeDirective);
         }
     };
 });
-System.register("src/overlay/player-volume-horizontal.component", ["src/ng-helper/facade", "angular"], function (exports_26, context_26) {
+System.register("src/overlay/player-volume-horizontal.component", ["src/ng-helper/facade", "angular"], function (exports_29, context_29) {
     "use strict";
-    var __moduleName = context_26 && context_26.id;
+    var __moduleName = context_29 && context_29.id;
     var facade_17, angular, PlayerVolumeHorizontalComponent;
     return {
         setters: [
             function (facade_17_1) {
                 facade_17 = facade_17_1;
             },
-            function (angular_8) {
-                angular = angular_8;
+            function (angular_10) {
+                angular = angular_10;
             }
         ],
         execute: function () {
@@ -1497,13 +1981,13 @@ System.register("src/overlay/player-volume-horizontal.component", ["src/ng-helpe
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], PlayerVolumeHorizontalComponent);
-            exports_26("PlayerVolumeHorizontalComponent", PlayerVolumeHorizontalComponent);
+            exports_29("PlayerVolumeHorizontalComponent", PlayerVolumeHorizontalComponent);
         }
     };
 });
-System.register("src/overlay/show-if-muted.directive", ["src/ng-helper/facade"], function (exports_27, context_27) {
+System.register("src/overlay/show-if-muted.directive", ["src/ng-helper/facade"], function (exports_30, context_30) {
     "use strict";
-    var __moduleName = context_27 && context_27.id;
+    var __moduleName = context_30 && context_30.id;
     var facade_18, ShowIfMutedDirective;
     return {
         setters: [
@@ -1552,13 +2036,13 @@ System.register("src/overlay/show-if-muted.directive", ["src/ng-helper/facade"],
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object])
             ], ShowIfMutedDirective);
-            exports_27("ShowIfMutedDirective", ShowIfMutedDirective);
+            exports_30("ShowIfMutedDirective", ShowIfMutedDirective);
         }
     };
 });
-System.register("src/overlay/show-if-player-is.directive", ["src/ng-helper/facade"], function (exports_28, context_28) {
+System.register("src/overlay/show-if-player-is.directive", ["src/ng-helper/facade"], function (exports_31, context_31) {
     "use strict";
-    var __moduleName = context_28 && context_28.id;
+    var __moduleName = context_31 && context_31.id;
     var facade_19, ShowIfPlayerIsDirective;
     return {
         setters: [
@@ -1616,18 +2100,18 @@ System.register("src/overlay/show-if-player-is.directive", ["src/ng-helper/facad
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object])
             ], ShowIfPlayerIsDirective);
-            exports_28("ShowIfPlayerIsDirective", ShowIfPlayerIsDirective);
+            exports_31("ShowIfPlayerIsDirective", ShowIfPlayerIsDirective);
         }
     };
 });
-System.register("src/service/youtube-marker-list.model", ["angular"], function (exports_29, context_29) {
+System.register("src/service/youtube-marker-list.model", ["angular"], function (exports_32, context_32) {
     "use strict";
-    var __moduleName = context_29 && context_29.id;
+    var __moduleName = context_32 && context_32.id;
     var angular;
     return {
         setters: [
-            function (angular_9) {
-                angular = angular_9;
+            function (angular_11) {
+                angular = angular_11;
             }
         ],
         execute: function () {
@@ -1666,36 +2150,17 @@ System.register("src/service/youtube-marker-list.model", ["angular"], function (
         }
     };
 });
-System.register("src/util/uuid.service", [], function (exports_30, context_30) {
+System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.service"], function (exports_33, context_33) {
     "use strict";
-    var __moduleName = context_30 && context_30.id;
-    /**
-     * @description
-     * Creates a hash string that follows the UUID standard
-     */
-    function uuid() {
-        return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
-    }
-    exports_30("uuid", uuid);
-    return {
-        setters: [],
-        execute: function () {
-        }
-    };
-});
-System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.service"], function (exports_31, context_31) {
-    "use strict";
-    var __moduleName = context_31 && context_31.id;
-    var angular, uuid_service_1;
+    var __moduleName = context_33 && context_33.id;
+    var angular, uuid_service_2;
     return {
         setters: [
-            function (angular_10) {
-                angular = angular_10;
+            function (angular_12) {
+                angular = angular_12;
             },
-            function (uuid_service_1_1) {
-                uuid_service_1 = uuid_service_1_1;
+            function (uuid_service_2_1) {
+                uuid_service_2 = uuid_service_2_1;
             }
         ],
         execute: function () {
@@ -1722,7 +2187,7 @@ System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.s
                     this._isRunning = false;
                     this.player = null;
                     // Override with user options
-                    this.id = this.id || options.id || uuid_service_1.uuid();
+                    this.id = this.id || options.id || uuid_service_2.uuid();
                     // Duration implies end time
                     if (this.duration !== null) {
                         this.endTime = this.startTime + this.duration;
@@ -1819,349 +2284,14 @@ System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.s
         }
     };
 });
-System.register("src/service/youtube-player.model", ["angular", "src/service/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/util/uuid.service"], function (exports_32, context_32) {
+System.register("src/service/youtube-template-marker.model", ["angular"], function (exports_34, context_34) {
     "use strict";
-    var __moduleName = context_32 && context_32.id;
-    var angular, youtube_quality_map_service_2, youtube_readable_time_service_2, uuid_service_2;
-    return {
-        setters: [
-            function (angular_11) {
-                angular = angular_11;
-            },
-            function (youtube_quality_map_service_2_1) {
-                youtube_quality_map_service_2 = youtube_quality_map_service_2_1;
-            },
-            function (youtube_readable_time_service_2_1) {
-                youtube_readable_time_service_2 = youtube_readable_time_service_2_1;
-            },
-            function (uuid_service_2_1) {
-                uuid_service_2 = uuid_service_2_1;
-            }
-        ],
-        execute: function () {
-            angular.module('hrAngularYoutube')
-                .factory('YoutubePlayer', ['$q', '$interval', '$rootScope', 'YoutubeMarkerList',
-                function ($q, $interval, $rootScope, YoutubeMarkerList) {
-                    var YoutubePlayer = function (elmOrId, options) {
-                        this.options = options;
-                        var op = angular.copy(options);
-                        // TODO: Add a fit to parent or something like that
-                        op.width = '100%';
-                        op.height = '100%';
-                        var self = this;
-                        this.player = new YT.Player(elmOrId, op);
-                        this.markerList = new YoutubeMarkerList();
-                        this._muted = false;
-                        this._volume = 100;
-                        this._intendedQuality = 'auto';
-                        this.on('onStateChange', function (event) {
-                            if (event.data === YT.PlayerState.PLAYING) {
-                                self.setVolume(self.player.getVolume());
-                                self._setMuted(self.player.isMuted());
-                            }
-                        });
-                        // If a marker is added, make sure the marker listener is initialized
-                        this.on('markerAdd', function (marker) {
-                            self._initializeMarkerListener();
-                            marker.setPlayer(self);
-                        });
-                        // If a marker is removed make sure its stoped
-                        this.on('markerRemove', function (marker) {
-                            marker.end();
-                        });
-                    };
-                    // TODO: Inherit better than these :S once i know if this is the way I want to access the object
-                    angular.forEach([
-                        'getOptions', 'loadModule', 'loadVideoById', 'loadVideoByUrl', 'cueVideoById', 'cueVideoByUrl', 'cuePlaylist',
-                        'loadPlaylist', 'playVideo', 'pauseVideo', 'stopVideo', 'seekTo', 'clearVideo',
-                        'nextVideo', 'previousVideo', 'playVideoAt',
-                        'setSize', 'getPlaybackRate', 'setPlaybackRate', 'getAvailablePlaybackRates',
-                        'setLoop', 'setShuffle', 'getVideoLoadedFraction', 'getPlayerState', 'getCurrentTime',
-                        'getPlaybackQuality', 'setPlaybackQuality', 'getAvailableQualityLevels', 'getDuration',
-                        'getVideoUrl', 'getVideoEmbedCode', 'getPlaylist', 'getPlaylistIndex', 'getIframe', 'destroy'
-                    ], function (name) {
-                        YoutubePlayer.prototype[name] = function () {
-                            return this.player[name].apply(this.player, arguments);
-                        };
-                    });
-                    YoutubePlayer.prototype.setOverlayElement = function (elm) {
-                        this._element = elm;
-                    };
-                    YoutubePlayer.prototype.getOverlayElement = function () {
-                        return this._element;
-                    };
-                    YoutubePlayer.prototype.getHumanReadableDuration = function () {
-                        return youtube_readable_time_service_2.youtubeReadableTime(this.getDuration());
-                    };
-                    YoutubePlayer.prototype.getHumanReadableCurrentTime = function () {
-                        return youtube_readable_time_service_2.youtubeReadableTime(this.getCurrentTime());
-                    };
-                    YoutubePlayer.prototype.onProgress = function (fn, resolution) {
-                        if (typeof resolution === 'undefined') {
-                            resolution = 100;
-                        }
-                        var promise = null;
-                        var startInterval = function () {
-                            if (promise === null) {
-                                promise = $interval(fn, resolution);
-                            }
-                        };
-                        var stopInterval = function () {
-                            $interval.cancel(promise);
-                            promise = null;
-                        };
-                        var cancel = function () {
-                            stopInterval();
-                            // TODO: something more to destroy / release stuff.
-                        };
-                        this.on('onStateChange', function (event) {
-                            if (event.data === YT.PlayerState.PLAYING) {
-                                startInterval();
-                            }
-                            else {
-                                stopInterval();
-                            }
-                        });
-                        if (this.getPlayerState() === YT.PlayerState.PLAYING) {
-                            startInterval();
-                        }
-                        return cancel;
-                    };
-                    /**
-                     * Its like seekTo, but fires an event when the seek is complete
-                     */
-                    YoutubePlayer.prototype.eventSeekTo = function (sec, allowSeekAhead) {
-                        var self = this;
-                        var initialTime = this.player.getCurrentTime();
-                        // If there is a blocking marker, don't allow to seek further than it
-                        angular.forEach(self.markerList.getMarkers(), function (marker) {
-                            // If its not blocking, we dont care
-                            if (!marker.getBlockOnFF()) {
-                                return;
-                            }
-                            // If the marker is in the seek time, force the sec to be at the marker time
-                            if (marker.startedIn(initialTime, sec)) {
-                                sec = marker.startTime;
-                            }
-                        });
-                        // Seek to sec
-                        this.player.seekTo(sec, allowSeekAhead);
-                        // Inform of the intent to seek
-                        self.emit('seekToBegin', { newTime: sec, oldTime: initialTime });
-                        var seekPromise = $q.defer();
-                        // Check on a time interval that the seek has been completed
-                        var promise = $interval(function () {
-                            var currentTime = self.player.getCurrentTime();
-                            var seekCompleted = false;
-                            if (sec < initialTime) {
-                                // If we intent to go backwards, we complete when current time is lower
-                                // than the initial one
-                                if (currentTime < initialTime) {
-                                    seekCompleted = true;
-                                }
-                            }
-                            else {
-                                // If we intent to go forward, we complete once we pass the intended mark
-                                if (currentTime >= sec) {
-                                    seekCompleted = true;
-                                }
-                            }
-                            // There may be a third scenario where the player is paused, you pushed
-                            // forward and it complete but just next to sec.
-                            // Once its complete, for whatever reason, fire the event and cancel this interval
-                            if (seekCompleted) {
-                                $interval.cancel(promise);
-                                var ans = { newTime: sec, oldTime: initialTime };
-                                self.emit('seekToCompleted', ans);
-                                seekPromise.resolve(ans);
-                            }
-                        }, 50);
-                        return seekPromise.promise;
-                    };
-                    YoutubePlayer.prototype.startLoading = function (sec) {
-                        var self = this;
-                        var unregister;
-                        var pauseAfterStart = function (event) {
-                            if (event.data === YT.PlayerState.PLAYING) {
-                                if (typeof sec === 'number') {
-                                    self.eventSeekTo(sec, true);
-                                }
-                                unregister();
-                                self.player.pauseVideo();
-                            }
-                        };
-                        unregister = this.on('onStateChange', pauseAfterStart);
-                        this.player.playVideo();
-                    };
-                    YoutubePlayer.prototype._initializeEventListener = function () {
-                        if (this._eventsInitialized) {
-                            return;
-                        }
-                        var self = this;
-                        this._eventHash = uuid_service_2.uuid();
-                        var events = ['onStateChange', 'onPlaybackQualityChange', 'onPlaybackRateChange',
-                            'onError', 'onApiChange', 'onReady'];
-                        angular.forEach(events, function (name) {
-                            self.player.addEventListener(name, function (data) {
-                                self.emit(name, data);
-                            });
-                        });
-                        this._eventsInitialized = true;
-                    };
-                    YoutubePlayer.prototype.on = function (name, handler) {
-                        this._initializeEventListener();
-                        return $rootScope.$on(this._eventHash + name, function (e, eventData) {
-                            handler(eventData);
-                        });
-                    };
-                    YoutubePlayer.prototype.emit = function (name, data) {
-                        $rootScope.$emit(this._eventHash + name, data);
-                    };
-                    YoutubePlayer.prototype._initializeMarkerListener = function () {
-                        // Only initialize markers once
-                        if (this._markerListener) {
-                            return;
-                        }
-                        this._markerListener = true;
-                        var runMarker = function (marker) {
-                            if (marker.start()) {
-                                // Emit an event with the marker
-                                self.emit('markerRun', marker);
-                            }
-                        };
-                        var stopMarker = function (marker) {
-                            marker.end();
-                            // Emit an event with the marker
-                            self.emit('markerStop', marker);
-                        };
-                        var self = this;
-                        var lastMarkerTime = -1;
-                        this.onProgress(function () {
-                            var currentTime = self.getCurrentTime();
-                            var newLastTime = lastMarkerTime;
-                            angular.forEach(self.markerList.getMarkers(), function (marker) {
-                                // If the marker time has past and we haven't launched this marker yet
-                                if (marker.startedIn(lastMarkerTime, currentTime)) {
-                                    runMarker(marker);
-                                    newLastTime = Math.max(newLastTime, marker.startTime);
-                                }
-                                // If the marker has ended
-                                if (marker.endedIn(lastMarkerTime, currentTime) && marker.isRunning()) {
-                                    stopMarker(marker);
-                                    newLastTime = Math.max(newLastTime, marker.endTime);
-                                }
-                            });
-                            lastMarkerTime = newLastTime;
-                        });
-                        this.on('seekToCompleted', function (seekTime) {
-                            angular.forEach(self.markerList.getMarkers(), function (marker) {
-                                if (marker.isRunning()) {
-                                    // If the marker is running and the seek throws it out of range, stop it
-                                    if (!marker.inRange(seekTime.newTime)) {
-                                        stopMarker(marker);
-                                    }
-                                }
-                                else {
-                                    // If the marker is not running, see if we need to start it
-                                    if (marker.shouldLaunchOnSeek(seekTime)) {
-                                        runMarker(marker);
-                                    }
-                                }
-                            });
-                            lastMarkerTime = seekTime.newTime;
-                        });
-                    };
-                    // TODO: Revisit... I think with the addond of the player factory this
-                    // shouldnt be needed
-                    YoutubePlayer.prototype.setMarkerList = function (list) {
-                        this._initializeMarkerListener();
-                        this.markerList = list;
-                        this.markerList.setPlayer(this);
-                        this.emit('markerListChanged');
-                    };
-                    YoutubePlayer.prototype.addMarker = function (marker) {
-                        return this.markerList.add(marker);
-                    };
-                    YoutubePlayer.prototype.removeMarker = function (markerId) {
-                        return this.markerList.removeById(markerId);
-                    };
-                    YoutubePlayer.prototype.getMarkers = function () {
-                        return this.markerList.getMarkers();
-                    };
-                    YoutubePlayer.prototype.getMarker = function (id) {
-                        return this.markerList.getMarker(id);
-                    };
-                    YoutubePlayer.prototype.setVolume = function (volume) {
-                        // If volume is 0, then set as muted, if not is unmuted
-                        this._setMuted(volume === 0);
-                        this._volume = volume;
-                        this.player.setVolume(volume);
-                    };
-                    YoutubePlayer.prototype.getVolume = function () {
-                        if (this._muted) {
-                            return 0;
-                        }
-                        return this._volume;
-                    };
-                    YoutubePlayer.prototype._setMuted = function (muted) {
-                        var changed = this._muted !== muted;
-                        this._muted = muted;
-                        if (changed) {
-                            this.emit('muteChange');
-                        }
-                    };
-                    YoutubePlayer.prototype.mute = function () {
-                        this._setMuted(true);
-                        this.player.mute();
-                    };
-                    YoutubePlayer.prototype.unMute = function () {
-                        this._setMuted(false);
-                        this.player.unMute();
-                    };
-                    YoutubePlayer.prototype.isMuted = function () {
-                        return this._muted;
-                    };
-                    YoutubePlayer.prototype.toggleMute = function () {
-                        if (this.isMuted()) {
-                            this.unMute();
-                        }
-                        else {
-                            this.mute();
-                        }
-                    };
-                    YoutubePlayer.prototype.getHumanPlaybackQuality = function () {
-                        return youtube_quality_map_service_2.convertToYoutube(this.player.getPlaybackQuality());
-                    };
-                    YoutubePlayer.prototype.getHumanIntendedPlaybackQuality = function (showRealAuto) {
-                        var ans = youtube_quality_map_service_2.convertToYoutube(this._intendedQuality);
-                        if (ans === 'Auto' && showRealAuto && this.getHumanPlaybackQuality() !== 'Auto') {
-                            ans += ' (' + this.getHumanPlaybackQuality() + ')';
-                        }
-                        return ans;
-                    };
-                    YoutubePlayer.prototype.setHumanPlaybackQuality = function (q) {
-                        var quality = youtube_quality_map_service_2.convertFromYoutube(q);
-                        this.setPlaybackQuality(quality);
-                        this.emit('onIntentPlaybackQualityChange');
-                    };
-                    YoutubePlayer.prototype.setPlaybackQuality = function (q) {
-                        this._intendedQuality = q;
-                        this.player.setPlaybackQuality(q);
-                    };
-                    return YoutubePlayer;
-                }
-            ]);
-        }
-    };
-});
-System.register("src/service/youtube-template-marker.model", ["angular"], function (exports_33, context_33) {
-    "use strict";
-    var __moduleName = context_33 && context_33.id;
+    var __moduleName = context_34 && context_34.id;
     var angular;
     return {
         setters: [
-            function (angular_12) {
-                angular = angular_12;
+            function (angular_13) {
+                angular = angular_13;
             }
         ],
         execute: function () {
@@ -2240,14 +2370,14 @@ System.register("src/service/youtube-template-marker.model", ["angular"], functi
         }
     };
 });
-System.register("src/service/youtube.service", ["angular"], function (exports_34, context_34) {
+System.register("src/service/youtube.service", ["angular"], function (exports_35, context_35) {
     "use strict";
-    var __moduleName = context_34 && context_34.id;
+    var __moduleName = context_35 && context_35.id;
     var angular, defaultOptions, autoload, Provider;
     return {
         setters: [
-            function (angular_13) {
-                angular = angular_13;
+            function (angular_14) {
+                angular = angular_14;
             }
         ],
         execute: function () {
@@ -2313,14 +2443,14 @@ System.register("src/service/youtube.service", ["angular"], function (exports_34
                 ;
                 return Provider;
             }());
-            exports_34("Provider", Provider);
+            exports_35("Provider", Provider);
             angular.module('hrAngularYoutube').provider('youtube', new Provider());
         }
     };
 });
-System.register("src/main", ["src/directive/youtube-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-pause.component", "src/overlay/player-play.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/overlay/show-if-muted.directive", "src/overlay/show-if-player-is.directive", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/service/youtube-player.model", "src/service/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/service/youtube-template-marker.model", "src/service/youtube.service", "angular"], function (exports_35, context_35) {
+System.register("src/main", ["src/directive/youtube-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-pause.component", "src/overlay/player-play.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/overlay/show-if-muted.directive", "src/overlay/show-if-player-is.directive", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/service/youtube-player.model", "src/service/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/service/youtube-template-marker.model", "src/service/youtube.service", "angular"], function (exports_36, context_36) {
     "use strict";
-    var __moduleName = context_35 && context_35.id;
+    var __moduleName = context_36 && context_36.id;
     var angular;
     return {
         setters: [
@@ -2376,8 +2506,8 @@ System.register("src/main", ["src/directive/youtube-player.component", "src/dire
             },
             function (_28) {
             },
-            function (angular_14) {
-                angular = angular_14;
+            function (angular_15) {
+                angular = angular_15;
             }
         ],
         execute: function () {

@@ -1,5 +1,6 @@
 declare const YT;
 import {Component, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 
 @Component({
     selector: 'playerPanel',
@@ -19,7 +20,7 @@ export class PlayerPanelComponent {
         const $overlay = this.youtubePlayer.getOverlayElement();
         this.youtubePlayer
             .getPlayer()
-            .then(player => {
+            .then((player: YoutubePlayer) => {
                 let whoWantsToShow = {};
 
                 const show = (cause) => {

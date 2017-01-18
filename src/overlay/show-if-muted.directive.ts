@@ -1,4 +1,5 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 
 @Directive({
     selector: 'showIfMuted',
@@ -17,7 +18,7 @@ export class ShowIfMutedDirective {
     ngOnInit() {
         this.youtubePlayer
             .getPlayer()
-            .then(player => {
+            .then((player: YoutubePlayer) => {
                 const hideOrShow = () => {
                     let show = !player.isMuted();
                     if (this.attrs.showIfMuted === 'true') {

@@ -1,4 +1,5 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 import * as angular from 'angular';
 
 @Directive({
@@ -30,7 +31,7 @@ export class YoutubeSliderDirective {
 
         this.youtubePlayer
             .getPlayer()
-            .then(player => {
+            .then((player: YoutubePlayer) => {
                 const $videoElm = this.youtubePlayer.getVideoElement();
 
                 this.elm.on('mousedown', (e) => {

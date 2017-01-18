@@ -23,6 +23,7 @@
   ],
   "dependencies": {
     "@types/angular": "^1.5.23",
+    "@types/youtube": "^0.0.28",
     "angular": "^1.6.1"
   },
   "devDependencies": {

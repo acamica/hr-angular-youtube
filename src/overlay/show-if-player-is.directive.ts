@@ -1,5 +1,6 @@
 declare const YT;
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 
 @Directive({
     selector: 'showIfPlayerIs',
@@ -18,7 +19,7 @@ export class ShowIfPlayerIsDirective {
     ngOnInit() {
         this.youtubePlayer
             .getPlayer()
-            .then(player => {
+            .then((player: YoutubePlayer) => {
                 // Convert it first into the array of string
                 const stringStates = this.attrs.showIfPlayerIs.toUpperCase().split(',');
 

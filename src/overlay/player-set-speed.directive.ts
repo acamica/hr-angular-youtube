@@ -1,5 +1,5 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
-
+import {YoutubePlayer} from 'src/service/youtube-player.model';
 @Directive({
     selector: 'playerSetSpeed',
     link: bindToCtrlCallOnInit(['youtubePlayer']),
@@ -16,7 +16,7 @@ export class PlayerSetSpeedDirective {
         const speedFn = this.$parse(this.attrs.playerSetSpeed);
         this.youtubePlayer
             .getPlayer()
-            .then(player =>
+            .then((player: YoutubePlayer) =>
                 this.elm.on('click', () =>
                     this.scope.$apply(() => {
                         const speed = speedFn(this.scope);
