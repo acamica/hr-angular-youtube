@@ -1,4 +1,3 @@
-declare const YT;
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {YoutubePlayer} from 'src/service/youtube-player.model';
 

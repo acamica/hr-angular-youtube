@@ -1,4 +1,3 @@
-declare const YT;
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {convertToYoutubeArray} from 'src/service/youtube-quality-map.service';
 import {YoutubePlayer} from 'src/service/youtube-player.model';
