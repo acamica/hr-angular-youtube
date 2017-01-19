@@ -70,12 +70,6 @@ const tsDemo = ts.createProject('tsconfig.json', {
     outFile: null
 });
 
-gulp.task('process-demo', function() {
-    return gulp.src('./demo/**/*.ts')
-        .pipe(tsDemo({}))
-        .pipe(gulp.dest('./demo/'))
-
-});
 
 gulp.task('demo-cp', function() {
     return gulp.src('./demo/**/*')
@@ -131,14 +125,13 @@ gulp.task('docs',['docs-clean'], function(){
     return gulp.start('build-docs');
 });
 
-gulp.task('build', ['process-scripts-with-tpl', 'process-demo']);
+gulp.task('build', ['process-scripts-with-tpl']);
 
 gulp.task('watch', function() {
     // This should be process script, but for some reason is not updating :(
     gulp.watch('./src/**/*.js', ['process-scripts-with-tpl']);
     gulp.watch('./src/**/*.ts', ['process-scripts-with-tpl']);
     gulp.watch('./src/**/*.html', ['process-scripts-with-tpl']);
-    gulp.watch('./demo/**/*.ts', ['process-demo']);
 
     // gulp.watch('./src/**/*.js', ['docs']);
 

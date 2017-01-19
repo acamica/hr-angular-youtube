@@ -6,7 +6,11 @@
         "sourceMap": false,
         "rootDir": ".",
         "outFile": "main.js",
-        "moduleResolution": "classic",
+        "baseUrl": ".",
+        "paths": {
+            "src": ["src"]
+        },
+        "moduleResolution": "node",
         "experimentalDecorators": true,
         "emitDecoratorMetadata" : true
     },

@@ -522,14 +522,19 @@ System.register("src/util/uuid.service", [], function (exports_11, context_11) {
         }
     };
 });
-System.register("src/service/youtube-player.model", ["angular", "src/ng-helper/plain-model", "src/service/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/util/uuid.service"], function (exports_12, context_12) {
+System.register("src/service/youtube-player.model", ["angular", "rxjs/Observable", "rxjs/add/observable/of", "src/ng-helper/plain-model", "src/service/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/util/uuid.service"], function (exports_12, context_12) {
     "use strict";
     var __moduleName = context_12 && context_12.id;
-    var angular, plain_model_1, youtube_quality_map_service_1, youtube_readable_time_service_1, uuid_service_1, imports, YoutubePlayer;
+    var angular, Observable_1, plain_model_1, youtube_quality_map_service_1, youtube_readable_time_service_1, uuid_service_1, imports, YoutubePlayer;
     return {
         setters: [
             function (angular_5) {
                 angular = angular_5;
+            },
+            function (Observable_1_1) {
+                Observable_1 = Observable_1_1;
+            },
+            function (_3) {
             },
             function (plain_model_1_1) {
                 plain_model_1 = plain_model_1_1;
@@ -564,6 +569,10 @@ System.register("src/service/youtube-player.model", ["angular", "src/ng-helper/p
                     this._intendedQuality = 'default';
                     this._eventsInitialized = false;
                     this._markerListener = false;
+                    console.log('before obs');
+                    var obs$ = Observable_1.Observable.of([1, 2, 3]);
+                    obs$.subscribe(function (x) { return console.log(x); });
+                    console.log('after obs');
                     var op = angular.copy(options);
                     // TODO: Add a fit to parent or something like that
                     op.width = '100%';
@@ -2565,8 +2574,6 @@ System.register("src/main", ["src/directive/youtube-player.component", "src/dire
     var angular;
     return {
         setters: [
-            function (_3) {
-            },
             function (_4) {
             },
             function (_5) {
@@ -2616,6 +2623,8 @@ System.register("src/main", ["src/directive/youtube-player.component", "src/dire
             function (_27) {
             },
             function (_28) {
+            },
+            function (_29) {
             },
             function (angular_15) {
                 angular = angular_15;
