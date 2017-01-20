@@ -3,47 +3,14 @@
     <head>
         <script src="/node_modules/systemjs/dist/system.js"></script>
         <script src="/node_modules/typescript/lib/typescript.js"></script>
-
+        <script src="/demo/systemjs.config.js"></script>
         <script>
-        SystemJS.config({
-            packages:{
-                '/src': {
-                    defaultExtension: 'ts',
-                },
-                '/node_modules/rxjs': {
-                    // defaultExtension: 'js',
-                }
-            },
-            map: {
-                src: '/src',
-                angular: '/node_modules/angular/angular.js',
-                rxjs: '/node_modules/rxjs',
-                'hrAngularYoutubeTpl': '/dist/templates.js',
-                'ui.bootstrap': '/node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js',
-            },
-            meta: {
-                'angular': {
-                    format: 'global',
-                    exports: 'angular'
-                },
-                'ui.bootstrap': {
-                    format: 'global'
-                },
-                'hrAngularYoutubeTpl': {
-                    format: 'global'
-                }
-            },
-            transpiler: 'typescript'
-        });
-        // System.import('overlay.js').then(function () {
-        System.import('overlay.ts').then(function (test) {
-            // // Manually bootstrap angular (same as ng-app but after the module loader kicks in)
-            angular.element(document).ready(function() {
-                angular.bootstrap(document, ['demoOverlay'], {strictDi: true, debugInfoEnabled: true});
+            System.import('overlay.ts').then(function (test) {
+                // // Manually bootstrap angular (same as ng-app but after the module loader kicks in)
+                angular.element(document).ready(function() {
+                    angular.bootstrap(document, ['demoOverlay'], {strictDi: true, debugInfoEnabled: true});
+                });
             });
-        });
-
-
         </script>
 
         <script src="../assets/screenfull.min.js"></script>
