@@ -1,9 +1,48 @@
 <!doctype html>
-<html ng-app="demoControls">
+<html>
     <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.11/angular.min.js"></script>
-        <script src="../../dist/hr-angular-youtube-tpl.js"></script>
-        <script src="controls.js"></script>
+        <script src="/node_modules/systemjs/dist/system.js"></script>
+        <script src="/node_modules/typescript/lib/typescript.js"></script>
+
+        <script>
+        SystemJS.config({
+            packages:{
+                '/src': {
+                    defaultExtension: 'ts',
+                },
+                '/node_modules/rxjs': {
+                    // defaultExtension: 'js',
+                }
+            },
+            map: {
+                src: '/src',
+                angular: '/node_modules/angular/angular.js',
+                rxjs: '/node_modules/rxjs',
+                'hrAngularYoutubeTpl': '/dist/templates.js',
+                'ui.bootstrap': '/node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js',
+            },
+            meta: {
+                'angular': {
+                    format: 'global',
+                    exports: 'angular'
+                },
+                'ui.bootstrap': {
+                    format: 'global'
+                },
+                'hrAngularYoutubeTpl': {
+                    format: 'global'
+                }
+            },
+            transpiler: 'typescript'
+        });
+        // System.import('overlay.js').then(function () {
+        System.import('controls.ts').then(function (test) {
+            // // Manually bootstrap angular (same as ng-app but after the module loader kicks in)
+            angular.element(document).ready(function() {
+                angular.bootstrap(document, ['demoControls'], {strictDi: true, debugInfoEnabled: true});
+            });
+        });
+    </script>
 
     </head>
     <body>
