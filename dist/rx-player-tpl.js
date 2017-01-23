@@ -1,8 +1,8 @@
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/directive/youtube-player.component.html',
@@ -16,9 +16,9 @@ module.run(['$templateCache', function($templateCache) {
 
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-panel.component.html',
@@ -29,9 +29,9 @@ module.run(['$templateCache', function($templateCache) {
 
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-pause.component.html',
@@ -42,9 +42,9 @@ module.run(['$templateCache', function($templateCache) {
 
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-play.component.html',
@@ -55,9 +55,9 @@ module.run(['$templateCache', function($templateCache) {
 
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-progress-bar-hover-indicator.component.html',
@@ -70,9 +70,9 @@ module.run(['$templateCache', function($templateCache) {
 
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-progress-bar.component.html',
@@ -92,9 +92,9 @@ module.run(['$templateCache', function($templateCache) {
 
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-volume-horizontal.component.html',
@@ -138,7 +138,7 @@ System.register("src/ng-helper/module", ["angular"], function (exports_1, contex
         ],
         execute: function () {
             // Do not touch the next comment, is used by gulp to inject template as dependency if needed
-            angular.module('hrAngularYoutube', ['ng' ,'hrAngularYoutubeTpls']);
+            angular.module('rxPlayer', ['ng' ,'rxPlayerTpls']);
         }
     };
 });
@@ -148,7 +148,7 @@ System.register("src/ng-helper/component", ["angular", "src/ng-helper/module"], 
     function Component(definition) {
         return function (target) {
             angular
-                .module('hrAngularYoutube')
+                .module('rxPlayer')
                 .directive(definition.selector, function () {
                 var require = [definition.selector];
                 if (definition.require) {
@@ -210,7 +210,7 @@ System.register("src/ng-helper/directive", ["angular", "src/ng-helper/module"], 
     function Directive(definition) {
         return function (target) {
             angular
-                .module('hrAngularYoutube')
+                .module('rxPlayer')
                 .directive(definition.selector, function () {
                 var require = [definition.selector];
                 if (definition.require) {
@@ -417,7 +417,7 @@ System.register("src/ng-helper/plain-model", ["angular"], function (exports_8, c
         return function (target) {
             var ng1Injects = Object.keys(options.$inject || {});
             angular
-                .module('hrAngularYoutube')
+                .module('rxPlayer')
                 .factory(options.name, factory);
             factory.$inject = ng1Injects;
             function factory() {
@@ -1286,7 +1286,7 @@ System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper
             YoutubeMarker.$inject = ['$element', '$scope'];
             exports_15("YoutubeMarker", YoutubeMarker);
             angular
-                .module('hrAngularYoutube')
+                .module('rxPlayer')
                 .directive('hrYtMarker', function () {
                 return {
                     restrict: 'C',
@@ -2235,7 +2235,7 @@ System.register("src/service/youtube-marker-list.model", ["angular"], function (
             }
         ],
         execute: function () {
-            angular.module('hrAngularYoutube')
+            angular.module('rxPlayer')
                 .factory('YoutubeMarkerList', function () {
                 var YoutubeMarkerList = function () {
                     this.markersById = {};
@@ -2284,7 +2284,7 @@ System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.s
             }
         ],
         execute: function () {
-            angular.module('hrAngularYoutube')
+            angular.module('rxPlayer')
                 .factory('YoutubeMarker', function () {
                 /*jshint maxcomplexity:false */
                 var YoutubeMarker = function (options) {
@@ -2415,7 +2415,7 @@ System.register("src/service/youtube-template-marker.model", ["angular"], functi
             }
         ],
         execute: function () {
-            angular.module('hrAngularYoutube')
+            angular.module('rxPlayer')
                 .factory('YoutubeTemplateMarker', ['$rootScope', '$compile', 'YoutubeMarker', '$q', '$http', '$templateCache',
                 function ($rootScope, $compile, YoutubeMarker, $q, $http, $templateCache) {
                     var YoutubeTemplateMarker = function (options) {
@@ -2564,7 +2564,7 @@ System.register("src/service/youtube.service", ["angular"], function (exports_35
                 return Provider;
             }());
             exports_35("Provider", Provider);
-            angular.module('hrAngularYoutube').provider('youtube', new Provider());
+            angular.module('rxPlayer').provider('youtube', new Provider());
         }
     };
 });
@@ -2640,7 +2640,7 @@ System.register("src/main", ["src/directive/youtube-player.component", "src/dire
                     }, 100);
                 };
             }
-            angular.module('hrAngularYoutube')
+            angular.module('rxPlayer')
                 .run(['youtube', function (youtube) {
                     if (youtube.getAutoLoad()) {
                         // Add the iframe api to the dom

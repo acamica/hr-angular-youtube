@@ -13,7 +13,7 @@
 </p>
 
 <code>
-$ bower install --save hr-angular-youtube
+$ bower install --save rx-player
 </code>
 <br/><br/>
 
@@ -21,20 +21,20 @@ $ bower install --save hr-angular-youtube
     Import it to your page
 </p>
 
-<pre>&lt;script src=&quot;bower_components/hr-angular-youtube/dist/hr-angular-youtube.min.js&quot;&gt;&lt;/script&gt;</pre>
+<pre>&lt;script src=&quot;bower_components/rx-player/dist/rx-player.min.js&quot;&gt;&lt;/script&gt;</pre>
 
 <p>
     Enable it on your app
 </p>
 
-<pre>angular.module('myModule', ['hrAngularYoutube']);</pre>
+<pre>angular.module('myModule', ['rxPlayer']);</pre>
 
 
 <h2>Check out the demos</h2>
 <ul>
-    <li>In the <a href="http://hrajchert.github.io/hr-angular-youtube/#/demo/controls">Controls Example</a> you can see how to control the video with externals controls.</li>
-    <li>In the <a href="http://hrajchert.github.io/hr-angular-youtube/#/demo/overlay">Overlay Example</a> you can see how to create custom controls.</li>
-    <li>In the <a href="http://hrajchert.github.io/hr-angular-youtube/#/demo/marker">Marker Example</a> you can see how to add different video markers to the video.</li>
+    <li>In the <a href="http://hrajchert.github.io/rx-player/#/demo/controls">Controls Example</a> you can see how to control the video with externals controls.</li>
+    <li>In the <a href="http://hrajchert.github.io/rx-player/#/demo/overlay">Overlay Example</a> you can see how to create custom controls.</li>
+    <li>In the <a href="http://hrajchert.github.io/rx-player/#/demo/marker">Marker Example</a> you can see how to add different video markers to the video.</li>
 </ul>
 
 

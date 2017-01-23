@@ -22,7 +22,7 @@ const tsProject = ts.createProject('tsconfig.json', {
 gulp.task('process-scripts', function() {
     return gulp.src(['./src/**/*.js', './src/**/*.ts'])
         .pipe(tsProject())
-        .pipe(concat('hr-angular-youtube.js'))
+        .pipe(concat('rx-player.js'))
         .pipe(gulp.dest('./dist/'))
         .pipe(uglify())
         .pipe(rename({suffix: '.min'}))
@@ -33,7 +33,7 @@ gulp.task('process-scripts', function() {
 gulp.task('process-templates', function() {
     return gulp.src('./src/**/*.html')
         .pipe(html2js({
-            moduleName: 'hrAngularYoutubeTpls',
+            moduleName: 'rxPlayerTpls',
             prefix :'/template/'
         }))
         .pipe(concat('templates.js'))
@@ -42,9 +42,9 @@ gulp.task('process-templates', function() {
 //gulp.task('process-scripts-with-tpl',['process-templates'], function() {
 gulp.task('process-scripts-with-tpl', ['process-templates','process-scripts'], function() {
     //
-    return gulp.src(['./dist/templates.js','./dist/hr-angular-youtube.js'])
-        .pipe(concat('hr-angular-youtube-tpl.js'))
-        .pipe(replace('/*!--TEMPLATE-DEPENDENCIES--*/',',\'hrAngularYoutubeTpls\''))
+    return gulp.src(['./dist/templates.js','./dist/rx-player.js'])
+        .pipe(concat('rx-player-tpl.js'))
+        .pipe(replace('/*!--TEMPLATE-DEPENDENCIES--*/',',\'rxPlayerTpls\''))
         .pipe(gulp.dest('./dist/'))
         .pipe(uglify())
         .pipe(rename({suffix: '.min'}))
@@ -54,7 +54,7 @@ gulp.task('process-scripts-with-tpl', ['process-templates','process-scripts'], f
 
 gulp.task('process-styles', function() {
     return gulp.src('./assets/**/*.css')
-        .pipe(concat('hr-angular-youtube.css'))
+        .pipe(concat('rx-player.css'))
         .pipe(prefix('last 2 version'))
         .pipe(gulp.dest('./dist'))
         .pipe(minifycss())

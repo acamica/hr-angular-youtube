@@ -38,7 +38,7 @@ if (typeof window['onYouTubeIframeAPIReady'] === 'undefined') {
 }
 
 
-angular.module('hrAngularYoutube')
+angular.module('rxPlayer')
 
 .run(['youtube', function (youtube) {
     if (youtube.getAutoLoad()) {

@@ -1,7 +1,7 @@
 import * as angular from 'angular';
 import {uuid} from 'src/util/uuid.service';
 
-angular.module('hrAngularYoutube')
+angular.module('rxPlayer')
     .factory('YoutubeMarker', function() {
 
         /*jshint maxcomplexity:false */

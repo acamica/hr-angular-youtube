@@ -11,7 +11,7 @@ export function PlainModel(options: IServiceOptions) {
         let ng1Injects = Object.keys(options.$inject || {});
 
         angular
-            .module('hrAngularYoutube')
+            .module('rxPlayer')
             .factory(options.name, factory);
 
         factory.$inject = ng1Injects;

@@ -1,6 +1,6 @@
 import * as angular from 'angular';
 
-angular.module('hrAngularYoutube')
+angular.module('rxPlayer')
     .factory('YoutubeMarkerList', function () {
 
         const YoutubeMarkerList = function () {

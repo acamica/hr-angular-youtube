@@ -11,7 +11,7 @@ SystemJS.config({
         src: '/src',
         angular: '/node_modules/angular/angular.js',
         rxjs: '/node_modules/rxjs',
-        'hrAngularYoutubeTpl': '/dist/templates.js',
+        'rxPlayerTpl': '/dist/templates.js',
         'ui.bootstrap': '/node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js',
     },
     meta: {
@@ -22,7 +22,7 @@ SystemJS.config({
         'ui.bootstrap': {
             format: 'global'
         },
-        'hrAngularYoutubeTpl': {
+        'rxPlayerTpl': {
             format: 'global'
         }
     },

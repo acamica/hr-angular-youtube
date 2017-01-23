@@ -1,8 +1,8 @@
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/directive/youtube-player.component.html',
@@ -16,9 +16,9 @@ module.run(['$templateCache', function($templateCache) {
 
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-panel.component.html',
@@ -29,9 +29,9 @@ module.run(['$templateCache', function($templateCache) {
 
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-pause.component.html',
@@ -42,9 +42,9 @@ module.run(['$templateCache', function($templateCache) {
 
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-play.component.html',
@@ -55,9 +55,9 @@ module.run(['$templateCache', function($templateCache) {
 
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-progress-bar-hover-indicator.component.html',
@@ -70,9 +70,9 @@ module.run(['$templateCache', function($templateCache) {
 
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-progress-bar.component.html',
@@ -92,9 +92,9 @@ module.run(['$templateCache', function($templateCache) {
 
 (function(module) {
 try {
-  module = angular.module('hrAngularYoutubeTpls');
+  module = angular.module('rxPlayerTpls');
 } catch (e) {
-  module = angular.module('hrAngularYoutubeTpls', []);
+  module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-volume-horizontal.component.html',

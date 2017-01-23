@@ -1,10 +1,10 @@
 {
-  "name": "hr-angular-youtube",
+  "name": "rx-player",
   "version": "0.0.10",
-  "description": "Youtube videos with custom configurable controls for Angular.js",
+  "description": "Multiple video sources with extendable controls for Angular",
   "main": [
-    "dist/hr-angular-youtube-tpl.js",
-    "dist/hr-angular-youtube.css"
+    "dist/rx-player-tpl.js",
+    "dist/rx-player.css"
   ],
   "license": "MIT",
   "directories": {
@@ -50,11 +50,11 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://hrajchert@github.com/hrajchert/hr-angular-youtube.git"
+    "url": "https://hrajchert@github.com/hrajchert/rx-player.git"
   },
   "author": "Hernan Rajchert <hrajchert@gmail.com>",
   "bugs": {
-    "url": "https://github.com/hrajchert/hr-angular-youtube/issues"
+    "url": "https://github.com/hrajchert/rx-player/issues"
   },
-  "homepage": "https://github.com/hrajchert/hr-angular-youtube"
+  "homepage": "https://github.com/hrajchert/rx-player"
 }

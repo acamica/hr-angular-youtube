@@ -1,5 +1,5 @@
 /* global angular */
-angular.module('demoMarker', ['hrAngularYoutube'])
+angular.module('demoMarker', ['rxPlayer'])
 .config(['youtubeProvider', function(youtubeProvider) {
     // This options are the ones from here
     // https://developers.google.com/youtube/player_parameters?playerVersion=HTML5

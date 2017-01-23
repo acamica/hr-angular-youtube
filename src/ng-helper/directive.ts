@@ -20,7 +20,7 @@ export interface IDirectiveDefinition {
 export function Directive(definition: IDirectiveDefinition) {
     return function (target) {
         angular
-            .module('hrAngularYoutube')
+            .module('rxPlayer')
             .directive(definition.selector, function () {
                 let require = [definition.selector];
                 if (definition.require) {

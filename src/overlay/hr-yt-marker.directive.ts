@@ -45,7 +45,7 @@ export class YoutubeMarker {
 }
 
 angular
-    .module('hrAngularYoutube')
+    .module('rxPlayer')
     .directive('hrYtMarker', function() {
         return {
             restrict: 'C',

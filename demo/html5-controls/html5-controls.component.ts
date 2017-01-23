@@ -1,6 +1,6 @@
 import {Component} from 'src/ng-helper/component';
 import 'src/main';
-import 'hrAngularYoutubeTpl';
+import 'rxPlayerTpl';
 
 @Component({
     selector: 'html5ControlsDemo',

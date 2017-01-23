@@ -7,12 +7,12 @@ module.exports = function(mddoc) {
     });
 
     mddoc.addGenerator('mddoc-angular-generator', {
-        'title' : 'hr-angular-youtube',
+        'title' : 'rx-player',
         'modules' : ['demo','treeControl'],
 //        'modules' : ['demo','demoOverlay', 'demoControls'],
 
         'inject-scripts' : [
-            'dist/hr-angular-youtube-tpl.js',
+            'dist/rx-player-tpl.js',
             'demo/controls/controls.js',
             'demo/fullscreen/fullscreen.js',
             'demo/overlay/overlay.js',
@@ -20,7 +20,7 @@ module.exports = function(mddoc) {
             'demo/assets/screenfull.min.js'
         ],
         'inject-styles'  : [
-            'dist/hr-angular-youtube.css',
+            'dist/rx-player.css',
             'demo/overlay/overlay.css',
             'demo/marker/marker.css',
             'demo/assets/font-awesome/css/font-awesome.min.css'

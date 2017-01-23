@@ -1,6 +1,6 @@
 import * as angular from 'angular';
 
-angular.module('hrAngularYoutube')
+angular.module('rxPlayer')
     .factory('YoutubeTemplateMarker', ['$rootScope', '$compile', 'YoutubeMarker', '$q', '$http', '$templateCache',
                                        function($rootScope, $compile, YoutubeMarker, $q, $http, $templateCache) {
         const YoutubeTemplateMarker = function (options) {

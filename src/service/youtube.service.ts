@@ -69,6 +69,6 @@ export class Provider {
 }
 
 
-angular.module('hrAngularYoutube').provider('youtube', new Provider());
+angular.module('rxPlayer').provider('youtube', new Provider());
 
 

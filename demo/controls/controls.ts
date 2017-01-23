@@ -1,8 +1,8 @@
 import * as angular from 'angular';
 import 'src/main';
-import 'hrAngularYoutubeTpl';
+import 'rxPlayerTpl';
 
-angular.module('demoControls', ['hrAngularYoutube', 'hrAngularYoutubeTpls'])
+angular.module('demoControls', ['rxPlayer', 'rxPlayerTpls'])
 .config(['youtubeProvider', function(youtubeProvider) {
     // This options are the ones from here
     // https://developers.google.com/youtube/player_parameters?playerVersion=HTML5
