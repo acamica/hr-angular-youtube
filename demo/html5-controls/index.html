@@ -5,20 +5,17 @@
         <script src="/node_modules/typescript/lib/typescript.js"></script>
         <script src="/demo/systemjs.config.js"></script>
         <script>
-
-        System.import('html5-controls.component.ts').then(function (test) {
-            // Create the app module
-            angular.module('demoHtml5Controls', ['rxPlayer', 'rxPlayerTpls']);
-
-            // // Manually bootstrap angular (same as ng-app but after the module loader kicks in)
-            angular.element(document).ready(function() {
-                angular.bootstrap(document, ['demoHtml5Controls'], {strictDi: true, debugInfoEnabled: true});
+            System.import('html5-controls.component.ts').then(function (test) {
+                // // Manually bootstrap angular (same as ng-app but after the module loader kicks in)
+                angular.element(document).ready(function() {
+                    angular.bootstrap(document, ['demoHtml5Controls'], {strictDi: true, debugInfoEnabled: true});
+                });
             });
-        });
-    </script>
-
+        </script>
     </head>
     <body>
-        <html5-controls-demo></html5-controls-demo>
+        <div style="width: 600px">
+            <html5-controls-demo></html5-controls-demo>
+        </div>
     </body>
 </html>

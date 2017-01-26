@@ -1,6 +1,10 @@
 import {Component} from 'src/ng-helper/component';
+import * as angular from 'angular';
 import 'src/main';
 import 'rxPlayerTpl';
+
+// Create the app module
+angular.module('demoHtml5Controls', ['rxPlayer', 'rxPlayerTpls']);
 
 @Component({
     selector: 'html5ControlsDemo',
