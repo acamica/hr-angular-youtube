@@ -5,7 +5,7 @@ try {
   module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/template/directive/youtube-player.component.html',
+  $templateCache.put('/template/directive/rx-player.component.html',
     '<div class="hr-yt-wrapper">\n' +
     '    <div class="hr-yt-video-place-holder"></div>\n' +
     '    <div class="hr-yt-overlay" ng-transclude=""></div>\n' +

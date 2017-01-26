@@ -1,5 +1,5 @@
 // TODO: Dirty hack to load everything, refactor later
-import './directive/youtube-player.component';
+import './directive/rx-player.component';
 import './directive/yt-slider.directive';
 import './overlay/hr-yt-marker.directive';
 import './overlay/player-current-quality.directive';

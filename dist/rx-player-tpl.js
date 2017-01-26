@@ -5,7 +5,7 @@ try {
   module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/template/directive/youtube-player.component.html',
+  $templateCache.put('/template/directive/rx-player.component.html',
     '<div class="hr-yt-wrapper">\n' +
     '    <div class="hr-yt-video-place-holder"></div>\n' +
     '    <div class="hr-yt-overlay" ng-transclude=""></div>\n' +
@@ -956,7 +956,7 @@ System.register("src/service/youtube-player.model", ["angular", "rxjs/Observable
 //         return this.player[name].apply(this.player, arguments);
 //     };
 // });
-System.register("src/directive/youtube-player.component", ["src/ng-helper/facade", "angular"], function (exports_13, context_13) {
+System.register("src/directive/rx-player.component", ["src/ng-helper/facade", "angular"], function (exports_13, context_13) {
     "use strict";
     var __moduleName = context_13 && context_13.id;
     function convertToUnits(u) {
@@ -1128,8 +1128,8 @@ System.register("src/directive/youtube-player.component", ["src/ng-helper/facade
             YoutubePlayerComponent.$inject = ['$element', '$attrs', '$scope', 'youtube', '$q'];
             YoutubePlayerComponent = __decorate([
                 facade_1.Component({
-                    selector: 'youtubePlayer',
-                    templateUrl: '/template/directive/youtube-player.component.html',
+                    selector: 'rxPlayer',
+                    templateUrl: '/template/directive/rx-player.component.html',
                     transclude: true,
                     link: facade_1.bindRequireToCtrl(['ngModelCtrl']),
                     scope: {
@@ -2568,7 +2568,7 @@ System.register("src/service/youtube.service", ["angular"], function (exports_35
         }
     };
 });
-System.register("src/main", ["src/directive/youtube-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-pause.component", "src/overlay/player-play.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/overlay/show-if-muted.directive", "src/overlay/show-if-player-is.directive", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/service/youtube-player.model", "src/service/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/service/youtube-template-marker.model", "src/service/youtube.service", "angular"], function (exports_36, context_36) {
+System.register("src/main", ["src/directive/rx-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-pause.component", "src/overlay/player-play.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/overlay/show-if-muted.directive", "src/overlay/show-if-player-is.directive", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/service/youtube-player.model", "src/service/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/service/youtube-template-marker.model", "src/service/youtube.service", "angular"], function (exports_36, context_36) {
     "use strict";
     var __moduleName = context_36 && context_36.id;
     var angular;

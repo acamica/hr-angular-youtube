@@ -4,7 +4,7 @@ state myself
 {:.alert .alert-danger }
 
 {%code_warning
-    "src" : "src/service/youtube-player.js",
+    "src" : "src/service/rx-player.js",
     "priority" : 4,
     "ref" : {
         "text" : "YoutubePlayer.prototype.isMuted "
@@ -17,7 +17,7 @@ remove all handlers from the rootScope
 {:.alert .alert-danger }
 
 {%code_warning
-    "src" : "src/service/youtube-player.js",
+    "src" : "src/service/rx-player.js",
     "priority" : 9,
     "ref" : {
         "text" : "return $rootScope.$on"

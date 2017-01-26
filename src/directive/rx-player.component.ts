@@ -9,8 +9,8 @@ const playerVarAttrs = ['autohide', 'autoplay', 'ccLoadPolicy', 'color', 'contro
                         'playlist', 'playsinline', 'rel', 'showinfo', 'start', 'theme'];
 
 @Component({
-    selector: 'youtubePlayer',
-    templateUrl: '/template/directive/youtube-player.component.html',
+    selector: 'rxPlayer',
+    templateUrl: '/template/directive/rx-player.component.html',
     transclude: true,
     link: bindRequireToCtrl(['ngModelCtrl']),
     scope: {
@@ -34,8 +34,6 @@ export class YoutubePlayerComponent {
         // TODO: check this out again
         this.setOverlayElement(elm);
         this.ngOnInit();
-
-
     }
 
     // FROM ex controller
@@ -46,6 +44,7 @@ export class YoutubePlayerComponent {
     getPlayer () {
         return this.player.promise;
     }
+
     destroyPlayer () {
         this.player.promise.then(function(p) {
             p.destroy();
