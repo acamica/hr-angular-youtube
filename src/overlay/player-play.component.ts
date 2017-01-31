@@ -19,7 +19,7 @@ export class PlayerPlayComponent {
         this.youtubePlayer
             .getPlayer()
             .then((player: YoutubePlayer) =>
-                this.elm.on('click', () => player.playVideo())
+                this.elm.on('click', () => player.play())
             );
 
     }

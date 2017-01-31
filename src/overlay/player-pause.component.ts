@@ -19,7 +19,7 @@ export class PlayerPauseComponent {
         this.youtubePlayer
             .getPlayer()
             .then((player: YoutubePlayer) =>
-                this.elm.on('click', () => player.pauseVideo())
+                this.elm.on('click', () => player.pause())
             );
     }
 }

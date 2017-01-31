@@ -25,6 +25,7 @@ import './service/youtube-quality-map.service';
 import './service/youtube-readable-time.service';
 import './service/youtube-template-marker.model';
 import './service/youtube.service';
+import './util/rx/rx-operators-import';
 
 import * as angular from 'angular';
 // Add a default handler to avoid missing the event. This can happen if you add the script manually,

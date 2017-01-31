@@ -1,10 +1,12 @@
 import * as angular from 'angular';
 import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
 import {PlainModel} from 'src/ng-helper/plain-model';
 import {convertToYoutube, convertFromYoutube} from 'src/service/youtube-quality-map.service';
 import {youtubeReadableTime} from 'src/service/youtube-readable-time.service';
 import {uuid} from 'src/util/uuid.service';
+import {IVideoPlayer} from 'src/service/video-player.model';
+
+import 'src/service/youtube-marker-list.model'; // TODO: Refactor markers
 
 const imports = {
     // TODO: Remove in favour of plain promises
@@ -20,7 +22,8 @@ const imports = {
     name: 'YoutubePlayer',
     $inject: imports
 })
-export class YoutubePlayer {
+export class YoutubePlayer
+                            implements IVideoPlayer {
 
     player: YT.Player;
     markerList: any;
@@ -384,18 +387,20 @@ export class YoutubePlayer {
     }
 
     loadVideoById(videoId: string, startSeconds?: number, suggestedQuality?: string) {
-        return this.player.loadVideoById(videoId, startSeconds, suggestedQuality);
+        debugger;
+        this.player.loadVideoById(videoId, startSeconds, suggestedQuality);
+        return this;
     }
 
     getPlaybackRate() {
         return this.player.getPlaybackRate();
     }
 
-    playVideo() {
+    play() {
         return this.player.playVideo();
     }
 
-    pauseVideo() {
+    pause() {
         return this.player.pauseVideo();
     }
 
@@ -415,6 +420,7 @@ export class YoutubePlayer {
         return this.player.getAvailableQualityLevels();
     }
 }
+
 
         // // TODO: Inherit better than these :S once i know if this is the way I want to access the object
         // angular.forEach([

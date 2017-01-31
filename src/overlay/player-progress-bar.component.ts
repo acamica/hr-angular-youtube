@@ -63,7 +63,7 @@ export class PlayerProgressBar {
                 this.scope.onSliderDown = function () {
                     // Save the status of the player at the begining of the dragndrop
                     playStatus = player.getPlayerState();
-                    player.pauseVideo();
+                    player.pause();
                 };
 
                 this.scope.onSliderMove = function(percentage) {
@@ -85,7 +85,7 @@ export class PlayerProgressBar {
 
                     // If it was playin before, play now as well
                     if (playStatus === YT.PlayerState.PLAYING) {
-                        player.playVideo();
+                        player.play();
                     }
                 };
 

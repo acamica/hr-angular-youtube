@@ -1,5 +1,6 @@
 import * as angular from 'angular';
-import {Component} from 'src/ng-helper/component';
+import {Component} from 'src/ng-helper/facade';
+import {RxPlayerComponent} from 'src/directive/rx-player.component';
 import 'src/main';
 import 'rxPlayerTpl';
 
@@ -21,8 +22,15 @@ function configureYoutubeProvider(youtubeProvider) {
 
 @Component({
     selector: 'controlsDemo',
-    templateUrl: '/demo/controls/controls.component.html'
+    templateUrl: '/demo/controls/controls.component.html',
+    directives: [RxPlayerComponent],
 })
 class ControlsDemoComponent {
     videoId = 'QjX9Wu-MJ-s';
+
+    static $inject = [];
+    constructor() {
+
+    }
+
 }
