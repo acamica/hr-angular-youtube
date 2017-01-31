@@ -1,5 +1,4 @@
 import * as angular from 'angular';
-import {Observable} from 'rxjs/Observable';
 import {PlainModel} from 'src/ng-helper/plain-model';
 import {convertToYoutube, convertFromYoutube} from 'src/service/youtube-quality-map.service';
 import {youtubeReadableTime} from 'src/service/youtube-readable-time.service';
@@ -32,11 +31,6 @@ export class YoutubePlayer
     private _intendedQuality: YT.SuggestedVideoQuality = 'default';
     private _element: any;
     constructor(elmOrId, private options) {
-        console.log('before obs');
-        const obs$ = Observable.of([1, 2, 3]);
-        obs$.subscribe(x => console.log(x));
-        console.log('after obs');
-
         const op = angular.copy(options);
         // TODO: Add a fit to parent or something like that
         op.width = '100%';

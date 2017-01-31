@@ -26,7 +26,10 @@ function configureYoutubeProvider(youtubeProvider) {
     directives: [RxPlayerComponent],
 })
 class ControlsDemoComponent {
-    videoId = 'QjX9Wu-MJ-s';
+    videoSource = {
+        player: 'YoutubePlayer',
+        youtubeId: 'QjX9Wu-MJ-s'
+    };
 
     static $inject = [];
     constructor() {

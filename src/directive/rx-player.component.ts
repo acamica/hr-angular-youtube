@@ -15,6 +15,10 @@ import {RxVideoInterface} from 'src/service/rx-video-interface.model';
 
 import {createVideoPlayer} from 'src/service/rx-video.service';
 
+export interface IVideoSource {
+    player: string;
+    youtubeId: string; // TODO: THIS SHOULD NOT BE HERE!
+}
 
 // YOUTUBE specifics, TODO: see how to refactor
 const playerAttrs = ['id', 'height', 'width'];
@@ -29,7 +33,7 @@ const playerVarAttrs = ['autohide', 'autoplay', 'ccLoadPolicy', 'color', 'contro
     transclude: true,
     link: localTemplateVariableLink,
     scope: {
-        videoId: '='
+        videoSource: '='
     },
 })
 export class RxPlayerComponent {
@@ -70,7 +74,7 @@ export class RxPlayerComponent {
     };
 
     // FROM ex LINK
-    private videoId: string;
+    private videoSource: IVideoSource;
 
     ngOnInit() {
         // TODO: Type this
@@ -94,18 +98,19 @@ export class RxPlayerComponent {
             }
         });
 
-        // See if there is a specific player
-        const playerFactoryName = this.attrs.playerFactory || 'YoutubePlayer';
+        // Watch whenever watchVideoSource changes
+        const watchVideoSource$ = fromAngularWatch(() => this.videoSource, this.scope)
+                                    .publishReplay(1)
+                                    .refCount();
 
-        // Watch whenever videoId changes
-        const watchVideoId$ = fromAngularWatch<string>(() => this.videoId, this.scope);
 
-
-        this.player$ = Observable.of(playerFactoryName)
+        this.player$ = watchVideoSource$
+                        .map(source => source.player)
                         // Create a video player of the provided type
                         .switchMap(playerClass => createVideoPlayer(playerClass, options, $videoDiv))
                         .switchMap(player =>
-                                watchVideoId$.map(id => player.loadVideoById(id))
+                                // TODO: THIS CLASS SHOULD NOT KNOW ABOUT YOUTUBE
+                                watchVideoSource$.map(source => player.loadVideoById(source.youtubeId))
                         )
                         .publishReplay(1)
                         .refCount();

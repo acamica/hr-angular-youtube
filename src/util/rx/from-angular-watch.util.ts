@@ -1,6 +1,10 @@
 import {Observable} from 'rxjs/Observable';
 
-export function fromAngularWatch<T> (property, scope): Observable<T> {
+export interface IWatchExpression<T> {
+    (): T;
+}
+type IWatchProperty<T> = string | IWatchExpression<T>;
+export function fromAngularWatch<T> (property: IWatchProperty<T>, scope): Observable<T> {
     return Observable.create(function (observer) {
         let oldVal: T;
         const unwatcher = scope.$watch(property, function(newVal: T) {
