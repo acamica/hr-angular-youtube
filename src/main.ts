@@ -20,11 +20,10 @@ import './overlay/show-if-muted.directive';
 import './overlay/show-if-player-is.directive';
 import './service/youtube-marker-list.model';
 import './service/youtube-marker.model';
-import './service/youtube-player.model';
-import './service/youtube-quality-map.service';
+import './players/youtube/youtube-player.model';
 import './service/youtube-readable-time.service';
 import './service/youtube-template-marker.model';
-import './service/youtube.service';
+import './players/youtube/youtube.service';
 import './util/rx/rx-operators-import';
 
 import * as angular from 'angular';

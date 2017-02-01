@@ -870,7 +870,7 @@ System.register("src/service/rx-video.service", ["rxjs/Observable", "src/util/al
         }
     };
 });
-System.register("src/directive/rx-player.component", ["angular", "rxjs/Observable", "src/util/rx/from-angular-watch.util", "src/util/rx/take-until-scope-destroy.util", "src/ng-helper/facade", "src/service/rx-video-interface.model", "src/service/rx-video.service"], function (exports_19, context_19) {
+System.register("src/directive/rx-player.component", ["angular", "src/util/rx/from-angular-watch.util", "src/util/rx/take-until-scope-destroy.util", "src/ng-helper/facade", "src/service/rx-video-interface.model", "src/service/rx-video.service"], function (exports_19, context_19) {
     "use strict";
     var __moduleName = context_19 && context_19.id;
     function convertToUnits(u) {
@@ -880,14 +880,11 @@ System.register("src/directive/rx-player.component", ["angular", "rxjs/Observabl
         }
         return u;
     }
-    var angular, Observable_4, from_angular_watch_util_1, take_until_scope_destroy_util_1, facade_1, rx_video_interface_model_1, rx_video_service_1, playerAttrs, playerVarAttrs, RxPlayerComponent;
+    var angular, from_angular_watch_util_1, take_until_scope_destroy_util_1, facade_1, rx_video_interface_model_1, rx_video_service_1, playerAttrs, playerVarAttrs, RxPlayerComponent;
     return {
         setters: [
             function (angular_5) {
                 angular = angular_5;
-            },
-            function (Observable_4_1) {
-                Observable_4 = Observable_4_1;
             },
             function (from_angular_watch_util_1_1) {
                 from_angular_watch_util_1 = from_angular_watch_util_1_1;
@@ -960,14 +957,23 @@ System.register("src/directive/rx-player.component", ["angular", "rxjs/Observabl
                             options.playerVars[name] = _this.attrs[name];
                         }
                     });
-                    // See if there is a specific player
-                    var playerFactoryName = this.attrs.playerFactory || 'YoutubePlayer';
-                    // Watch whenever videoId changes
-                    var watchVideoId$ = from_angular_watch_util_1.fromAngularWatch(function () { return _this.videoId; }, this.scope);
-                    this.player$ = Observable_4.Observable.of(playerFactoryName)
-                        .switchMap(function (playerClass) { return rx_video_service_1.createVideoPlayer(playerClass, options, $videoDiv); })
+                    // Watch whenever watchVideoSource changes
+                    var watchVideoSource$ = from_angular_watch_util_1.fromAngularWatch(function () { return _this.videoSource; }, this.scope)
+                        .publishReplay(1)
+                        .refCount();
+                    this.player$ = watchVideoSource$
+                        .map(function (source) { return ({
+                        playerClass: source.player,
+                        options: __assign({}, options, { sources: source.sources })
+                    }); })
+                        .do(console.log)
+                        .switchMap(function (_a) {
+                        var playerClass = _a.playerClass, options = _a.options;
+                        return rx_video_service_1.createVideoPlayer(playerClass, options, $videoDiv);
+                    })
                         .switchMap(function (player) {
-                        return watchVideoId$.map(function (id) { return player.loadVideoById(id); });
+                        // TODO: THIS CLASS SHOULD NOT KNOW ABOUT YOUTUBE
+                        return watchVideoSource$.map(function (source) { return player.loadVideoById(source.youtubeId); });
                     })
                         .publishReplay(1)
                         .refCount();
@@ -988,7 +994,7 @@ System.register("src/directive/rx-player.component", ["angular", "rxjs/Observabl
                     transclude: true,
                     link: facade_1.localTemplateVariableLink,
                     scope: {
-                        videoId: '='
+                        videoSource: '='
                     },
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
@@ -1034,7 +1040,7 @@ System.register("src/ng-helper/plain-model", ["angular"], function (exports_20, 
         }
     };
 });
-System.register("src/service/youtube-quality-map.service", [], function (exports_21, context_21) {
+System.register("src/players/youtube/youtube-quality-map.service", [], function (exports_21, context_21) {
     "use strict";
     var __moduleName = context_21 && context_21.id;
     function invertKeyValues(map) {
@@ -1155,17 +1161,14 @@ System.register("src/service/youtube-marker-list.model", ["angular"], function (
         }
     };
 });
-System.register("src/service/youtube-player.model", ["angular", "rxjs/Observable", "src/ng-helper/plain-model", "src/service/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/util/uuid.service", "src/service/youtube-marker-list.model"], function (exports_25, context_25) {
+System.register("src/players/youtube/youtube-player.model", ["angular", "src/ng-helper/plain-model", "src/players/youtube/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/util/uuid.service", "src/service/youtube-marker-list.model"], function (exports_25, context_25) {
     "use strict";
     var __moduleName = context_25 && context_25.id;
-    var angular, Observable_5, plain_model_1, youtube_quality_map_service_1, youtube_readable_time_service_1, uuid_service_1, imports, YoutubePlayer;
+    var angular, plain_model_1, youtube_quality_map_service_1, youtube_readable_time_service_1, uuid_service_1, imports, YoutubePlayer;
     return {
         setters: [
             function (angular_8) {
                 angular = angular_8;
-            },
-            function (Observable_5_1) {
-                Observable_5 = Observable_5_1;
             },
             function (plain_model_1_1) {
                 plain_model_1 = plain_model_1_1;
@@ -1202,10 +1205,6 @@ System.register("src/service/youtube-player.model", ["angular", "rxjs/Observable
                     this._intendedQuality = 'default';
                     this._eventsInitialized = false;
                     this._markerListener = false;
-                    console.log('before obs');
-                    var obs$ = Observable_5.Observable.of([1, 2, 3]);
-                    obs$.subscribe(function (x) { return console.log(x); });
-                    console.log('after obs');
                     var op = angular.copy(options);
                     // TODO: Add a fit to parent or something like that
                     op.width = '100%';
@@ -2245,7 +2244,7 @@ System.register("src/overlay/player-progress-bar.component", ["src/ng-helper/fac
         }
     };
 });
-System.register("src/overlay/player-repeat-available-quality.directive", ["src/ng-helper/facade", "src/service/youtube-quality-map.service"], function (exports_36, context_36) {
+System.register("src/overlay/player-repeat-available-quality.directive", ["src/ng-helper/facade", "src/players/youtube/youtube-quality-map.service"], function (exports_36, context_36) {
     "use strict";
     var __moduleName = context_36 && context_36.id;
     var facade_12, youtube_quality_map_service_2, PlayerRepeatAvailableSpeedDirective;
@@ -2892,7 +2891,7 @@ System.register("src/service/youtube-template-marker.model", ["angular"], functi
         }
     };
 });
-System.register("src/service/youtube.service", ["angular", "rxjs/Observable", "src/service/rx-video.service", "src/ng-helper/facade"], function (exports_46, context_46) {
+System.register("src/players/youtube/youtube.service", ["angular", "rxjs/Observable", "src/service/rx-video.service", "src/ng-helper/facade"], function (exports_46, context_46) {
     "use strict";
     var __moduleName = context_46 && context_46.id;
     function loadPlayer(elmOrId, options) {
@@ -2912,7 +2911,7 @@ System.register("src/service/youtube.service", ["angular", "rxjs/Observable", "s
     }
     exports_46("loadPlayer", loadPlayer);
     function createVideoPlayer(options, $videoDiv) {
-        return Observable_6.Observable.create(function (observer) {
+        return Observable_4.Observable.create(function (observer) {
             options.height = options.height || '390';
             options.width = options.width || '640';
             // TODO: Need to see where to put this after refactor
@@ -2932,14 +2931,14 @@ System.register("src/service/youtube.service", ["angular", "rxjs/Observable", "s
         });
     }
     exports_46("createVideoPlayer", createVideoPlayer);
-    var angular, Observable_6, rx_video_service_2, facade_20, Factory, defaultOptions, autoload, apiLoadedPromise, Provider;
+    var angular, Observable_4, rx_video_service_2, facade_20, Factory, defaultOptions, autoload, apiLoadedPromise, Provider;
     return {
         setters: [
             function (angular_15) {
                 angular = angular_15;
             },
-            function (Observable_6_1) {
-                Observable_6 = Observable_6_1;
+            function (Observable_4_1) {
+                Observable_4 = Observable_4_1;
             },
             function (rx_video_service_2_1) {
                 rx_video_service_2 = rx_video_service_2_1;
@@ -3032,7 +3031,7 @@ System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPro
         }
     };
 });
-System.register("src/main", ["src/directive/rx-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-pause.component", "src/overlay/player-play.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/overlay/show-if-muted.directive", "src/overlay/show-if-player-is.directive", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/service/youtube-player.model", "src/service/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/service/youtube-template-marker.model", "src/service/youtube.service", "src/util/rx/rx-operators-import", "angular"], function (exports_48, context_48) {
+System.register("src/main", ["src/directive/rx-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-pause.component", "src/overlay/player-play.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/overlay/show-if-muted.directive", "src/overlay/show-if-player-is.directive", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/players/youtube/youtube-player.model", "src/service/youtube-readable-time.service", "src/service/youtube-template-marker.model", "src/players/youtube/youtube.service", "src/util/rx/rx-operators-import", "angular"], function (exports_48, context_48) {
     "use strict";
     var __moduleName = context_48 && context_48.id;
     var angular;
@@ -3089,8 +3088,6 @@ System.register("src/main", ["src/directive/rx-player.component", "src/directive
             function (_40) {
             },
             function (_41) {
-            },
-            function (_42) {
             },
             function (angular_16) {
                 angular = angular_16;
@@ -3163,19 +3160,28 @@ TODO: Removed keep-aspect-ratio from rx-player, make it work later
 
         }
         */
-System.register("src/service/html5-player.model", ["src/ng-helper/plain-model"], function (exports_49, context_49) {
+System.register("src/players/html5/html5-player.model", ["angular", "src/ng-helper/plain-model"], function (exports_49, context_49) {
     "use strict";
     var __moduleName = context_49 && context_49.id;
-    var plain_model_2, HTML5Player;
+    var angular, plain_model_2, HTML5Player;
     return {
         setters: [
+            function (angular_17) {
+                angular = angular_17;
+            },
             function (plain_model_2_1) {
                 plain_model_2 = plain_model_2_1;
             }
         ],
         execute: function () {
             HTML5Player = (function () {
-                function HTML5Player() {
+                function HTML5Player(elm, options) {
+                    var video = angular.element('<video></video>');
+                    options.sources
+                        .map(function (source) { return angular.element("<source src=\"" + source.src + "\" type=\"" + source.type + "\">"); })
+                        .forEach(function (sourceElm) { return video.append(sourceElm); });
+                    angular.element(elm).replaceWith(video);
+                    this.video = video[0];
                 }
                 HTML5Player.prototype.play = function () {
                     this.video.play();
@@ -3196,24 +3202,83 @@ System.register("src/service/html5-player.model", ["src/ng-helper/plain-model"],
             }());
             HTML5Player = __decorate([
                 plain_model_2.PlainModel({
-                    name: 'YoutubePlayer',
+                    name: 'HTML5Player',
                 }),
-                __metadata("design:paramtypes", [])
+                __metadata("design:paramtypes", [HTML5Player, Object])
             ], HTML5Player);
             exports_49("HTML5Player", HTML5Player);
         }
     };
 });
-System.register("src/util/rx/facade", ["src/util/rx/from-angular-watch.util", "src/util/rx/take-until-scope-destroy.util"], function (exports_50, context_50) {
+System.register("src/players/html5/html5-player.service", ["rxjs/Observable", "src/players/html5/html5-player.model", "src/service/rx-video.service", "src/ng-helper/facade"], function (exports_50, context_50) {
     "use strict";
     var __moduleName = context_50 && context_50.id;
+    function loadPlayer(elm, options) {
+        // Get the angular 1 injector
+        return facade_21.getInjector()
+            .then(function (injector) { return injector.get('HTML5Player'); })
+            .then(function (HTML5Player) { return new HTML5Player(elm, options); });
+        // When the player says its ready, so do we
+        // .then(player => new Promise(resolve => player.on('onReady', () => resolve(player))));
+    }
+    exports_50("loadPlayer", loadPlayer);
+    // TODO: This is so far equal to the YoutubePlayer fn
+    function createVideoPlayer(options, $videoDiv) {
+        return Observable_5.Observable.create(function (observer) {
+            options.height = options.height || '390';
+            options.width = options.width || '640';
+            // TODO: Need to see where to put this after refactor
+            // this.elm.css('height', convertToUnits(options.height));
+            // this.elm.css('width', convertToUnits(options.width));
+            var player;
+            loadPlayer($videoDiv, options).then(function (p) {
+                player = p;
+                // player.setOverlayElement($overlayElm); // TODO: do i need this?
+                observer.next(player);
+            });
+            return function () {
+                if (player) {
+                    player.destroy();
+                }
+            };
+        });
+    }
+    exports_50("createVideoPlayer", createVideoPlayer);
+    var Observable_5, html5_player_model_1, rx_video_service_3, facade_21, Factory;
+    return {
+        setters: [
+            function (Observable_5_1) {
+                Observable_5 = Observable_5_1;
+            },
+            function (html5_player_model_1_1) {
+                html5_player_model_1 = html5_player_model_1_1;
+            },
+            function (rx_video_service_3_1) {
+                rx_video_service_3 = rx_video_service_3_1;
+            },
+            function (facade_21_1) {
+                facade_21 = facade_21_1;
+            }
+        ],
+        execute: function () {
+            html5_player_model_1.HTML5Player; // Hack to make typescript fetch that file
+            Factory = {
+                createVideoPlayer: createVideoPlayer
+            };
+            rx_video_service_3.registerVideoPlayer('HTML5Player', Factory);
+        }
+    };
+});
+System.register("src/util/rx/facade", ["src/util/rx/from-angular-watch.util", "src/util/rx/take-until-scope-destroy.util"], function (exports_51, context_51) {
+    "use strict";
+    var __moduleName = context_51 && context_51.id;
     function exportStar_2(m) {
         var exports = {};
         for (var n in m) {
             if (n !== "default")
                 exports[n] = m[n];
         }
-        exports_50(exports);
+        exports_51(exports);
     }
     return {
         setters: [

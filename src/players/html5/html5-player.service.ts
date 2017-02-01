@@ -1,6 +1,6 @@
 // TODO: Delete this?
 import {Observable} from 'rxjs/Observable';
-import {HTML5Player, IHTML5PlayerOptions} from 'src/service/html5-player.model';
+import {HTML5Player, IHTML5PlayerOptions} from 'src/players/html5/html5-player.model';
 import {IVideoPlayer} from 'src/service/video-player.model';
 import {registerVideoPlayer} from 'src/service/rx-video.service';
 import {getInjector} from 'src/ng-helper/facade';

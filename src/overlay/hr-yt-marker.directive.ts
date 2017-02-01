@@ -1,5 +1,5 @@
 import * as angular from 'angular';
-import {YoutubePlayer} from 'src/service/youtube-player.model';
+import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
 import {bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 
 export class YoutubeMarker {

@@ -1,7 +1,7 @@
 import {Component} from 'src/ng-helper/component';
 import * as angular from 'angular';
 import {RxPlayerComponent} from 'src/directive/rx-player.component';
-import 'src/service/html5-player.service';
+import 'src/players/html5/html5-player.service';
 
 import 'src/main';
 import 'rxPlayerTpl';

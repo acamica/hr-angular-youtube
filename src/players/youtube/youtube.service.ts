@@ -1,7 +1,7 @@
 // TODO: Delete this?
 import * as angular from 'angular';
 import {Observable} from 'rxjs/Observable';
-import {YoutubePlayer} from 'src/service/youtube-player.model';
+import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
 import {IVideoPlayer} from 'src/service/video-player.model';
 import {registerVideoPlayer} from 'src/service/rx-video.service';
 import {getInjector} from 'src/ng-helper/facade';

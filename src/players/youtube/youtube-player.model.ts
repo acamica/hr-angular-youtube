@@ -1,6 +1,6 @@
 import * as angular from 'angular';
 import {PlainModel} from 'src/ng-helper/plain-model';
-import {convertToYoutube, convertFromYoutube} from 'src/service/youtube-quality-map.service';
+import {convertToYoutube, convertFromYoutube} from 'src/players/youtube/youtube-quality-map.service';
 import {youtubeReadableTime} from 'src/service/youtube-readable-time.service';
 import {uuid} from 'src/util/uuid.service';
 import {IVideoPlayer} from 'src/service/video-player.model';
