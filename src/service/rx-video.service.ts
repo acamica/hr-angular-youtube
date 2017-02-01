@@ -21,7 +21,7 @@ export function registerVideoPlayer<T extends IVideoPlayer>
 export function createVideoPlayer<T extends IVideoPlayer>(
                     name: string,
                     options: any,
-                    videoDiv$: any
+                    videoDiv$: HTMLElement
                 ): Observable<T> {
 
     return Maybe

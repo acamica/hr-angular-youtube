@@ -1,7 +1,7 @@
 import * as angular from 'angular';
 // TODO Put all RxJs methods in a facade
 import {Observable} from 'rxjs/Observable';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
+// import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {fromAngularWatch} from 'src/util/rx/from-angular-watch.util';
 import {takeUntilScopeDestroy} from 'src/util/rx/take-until-scope-destroy.util';
 
@@ -18,6 +18,7 @@ import {createVideoPlayer} from 'src/service/rx-video.service';
 export interface IVideoSource {
     player: string;
     youtubeId: string; // TODO: THIS SHOULD NOT BE HERE!
+    sources: any; // TODO: THIS SHOULD NOT BE HERE!
 }
 
 // YOUTUBE specifics, TODO: see how to refactor
@@ -78,7 +79,7 @@ export class RxPlayerComponent {
 
     ngOnInit() {
         // TODO: Type this
-        const $videoDiv = this.elm[0].querySelector('.hr-yt-video-place-holder');
+        const $videoDiv: HTMLElement = this.elm[0].querySelector('.hr-yt-video-place-holder');
         const $overlayElm = angular.element(this.elm[0].querySelector('.hr-yt-overlay'));
 
         const options: any = {
@@ -103,11 +104,14 @@ export class RxPlayerComponent {
                                     .publishReplay(1)
                                     .refCount();
 
-
         this.player$ = watchVideoSource$
-                        .map(source => source.player)
+                        .map(source => ({
+                            playerClass: source.player,
+                            options: {...options, sources: source.sources}
+                        }))
+                        .do(console.log)
                         // Create a video player of the provided type
-                        .switchMap(playerClass => createVideoPlayer(playerClass, options, $videoDiv))
+                        .switchMap(({playerClass, options}) => createVideoPlayer(playerClass, options, $videoDiv))
                         .switchMap(player =>
                                 // TODO: THIS CLASS SHOULD NOT KNOW ABOUT YOUTUBE
                                 watchVideoSource$.map(source => player.loadVideoById(source.youtubeId))

@@ -1,7 +1,10 @@
-<video width="320" height="240">
-    <source src="https://media.w3.org/2010/05/sintel/trailer.ogv" type="video/ogg">
-</video>
+<rx-player width="320" video-source="ctrl.videoSource" #player-ctrl>
+</rx-player>
 <div class="controls">
-    <button ng-click="ctrl.playVideo()">Play</button>
-    <button ng-click="ctrl.pauseVideo()">Pause</button>
+    <button ng-click="playerCtrl.video.play()">Play</button>
+    <button ng-click="playerCtrl.video.pause()">Pause</button>
+    <input type="text" ng-model="ctrl.videoId"></input>
 </div>
+<!--<video width="320" height="240">
+    <source src="https://media.w3.org/2010/05/sintel/trailer.ogv" type="video/ogg">
+</video>-->
