@@ -1,13 +1,14 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {convertToYoutubeArray} from 'src/players/youtube/youtube-quality-map.service';
 import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
+import {RxPlayerComponent} from 'src/directive/rx-player.component';
 
 // TODO: this is similar to a behaviour directive, refactor so we don't
 // need to use the repeat logic
 @Directive({
     selector: 'playerRepeatAvailableQuality',
-    link: bindToCtrlCallOnInit(['youtubePlayer']),
-    require: ['^youtubePlayer'],
+    link: bindToCtrlCallOnInit(['rxPlayer']),
+    require: ['^rxPlayer'],
     replace: true,
     priority: 1000,
 
@@ -19,16 +20,16 @@ import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
     }
 })
 export class PlayerRepeatAvailableSpeedDirective {
-    private youtubePlayer: any;
+    private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$scope', '$attrs'];
     constructor (private elm, private scope, private attrs) {
     }
 
-    ngOnInit() {
-        this.youtubePlayer
-            .getPlayer()
-            .then((player: YoutubePlayer) => {
+    ngOnInit () {
+        this.rxPlayer
+            .player$
+            .subscribe((player: YoutubePlayer) => {
                 // Youtube doesnt inform you on the available qualities until loading video
                 const unbind = player.on('onStateChange', (event) => {
                     if (event.data === YT.PlayerState.PLAYING) {

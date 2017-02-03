@@ -1,22 +1,23 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
+import {RxPlayerComponent} from 'src/directive/rx-player.component';
 
 @Directive({
     selector: 'playerCurrentTime',
-    link: bindToCtrlCallOnInit(['youtubePlayer']),
-    require: ['^youtubePlayer']
+    link: bindToCtrlCallOnInit(['rxPlayer']),
+    require: ['^rxPlayer']
 })
 export class PlayerCurrentTimeComponent {
-    private youtubePlayer: any;
+    private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element'];
     constructor (private elm) {
     }
 
-    ngOnInit() {
-        this.youtubePlayer
-            .getPlayer()
-            .then((player: YoutubePlayer) => {
+    ngOnInit () {
+        this.rxPlayer
+            .player$
+            .subscribe((player: YoutubePlayer) => {
                 player.onProgress(() =>
                     this.elm.html(player.getHumanReadableCurrentTime())
                 , 250);

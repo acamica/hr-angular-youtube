@@ -1,20 +1,21 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
+import {RxPlayerComponent} from 'src/directive/rx-player.component';
 import * as angular from 'angular';
 
 @Directive({
     selector: 'ytSlider',
-    link: bindToCtrlCallOnInit(['youtubePlayer']),
-    require: ['^youtubePlayer']
+    link: bindToCtrlCallOnInit(['rxPlayer']),
+    require: ['^rxPlayer']
 })
 export class YoutubeSliderDirective {
-    private youtubePlayer: any;
+    private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$attrs', '$scope', '$parse', '$document'];
     constructor (private elm, private attrs, private scope, private $parse, private $document) {
     }
 
-    ngOnInit() {
+    ngOnInit () {
         const slideDown  = this.$parse(this.attrs.ytSliderDown);
         const sliderMove = this.$parse(this.attrs.ytSliderMove);
         const sliderUp   = this.$parse(this.attrs.ytSlider);
@@ -22,17 +23,17 @@ export class YoutubeSliderDirective {
         const getPercentageFromPageX = (pagex) => {
             // Get the player bar x from the page x
             const left =  this.elm[0].getBoundingClientRect().left;
-            const x = Math.min(Math.max(0,pagex - left), this.elm[0].clientWidth);
+            const x = Math.min(Math.max(0, pagex - left), this.elm[0].clientWidth);
 
             // Get the percentage of the bar
             const xpercent = x / this.elm[0].clientWidth;
             return xpercent;
         };
 
-        this.youtubePlayer
-            .getPlayer()
-            .then((player: YoutubePlayer) => {
-                const $videoElm = this.youtubePlayer.getVideoElement();
+        this.rxPlayer
+            .player$
+            .subscribe((player: YoutubePlayer) => {
+                const $videoElm = this.rxPlayer.getVideoElement();
 
                 this.elm.on('mousedown', (e) => {
                     // If it wasn't a left click, end

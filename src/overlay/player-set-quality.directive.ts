@@ -1,23 +1,25 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
+import {RxPlayerComponent} from 'src/directive/rx-player.component';
+
 @Directive({
     selector: 'playerSetQuality',
-    link: bindToCtrlCallOnInit(['youtubePlayer']),
-    require: ['^youtubePlayer']
+    link: bindToCtrlCallOnInit(['rxPlayer']),
+    require: ['^rxPlayer']
 })
 export class PlayerCurrentTimeComponent {
-    private youtubePlayer: any;
+    private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$parse', '$attrs', '$scope'];
     constructor (private elm, private $parse, private attrs, private scope) {
     }
 
-    ngOnInit() {
+    ngOnInit () {
         const fn = this.$parse(this.attrs.playerSetQuality);
 
-        this.youtubePlayer
-            .getPlayer()
-            .then((player: YoutubePlayer) =>
+        this.rxPlayer
+            .player$
+            .subscribe((player: YoutubePlayer) =>
                 this.elm.on('click', () =>
                         this.scope.$apply(() =>
                             player.setHumanPlaybackQuality(fn(this.scope))

@@ -1,13 +1,14 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
+import {RxPlayerComponent} from 'src/directive/rx-player.component';
 
 @Directive({
     selector: 'showIfPlayerIs',
-    link: bindToCtrlCallOnInit(['youtubePlayer']),
-    require: ['^youtubePlayer']
+    link: bindToCtrlCallOnInit(['rxPlayer']),
+    require: ['^rxPlayer']
 })
 export class ShowIfPlayerIsDirective {
-    private youtubePlayer: any;
+    private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$animate', '$attrs'];
     constructor (private elm, private $animate, private attrs) {
@@ -15,10 +16,10 @@ export class ShowIfPlayerIsDirective {
         $animate.addClass(elm, 'ng-hide');
     }
 
-    ngOnInit() {
-        this.youtubePlayer
-            .getPlayer()
-            .then((player: YoutubePlayer) => {
+    ngOnInit () {
+        this.rxPlayer
+            .player$
+            .subscribe((player: YoutubePlayer) => {
                 // Convert it first into the array of string
                 const stringStates = this.attrs.showIfPlayerIs.toUpperCase().split(',');
 
@@ -31,7 +32,7 @@ export class ShowIfPlayerIsDirective {
                     }
                 });
 
-                const hideOrShow = (event) =>{
+                const hideOrShow = (event) => {
                     if (states.indexOf(event.data) !== -1) {
                         this.$animate.removeClass(this.elm, 'ng-hide');
                     } else {

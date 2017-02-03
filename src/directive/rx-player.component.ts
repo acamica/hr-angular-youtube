@@ -1,3 +1,4 @@
+// TODO: Move this into players folder
 import * as angular from 'angular';
 // TODO Put all RxJs methods in a facade
 import {Observable} from 'rxjs/Observable';
@@ -15,6 +16,7 @@ import {RxVideoInterface} from 'src/service/rx-video-interface.model';
 
 import {createVideoPlayer} from 'src/service/rx-video.service';
 
+// TODO: Try to redefine as an algebraic data type, but see if that can be extended
 export interface IVideoSource {
     player: string;
     youtubeId: string; // TODO: THIS SHOULD NOT BE HERE!
@@ -77,7 +79,7 @@ export class RxPlayerComponent {
     // FROM ex LINK
     private videoSource: IVideoSource;
 
-    ngOnInit() {
+    ngOnInit () {
         // TODO: Type this
         const $videoDiv: HTMLElement = this.elm[0].querySelector('.hr-yt-video-place-holder');
         const $overlayElm = angular.element(this.elm[0].querySelector('.hr-yt-overlay'));
@@ -107,18 +109,21 @@ export class RxPlayerComponent {
         this.player$ = watchVideoSource$
                         .map(source => ({
                             playerClass: source.player,
+                            // TODO: Hardcoded to HTML5 sources :/
                             options: {...options, sources: source.sources}
                         }))
-                        .do(console.log)
+                        .do(x => console.log('video source', x))
+                        // TODO: add takeUntilScopeDestroy before sharing
                         // Create a video player of the provided type
-                        .switchMap(({playerClass, options}) => createVideoPlayer(playerClass, options, $videoDiv))
-                        .switchMap(player =>
-                                // TODO: THIS CLASS SHOULD NOT KNOW ABOUT YOUTUBE
-                                watchVideoSource$.map(source => player.loadVideoById(source.youtubeId))
+                        .switchMap(({playerClass, options}) =>
+                             createVideoPlayer(playerClass, options, $videoDiv),
                         )
+                        .do(x => console.log('video player created', x))
+                        .withLatestFrom(watchVideoSource$, (player, source) => ({player, source}))
+                        .switchMap(({player, source}) => player.load(source))
                         .publishReplay(1)
-                        .refCount();
                         // .multicast(() => new ReplaySubject(1))
+                        .refCount();
 
         // As long as this component is alive, subscribe to the player to have
         // the shared instance (TODO: Revisit this)
@@ -131,7 +136,7 @@ export class RxPlayerComponent {
 
     }
 }
-function convertToUnits(u: number|string): string {
+function convertToUnits (u: number|string): string {
     // If its numbers, interpret pixels
     if (typeof u === 'number' || /^\d+$/.test(u)) {
         return u + 'px';

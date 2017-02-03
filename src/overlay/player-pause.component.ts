@@ -1,24 +1,26 @@
 import {Component, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
+import {RxPlayerComponent} from 'src/directive/rx-player.component';
 
 @Component({
     selector: 'playerPause',
     templateUrl: '/template/overlay/player-pause.component.html',
-    link: bindToCtrlCallOnInit(['youtubePlayer']),
+    link: bindToCtrlCallOnInit(['rxPlayer']),
     transclude: true,
-    require: ['^youtubePlayer']
+    require: ['^rxPlayer']
 })
 export class PlayerPauseComponent {
-    private youtubePlayer: any;
+    private rxPlayer: RxPlayerComponent;
+
 
     static $inject = ['$element'];
     constructor (private elm) {
     }
 
-    ngOnInit() {
-        this.youtubePlayer
-            .getPlayer()
-            .then((player: YoutubePlayer) =>
+    ngOnInit () {
+        this.rxPlayer
+            .player$
+            .subscribe((player: YoutubePlayer) =>
                 this.elm.on('click', () => player.pause())
             );
     }

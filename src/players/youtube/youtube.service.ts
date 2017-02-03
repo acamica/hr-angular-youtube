@@ -19,20 +19,21 @@ let defaultOptions = {
 };
 let autoload = true;
 
+// TODO: Replace with observable
 export const apiLoadedPromise = new Promise(resolve => {
     // Youtube callback when API is ready
     window['onYouTubeIframeAPIReady'] = resolve;
 });
 
 export function loadPlayer (elmOrId, options): Promise<YoutubePlayer> {
-    return apiLoadedPromise.then(function(){
-        let newOptions: any = {};
+    return apiLoadedPromise.then(function (){
+        const newOptions: any = {};
         // Override main options
         angular.extend(newOptions, angular.copy(defaultOptions), options);
         // Override player var options
         newOptions.playerVars = {}; // For some reason if I dont reset this angular.extend doesnt work as expected
         angular.extend(newOptions.playerVars, angular.copy(defaultOptions.playerVars), options.playerVars);
-
+        // TODO: Replace with observable
         // Get the angular 1 injector
         return getInjector()
             // Get the YoutubePlayer constructor
@@ -51,7 +52,7 @@ export interface IYoutubePlayerOptions {
     width: string;
 }
 
-export function createVideoPlayer(options: IYoutubePlayerOptions, $videoDiv): Observable<IVideoPlayer> {
+export function createVideoPlayer (options: IYoutubePlayerOptions, $videoDiv): Observable<IVideoPlayer> {
     return Observable.create(observer => {
         options.height = options.height || '390';
         options.width = options.width || '640';

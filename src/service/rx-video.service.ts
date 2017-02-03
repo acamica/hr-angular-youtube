@@ -3,7 +3,7 @@ import {IVideoPlayer} from 'src/service/video-player.model';
 import {Maybe} from 'src/util/algebras/maybe';
 import 'src/util/algebras/maybe-rx';
 export interface IPlayerFactory<T extends IVideoPlayer> {
-    createVideoPlayer(options, elm): Observable<T>;
+    createVideoPlayer (options, elm): Observable<T>;
 }
 
 // TODO: replace with angular injector
@@ -18,12 +18,12 @@ export function registerVideoPlayer<T extends IVideoPlayer>
     Registry[name] = player;
 }
 
-export function createVideoPlayer<T extends IVideoPlayer>(
+export function createVideoPlayer<T extends IVideoPlayer> (
                     name: string,
                     options: any,
                     videoDiv$: HTMLElement
                 ): Observable<T> {
-
+    console.log('creating video player');
     return Maybe
                 .fromNullable(Registry[name] as IPlayerFactory<T>)
                 .toObservable()

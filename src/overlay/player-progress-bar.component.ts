@@ -1,28 +1,29 @@
 import {Component, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
+import {RxPlayerComponent} from 'src/directive/rx-player.component';
 import * as angular from 'angular';
 
 @Component({
     selector: 'playerProgressBar',
     templateUrl: '/template/overlay/player-progress-bar.component.html',
-    link: bindToCtrlCallOnInit(['youtubePlayer']),
-    require: ['^youtubePlayer']
+    link: bindToCtrlCallOnInit(['rxPlayer']),
+    require: ['^rxPlayer']
 })
 export class PlayerProgressBar {
-    private youtubePlayer: any;
+    private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$scope'];
     constructor (private elm, private scope) {
     }
 
-    ngOnInit() {
+    ngOnInit () {
         const $played = angular.element(this.elm[0].querySelector('.hr-yt-played'));
         const $loaded = angular.element(this.elm[0].querySelector('.hr-yt-loaded'));
         const $handle = angular.element(this.elm[0].querySelector('.hr-yt-handle'));
 
-        this.youtubePlayer
-            .getPlayer()
-            .then((player: YoutubePlayer) => {
+        this.rxPlayer
+            .player$
+            .subscribe((player: YoutubePlayer) => {
                 const duration = player.getDuration();
 
                 const updateProgress = (sec?) => {
@@ -47,7 +48,7 @@ export class PlayerProgressBar {
                     $handle.css('left', handleX + 'px');
                 };
                 // Update the progress on an interval when playing
-                player.onProgress(function(){
+                player.onProgress(function (){
                     // The interval calls updateProgress with a number, so we need to add this inner fn
                     updateProgress();
                 });
@@ -66,14 +67,14 @@ export class PlayerProgressBar {
                     player.pause();
                 };
 
-                this.scope.onSliderMove = function(percentage) {
+                this.scope.onSliderMove = function (percentage) {
                     // See what second it corresponds to
                     const sec = Math.round(duration * percentage);
                     // player.eventSeekTo(sec, false);
                     updateProgress(sec);
                 };
 
-                this.scope.onSliderUp = function(percentage) {
+                this.scope.onSliderUp = function (percentage) {
                     // See what second it corresponds to
                     const sec = Math.round(duration * percentage);
                     if (playStatus === YT.PlayerState.PLAYING || playStatus === YT.PlayerState.PAUSED) {

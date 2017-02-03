@@ -1,22 +1,25 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
+import {RxPlayerComponent} from 'src/directive/rx-player.component';
+
 @Directive({
     selector: 'playerSetSpeed',
-    link: bindToCtrlCallOnInit(['youtubePlayer']),
-    require: ['^youtubePlayer']
+    link: bindToCtrlCallOnInit(['rxPlayer']),
+    require: ['^rxPlayer']
 })
 export class PlayerSetSpeedDirective {
-    private youtubePlayer: any;
+    private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$attrs', '$parse', '$scope'];
     constructor (private elm, private attrs, private $parse, private scope) {
     }
 
-    ngOnInit() {
+    ngOnInit () {
         const speedFn = this.$parse(this.attrs.playerSetSpeed);
-        this.youtubePlayer
-            .getPlayer()
-            .then((player: YoutubePlayer) =>
+
+        this.rxPlayer
+            .player$
+            .subscribe((player: YoutubePlayer) =>
                 this.elm.on('click', () =>
                     this.scope.$apply(() => {
                         const speed = speedFn(this.scope);

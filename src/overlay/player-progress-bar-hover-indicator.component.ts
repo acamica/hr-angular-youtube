@@ -1,23 +1,24 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {youtubeReadableTime} from 'src/service/youtube-readable-time.service';
 import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
+import {RxPlayerComponent} from 'src/directive/rx-player.component';
 
 // TODO: This had restrict A so its a directive, but it also has an html template soooo its a
 // component? Refactor :D
 @Directive({
     selector: 'hoverIndicator',
     // templateUrl: '/template/overlay/player-progress-bar-hover-indicator.html',
-    link: bindToCtrlCallOnInit(['youtubePlayer']),
-    require: ['^youtubePlayer']
+    link: bindToCtrlCallOnInit(['rxPlayer']),
+    require: ['^rxPlayer']
 })
 export class HoverIndicatorComponent {
-    private youtubePlayer: any;
+    private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$document', '$compile', '$templateCache', '$http', '$scope'];
     constructor (private elm, private $document, private $compile, private $templateCache, private $http, private scope) {
     }
 
-    ngOnInit() {
+    ngOnInit () {
 
         // TODO: This is copy pasted from ytSlider, refactor!!!
         const getPercentageFromPageX = (pagex) => {
@@ -45,9 +46,9 @@ export class HoverIndicatorComponent {
             this.elm.parent().append(indicatorElm);
         });
 
-        this.youtubePlayer
-            .getPlayer()
-            .then((player: YoutubePlayer) => {
+        this.rxPlayer
+            .player$
+            .subscribe((player: YoutubePlayer) => {
                 const duration = player.getDuration();
 
                 const barMove = (event) => {

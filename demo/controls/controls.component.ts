@@ -1,6 +1,7 @@
 import * as angular from 'angular';
 import {Component} from 'src/ng-helper/facade';
 import {RxPlayerComponent} from 'src/directive/rx-player.component';
+import {fromAngularWatch} from 'src/util/rx/from-angular-watch.util';
 import 'src/main';
 import 'rxPlayerTpl';
 
@@ -11,7 +12,7 @@ angular
     .module('demoControls', ['rxPlayer', 'rxPlayerTpls'])
     .config(['youtubeProvider', configureYoutubeProvider]);
 
-function configureYoutubeProvider(youtubeProvider) {
+function configureYoutubeProvider (youtubeProvider) {
     // This options are taken from here
     // https://developers.google.com/youtube/player_parameters?playerVersion=HTML5
     youtubeProvider.setPlayerVarOption('controls', 0);
@@ -26,14 +27,19 @@ function configureYoutubeProvider(youtubeProvider) {
     directives: [RxPlayerComponent],
 })
 class ControlsDemoComponent {
-    videoSource = {
-        player: 'YoutubePlayer',
-        youtubeId: 'QjX9Wu-MJ-s'
-    };
+    videoId = 'QjX9Wu-MJ-s';
+    videoSource: any;
 
-    static $inject = [];
-    constructor() {
-
+    static $inject = ['$scope'];
+    constructor ($scope) {
+        fromAngularWatch(() => this.videoId, $scope)
+            .map(videoId => {
+                return {
+                    player: 'YoutubePlayer',
+                    youtubeId: videoId
+                };
+            })
+            .subscribe(source => this.videoSource = source);
     }
 
 }

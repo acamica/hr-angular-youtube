@@ -1,37 +1,40 @@
+import * as angular from 'angular';
+
 import {Component, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
-import * as angular from 'angular';
+import {RxPlayerComponent} from 'src/directive/rx-player.component';
+
 
 @Component({
     selector: 'playerVolumeHorizontal',
     templateUrl: '/template/overlay/player-volume-horizontal.component.html',
-    link: bindToCtrlCallOnInit(['youtubePlayer']),
+    link: bindToCtrlCallOnInit(['rxPlayer']),
     transclude: true,
-    require: ['^youtubePlayer']
+    require: ['^rxPlayer']
 })
 export class PlayerVolumeHorizontalComponent {
-    private youtubePlayer: any;
+    private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$scope'];
     constructor (private elm, private scope) {
     }
 
-    ngOnInit() {
+    ngOnInit () {
         const $volumeBar = angular.element(this.elm[0].querySelector('.hr-yt-volume-hr-bar'));
         const $settedBar = angular.element(this.elm[0].querySelector('.hr-yt-setted'));
         const $handle    = angular.element(this.elm[0].querySelector('.hr-yt-handle'));
 
-        this.youtubePlayer
-            .getPlayer()
-            .then((player: YoutubePlayer) => {
+        this.rxPlayer
+            .player$
+            .subscribe((player: YoutubePlayer) => {
                 const updateVolumeBar = (volume) => {
                     let handleX = volume * $volumeBar[0].clientWidth - $handle[0].clientWidth / 2  ;
-                    handleX = Math.min(Math.max(0, handleX),$volumeBar[0].clientWidth - $handle[0].clientWidth / 2);
+                    handleX = Math.min(Math.max(0, handleX), $volumeBar[0].clientWidth - $handle[0].clientWidth / 2);
                     $settedBar.css('width', volume * 100 + '%');
                     $handle.css('left', handleX + 'px');
                 };
 
-                this.scope.toggleMute = function() {
+                this.scope.toggleMute = function () {
                     player.toggleMute();
                 };
 

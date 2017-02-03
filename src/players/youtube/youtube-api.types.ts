@@ -4,8 +4,9 @@ namespace YT {
 
     // tslint:disable-next-line: interface-name
     export interface Player {
-        getPlaybackQuality(): VideoQuality;
-        setPlaybackQuality(suggestedQuality: SuggestedVideoQuality): void;
-        getAvailableQualityLevels(): VideoQuality[];
+        getPlaybackQuality (): VideoQuality;
+        setPlaybackQuality (suggestedQuality: SuggestedVideoQuality): void;
+        getAvailableQualityLevels (): VideoQuality[];
+        removeEventListener (event: string, handler: EventHandler): void;
     }
 }

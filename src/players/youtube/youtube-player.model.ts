@@ -1,10 +1,11 @@
 import * as angular from 'angular';
+import {Observable} from 'rxjs/Observable';
+import {IYoutubePlayerOptions} from 'src/players/youtube/youtube.service';
 import {PlainModel} from 'src/ng-helper/plain-model';
 import {convertToYoutube, convertFromYoutube} from 'src/players/youtube/youtube-quality-map.service';
 import {youtubeReadableTime} from 'src/service/youtube-readable-time.service';
 import {uuid} from 'src/util/uuid.service';
 import {IVideoPlayer} from 'src/service/video-player.model';
-
 import 'src/service/youtube-marker-list.model'; // TODO: Refactor markers
 
 const imports = {
@@ -30,7 +31,7 @@ export class YoutubePlayer
     private _volume = 100;
     private _intendedQuality: YT.SuggestedVideoQuality = 'default';
     private _element: any;
-    constructor(elmOrId, private options) {
+    constructor (elmOrId, private options) {
         const op = angular.copy(options);
         // TODO: Add a fit to parent or something like that
         op.width = '100%';
@@ -89,7 +90,7 @@ export class YoutubePlayer
             promise = null;
         };
 
-        const cancel = function() {
+        const cancel = function () {
             stopInterval();
             // TODO: something more to destroy / release stuff.
         };
@@ -207,7 +208,7 @@ export class YoutubePlayer
         });
     };
 
-    emit(name, data?) {
+    emit (name, data?) {
         imports.$rootScope.$emit(this._eventHash + name, data);
     };
 
@@ -365,52 +366,80 @@ export class YoutubePlayer
     };
 
     // TODO: See what to do with this proxy methods
-    getDuration() {
+    getDuration () {
         return this.player.getDuration();
     }
 
-    getCurrentTime() {
+    getCurrentTime () {
         return this.player.getCurrentTime();
     }
-    getPlayerState() {
+    getPlayerState () {
         return this.player.getPlayerState();
     }
 
-    destroy() {
+    destroy () {
         return this.player.destroy();
     }
 
-    loadVideoById(videoId: string, startSeconds?: number, suggestedQuality?: string) {
-        debugger;
+    loadVideoById (videoId: string, startSeconds?: number, suggestedQuality?: string) {
         this.player.loadVideoById(videoId, startSeconds, suggestedQuality);
         return this;
     }
 
-    getPlaybackRate() {
+    fromEvent (eventName: string): Observable<YT.EventArgs> {
+        const addHandler = (h) => this.player.addEventListener(eventName, h);
+        const removeHandler = (h) => this.player.removeEventListener(eventName, h);
+        return Observable.fromEventPattern(addHandler, removeHandler);
+    }
+
+    // TODO: type youtube source
+    /**
+     * Loads a source and emit a single value when the video is loaded
+     */
+    load (source): Observable<YoutubePlayer> {
+        const loadVideo$ = this.fromEvent('onStateChange')
+            // .do(x => console.log('state', x.data))
+            .filter(x => x.data === YT.PlayerState.PLAYING)
+            // Count the number of times the player start playing
+            .scan(n => n + 1, 0)
+            // We only care about the first time
+            .filter(n => n === 1)
+            // The first time pause the video (kind of autoload)
+            .do(_ => this.player.pauseVideo())
+            // .do(x => console.log('pause', x))
+            .map(_ => this);
+
+        // TODO: It would be nice if this is part of the stream
+        this.player.loadVideoById(source.youtubeId);
+
+        return loadVideo$;
+    }
+
+    getPlaybackRate () {
         return this.player.getPlaybackRate();
     }
 
-    play() {
+    play () {
         return this.player.playVideo();
     }
 
-    pause() {
+    pause () {
         return this.player.pauseVideo();
     }
 
-    getVideoLoadedFraction() {
+    getVideoLoadedFraction () {
         return this.player.getVideoLoadedFraction();
     }
 
-    getAvailablePlaybackRates() {
+    getAvailablePlaybackRates () {
         return this.player.getAvailablePlaybackRates();
     }
 
-    setPlaybackRate(suggestedRate: number) {
+    setPlaybackRate (suggestedRate: number) {
         return this.player.setPlaybackRate(suggestedRate);
     }
 
-    getAvailableQualityLevels() {
+    getAvailableQualityLevels () {
         return this.player.getAvailableQualityLevels();
     }
 }

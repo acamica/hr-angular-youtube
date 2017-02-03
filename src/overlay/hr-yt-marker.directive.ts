@@ -1,18 +1,19 @@
 import * as angular from 'angular';
 import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
 import {bindToCtrlCallOnInit} from 'src/ng-helper/facade';
+import {RxPlayerComponent} from 'src/directive/rx-player.component';
 
 export class YoutubeMarker {
-    private youtubePlayer: any;
+    private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$scope'];
     constructor (private elm, private scope) {
     }
-    ngOnInit() {
+    ngOnInit () {
 
-        this.youtubePlayer
-            .getPlayer()
-            .then((player: YoutubePlayer) => {
+        this.rxPlayer
+            .player$
+            .subscribe((player: YoutubePlayer) => {
                 const duration = player.getDuration();
                 const marker = this.scope.marker;
                 // If the marker has extra css, add it
@@ -29,10 +30,10 @@ export class YoutubeMarker {
 
                 if (marker.hasOwnProperty('mutable') && marker.mutable) {
                     this.scope.$watch(
-                        function() {
+                        function () {
                             return marker.startTime;
                         },
-                        function(newTime, oldTime) {
+                        function (newTime, oldTime) {
                             if (newTime === oldTime) {
                                 return;
                             }
@@ -46,14 +47,14 @@ export class YoutubeMarker {
 
 angular
     .module('rxPlayer')
-    .directive('hrYtMarker', function() {
+    .directive('hrYtMarker', function () {
         return {
             restrict: 'C',
             require: ['hrYtMarker', '^youtubePlayer'],
             scope: {
                 marker: '='
             },
-            link: bindToCtrlCallOnInit(['youtubePlayer']),
+            link: bindToCtrlCallOnInit(['rxPlayer']),
             controller: YoutubeMarker
         };
     });

@@ -5,7 +5,7 @@
         <script src="/node_modules/typescript/lib/typescript.js"></script>
         <script src="/demo/systemjs.config.js"></script>
         <script>
-            System.import('overlay.ts').then(function (test) {
+            System.import('overlay.component.ts').then(function (test) {
                 // // Manually bootstrap angular (same as ng-app but after the module loader kicks in)
                 angular.element(document).ready(function() {
                     angular.bootstrap(document, ['demoOverlay'], {strictDi: true, debugInfoEnabled: true});
@@ -27,7 +27,7 @@
     </head>
     <body>
         <div style="width: 600px">
-            <ng-include src="'overlay.html'"></ng-include>
+            <overlay-demo></overlay-demo>
         </div>
 
     </body>
