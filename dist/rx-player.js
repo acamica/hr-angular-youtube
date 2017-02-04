@@ -434,35 +434,13 @@ System.register("src/ng-helper/injector", ["angular", "src/ng-helper/module"], f
         }
     };
 });
-// angular.module('ng')
-// const imports = {
-//     $http: undefined as ng.IHttpService
-// };
-// @PlainModel({
-//     name: 'TypedRecordRestUtils',
-//     $inject: imports
-// })
-// export class TypedRecordRestUtils {} // Fix the way we use angular 1 injections in this cases
-// // Create a deferred $http function
-// export function $http<T> (url: ng.IRequestConfig): ng.IHttpPromise<T> {
-//     // return Maybe.fromNullable(imports.$http)
-//     //             .toPromise()
-//     //             .catch(_ => {
-//     //                 console.log('Imports not load');
-//     //                 return (any) => Promise.resolve(null);
-//     //                 // return Promise.reject('Imports not load');
-//     //             })
-//     //             .then($http => $http<T>(url));
-//     return imports.$http<T>(url);
-// }
 System.register("src/ng-helper/facade", ["src/ng-helper/component", "src/ng-helper/compose-link", "src/ng-helper/directive", "src/ng-helper/lifecycle", "src/ng-helper/require", "src/ng-helper/local-template-variable", "src/ng-helper/injector"], function (exports_11, context_11) {
     "use strict";
     var __moduleName = context_11 && context_11.id;
     function exportStar_1(m) {
         var exports = {};
         for (var n in m) {
-            if (n !== "default")
-                exports[n] = m[n];
+            if (n !== "default") exports[n] = m[n];
         }
         exports_11(exports);
     }
@@ -609,7 +587,7 @@ System.register("src/util/algebras/maybe", [], function (exports_16, context_16)
             Nothing = (function (_super) {
                 __extends(Nothing, _super);
                 function Nothing() {
-                    return _super.apply(this, arguments) || this;
+                    return _super !== null && _super.apply(this, arguments) || this;
                 }
                 // private x = null;
                 Nothing.prototype.toString = function () {
@@ -1603,21 +1581,6 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "rxjs/Ob
         }
     };
 });
-// // TODO: Inherit better than these :S once i know if this is the way I want to access the object
-// angular.forEach([
-//     'getOptions', 'loadModule', 'loadVideoById', 'loadVideoByUrl', 'cueVideoById', 'cueVideoByUrl', 'cuePlaylist',
-//     'loadPlaylist', 'playVideo', 'pauseVideo', 'stopVideo', 'seekTo', 'clearVideo',
-//     'nextVideo', 'previousVideo', 'playVideoAt',
-//     'setSize', 'getPlaybackRate', 'setPlaybackRate', 'getAvailablePlaybackRates',
-//     'setLoop', 'setShuffle', 'getVideoLoadedFraction', 'getPlayerState', 'getCurrentTime',
-//     'getPlaybackQuality', 'setPlaybackQuality', 'getAvailableQualityLevels', 'getDuration',
-//     'getVideoUrl', 'getVideoEmbedCode', 'getPlaylist', 'getPlaylistIndex', 'getIframe', 'destroy'
-//     // 'addEventListener', 'removeEventListener','mute',unMute,isMuted,getVolume,setVolume
-// ], function(name) {
-//     YoutubePlayer.prototype[name] = function() {
-//         return this.player[name].apply(this.player, arguments);
-//     };
-// });
 System.register("src/directive/yt-slider.directive", ["src/ng-helper/facade", "angular"], function (exports_27, context_27) {
     "use strict";
     var __moduleName = context_27 && context_27.id;
@@ -3124,8 +3087,8 @@ System.register("src/players/html5/html5-player.model", ["angular", "rxjs/Observ
                 };
                 HTML5Player.prototype.destroy = function () {
                 };
-                HTML5Player.prototype.load = function (source) {
-                    debugger;
+                HTML5Player.prototype.load = function (_a) {
+                    var sources = _a.sources;
                     return Observable_6.Observable.of(this);
                 };
                 return HTML5Player;
@@ -3205,8 +3168,7 @@ System.register("src/util/rx/facade", ["src/util/rx/from-angular-watch.util", "s
     function exportStar_2(m) {
         var exports = {};
         for (var n in m) {
-            if (n !== "default")
-                exports[n] = m[n];
+            if (n !== "default") exports[n] = m[n];
         }
         exports_51(exports);
     }

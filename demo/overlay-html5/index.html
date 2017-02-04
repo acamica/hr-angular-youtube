@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="/node_modules/systemjs/dist/system.js"></script>
+        <script src="/node_modules/typescript/lib/typescript.js"></script>
+        <script src="/demo/systemjs.config.js"></script>
+        <script>
+            System.import('overlay-html5.component.ts').then(function (test) {
+                // // Manually bootstrap angular (same as ng-app but after the module loader kicks in)
+                angular.element(document).ready(function() {
+                    angular.bootstrap(document, ['demoOverlayHTML5'], {strictDi: true, debugInfoEnabled: true});
+                });
+            });
+        </script>
+
+        <script src="../assets/screenfull.min.js"></script>
+
+        <link rel="stylesheet" href="../assets/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="../../dist/rx-player.css">
+
+
+        <!-- If I dont add the bootstrap-ui the speed and hd wont work -->
+        <!-- We need this for the speed and hd control -->
+        <link rel="stylesheet" href="bootstrap-dropdown.css">
+        <link rel="stylesheet" href="overlay.css">
+
+    </head>
+    <body>
+        <div style="width: 600px">
+            <overlay-demo-html5></overlay-demo-html5>
+        </div>
+
+    </body>
+
+</html>
