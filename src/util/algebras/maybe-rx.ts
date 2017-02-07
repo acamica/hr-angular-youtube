@@ -1,12 +1,12 @@
 import {Just, Nothing} from './maybe';
 import {Observable} from 'rxjs/Observable';
-import {of} from 'rxjs/Observable/of';
-import {_throw} from 'rxjs/Observable/throw';
+import {of} from 'rxjs/observable/of';
+import {_throw} from 'rxjs/observable/throw';
 
 declare module './maybe' {
     // tslint:disable-next-line: interface-name
     interface Maybe<T> {
-        toObservable(): Observable<T>;
+        toObservable (): Observable<T>;
     }
 }
 

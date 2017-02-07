@@ -4,6 +4,7 @@ import {RxPlayerComponent} from 'src/directive/rx-player.component';
 import 'src/main';
 import 'rxPlayerTpl';
 import 'ui.bootstrap';
+import 'src/ng-helper/async.filter';
 
 // TODO: Refactor to @Injectable and providers
 // http://blog.rangle.io/configurable-services-in-angular-2/

@@ -17,7 +17,6 @@ import './overlay/player-set-speed.directive';
 import './overlay/player-total-time.directive';
 import './overlay/player-volume-horizontal.component';
 import './overlay/show-if-muted.directive';
-import './overlay/show-if-player-is.directive';
 import './service/youtube-marker-list.model';
 import './service/youtube-marker.model';
 import './players/youtube/youtube-player.model';
@@ -31,7 +30,7 @@ import * as angular from 'angular';
 // which can be useful for performance
 if (typeof window['onYouTubeIframeAPIReady'] === 'undefined') {
     window['onYouTubeIframeAPIReady'] = function () {
-        setTimeout(function(){
+        setTimeout(function (){
             window['onYouTubeIframeAPIReady']();
         }, 100);
     };

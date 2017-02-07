@@ -4,10 +4,10 @@
         <player-progress-bar hover-indicator></player-progress-bar>
         <div class="controls">
             <span class="control-element">
-                <player-play show-if-player-is="cued,unstarted,ended,paused">
+                <player-play ng-hide="playerCtrl.video.isPlaying | async:this">
                     <i class="fa fa-play"></i>
                 </player-play>
-                <player-pause show-if-player-is="buffering,playing">
+                <player-pause ng-hide="playerCtrl.video.isNotPlaying | async:this">
                     <i class="fa fa-pause"></i>
                 </player-pause>
             </span>
