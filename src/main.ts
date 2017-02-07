@@ -6,8 +6,6 @@ import './overlay/player-current-quality.directive';
 import './overlay/player-current-speed.directive';
 import './overlay/player-current-time.directive';
 import './overlay/player-panel.component';
-import './overlay/player-pause.component';
-import './overlay/player-play.component';
 import './overlay/player-progress-bar-hover-indicator.component';
 import './overlay/player-progress-bar.component';
 import './overlay/player-repeat-available-quality.directive';

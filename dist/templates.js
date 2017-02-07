@@ -34,32 +34,6 @@ try {
   module = angular.module('rxPlayerTpls', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/template/overlay/player-pause.component.html',
-    '<div style="display: inherit" ng-transclude=""></div>\n' +
-    '');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('rxPlayerTpls');
-} catch (e) {
-  module = angular.module('rxPlayerTpls', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/template/overlay/player-play.component.html',
-    '<div style="display: inherit" ng-transclude=""></div>\n' +
-    '');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('rxPlayerTpls');
-} catch (e) {
-  module = angular.module('rxPlayerTpls', []);
-}
-module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-progress-bar-hover-indicator.component.html',
     '<div class="hr-hover-indicator">\n' +
     '    <span ng-bind="time"></span>\n' +
