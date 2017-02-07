@@ -472,34 +472,32 @@ System.register("src/ng-helper/facade", ["src/ng-helper/component", "src/ng-help
         }
     };
 });
-System.register("src/service/rx-video-player.model", [], function (exports_12, context_12) {
+System.register("src/service/video-player.model", [], function (exports_12, context_12) {
     "use strict";
     var __moduleName = context_12 && context_12.id;
     return {
         setters: [],
         execute: function () {
+            // StartEvent | PauseEvent | StopEvent
         }
     };
 });
-System.register("src/service/video-player.model", [], function (exports_13, context_13) {
+System.register("src/service/rx-video-interface.model", [], function (exports_13, context_13) {
     "use strict";
     var __moduleName = context_13 && context_13.id;
-    return {
-        setters: [],
-        execute: function () {
-        }
-    };
-});
-System.register("src/service/rx-video-interface.model", [], function (exports_14, context_14) {
-    "use strict";
-    var __moduleName = context_14 && context_14.id;
     var RxVideoInterface;
     return {
         setters: [],
         execute: function () {
             RxVideoInterface = (function () {
+                // implements IVideoPlayer {
                 function RxVideoInterface(player$) {
                     this.player$ = player$;
+                    this.isPlaying = this.player$
+                        .switchMap(function (player) { return player.playState$.mapTo(player); })
+                        .map(function (player) { return player.isPlaying(); })
+                        .startWith(false);
+                    this.isNotPlaying = this.isPlaying.map(function (isPlaying) { return !isPlaying; });
                 }
                 RxVideoInterface.prototype.play = function () {
                     this.player$
@@ -513,30 +511,30 @@ System.register("src/service/rx-video-interface.model", [], function (exports_14
                 };
                 return RxVideoInterface;
             }());
-            exports_14("RxVideoInterface", RxVideoInterface);
+            exports_13("RxVideoInterface", RxVideoInterface);
         }
     };
 });
-System.register("src/util/algebras/curry", [], function (exports_15, context_15) {
+System.register("src/util/algebras/curry", [], function (exports_14, context_14) {
     "use strict";
-    var __moduleName = context_15 && context_15.id;
+    var __moduleName = context_14 && context_14.id;
     return {
         setters: [],
         execute: function () {
         }
     };
 });
-System.register("src/util/algebras/maybe", [], function (exports_16, context_16) {
+System.register("src/util/algebras/maybe", [], function (exports_15, context_15) {
     "use strict";
-    var __moduleName = context_16 && context_16.id;
+    var __moduleName = context_15 && context_15.id;
     function nothing() {
         return new Nothing();
     }
-    exports_16("nothing", nothing);
+    exports_15("nothing", nothing);
     function just(x) {
         return new Just(x);
     }
-    exports_16("just", just);
+    exports_15("just", just);
     // export type Maybe<T> =  Nothing<T> | Just<T>;
     function maybe(c) {
         return function (m) {
@@ -548,7 +546,7 @@ System.register("src/util/algebras/maybe", [], function (exports_16, context_16)
             }
         };
     }
-    exports_16("maybe", maybe);
+    exports_15("maybe", maybe);
     var Maybe, Nothing, none, Just;
     return {
         setters: [],
@@ -583,7 +581,7 @@ System.register("src/util/algebras/maybe", [], function (exports_16, context_16)
                 };
                 return Maybe;
             }());
-            exports_16("Maybe", Maybe);
+            exports_15("Maybe", Maybe);
             Nothing = (function (_super) {
                 __extends(Nothing, _super);
                 function Nothing() {
@@ -628,8 +626,8 @@ System.register("src/util/algebras/maybe", [], function (exports_16, context_16)
                 };
                 return Nothing;
             }(Maybe));
-            exports_16("Nothing", Nothing);
-            exports_16("none", none = new Nothing());
+            exports_15("Nothing", Nothing);
+            exports_15("none", none = new Nothing());
             Just = (function (_super) {
                 __extends(Just, _super);
                 function Just(x) {
@@ -675,13 +673,13 @@ System.register("src/util/algebras/maybe", [], function (exports_16, context_16)
                 };
                 return Just;
             }(Maybe));
-            exports_16("Just", Just);
+            exports_15("Just", Just);
         }
     };
 });
-System.register("src/util/algebras/maybe-rx", ["src/util/algebras/maybe", "rxjs/Observable/of", "rxjs/Observable/throw"], function (exports_17, context_17) {
+System.register("src/util/algebras/maybe-rx", ["src/util/algebras/maybe", "rxjs/Observable/of", "rxjs/Observable/throw"], function (exports_16, context_16) {
     "use strict";
-    var __moduleName = context_17 && context_17.id;
+    var __moduleName = context_16 && context_16.id;
     var maybe_1, of_1, throw_1;
     return {
         setters: [
@@ -705,13 +703,13 @@ System.register("src/util/algebras/maybe-rx", ["src/util/algebras/maybe", "rxjs/
         }
     };
 });
-System.register("src/service/rx-video.service", ["rxjs/Observable", "src/util/algebras/maybe", "src/util/algebras/maybe-rx"], function (exports_18, context_18) {
+System.register("src/service/rx-video.service", ["rxjs/Observable", "src/util/algebras/maybe", "src/util/algebras/maybe-rx"], function (exports_17, context_17) {
     "use strict";
-    var __moduleName = context_18 && context_18.id;
+    var __moduleName = context_17 && context_17.id;
     function registerVideoPlayer(name, player) {
         Registry[name] = player;
     }
-    exports_18("registerVideoPlayer", registerVideoPlayer);
+    exports_17("registerVideoPlayer", registerVideoPlayer);
     function createVideoPlayer(name, options, videoDiv$) {
         console.log('creating video player');
         return maybe_2.Maybe
@@ -720,7 +718,7 @@ System.register("src/service/rx-video.service", ["rxjs/Observable", "src/util/al
             .switchMap(function (factory) { return factory.createVideoPlayer(options, videoDiv$); })
             .catch(function (_) { return Observable_3.Observable.throw("Video player \"" + name + "\" not found"); });
     }
-    exports_18("createVideoPlayer", createVideoPlayer);
+    exports_17("createVideoPlayer", createVideoPlayer);
     var Observable_3, maybe_2, Registry;
     return {
         setters: [
@@ -738,9 +736,9 @@ System.register("src/service/rx-video.service", ["rxjs/Observable", "src/util/al
         }
     };
 });
-System.register("src/directive/rx-player.component", ["angular", "src/util/rx/from-angular-watch.util", "src/util/rx/take-until-scope-destroy.util", "src/ng-helper/facade", "src/service/rx-video-interface.model", "src/service/rx-video.service"], function (exports_19, context_19) {
+System.register("src/directive/rx-player.component", ["angular", "src/util/rx/from-angular-watch.util", "src/util/rx/take-until-scope-destroy.util", "src/ng-helper/facade", "src/service/rx-video-interface.model", "src/service/rx-video.service"], function (exports_18, context_18) {
     "use strict";
-    var __moduleName = context_19 && context_19.id;
+    var __moduleName = context_18 && context_18.id;
     function convertToUnits(u) {
         // If its numbers, interpret pixels
         if (typeof u === 'number' || /^\d+$/.test(u)) {
@@ -869,13 +867,13 @@ System.register("src/directive/rx-player.component", ["angular", "src/util/rx/fr
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
             ], RxPlayerComponent);
-            exports_19("RxPlayerComponent", RxPlayerComponent);
+            exports_18("RxPlayerComponent", RxPlayerComponent);
         }
     };
 });
-System.register("src/players/youtube/youtube.service", ["angular", "rxjs/Observable", "src/service/rx-video.service", "src/ng-helper/facade"], function (exports_20, context_20) {
+System.register("src/players/youtube/youtube.service", ["angular", "rxjs/Observable", "src/service/rx-video.service", "src/ng-helper/facade"], function (exports_19, context_19) {
     "use strict";
-    var __moduleName = context_20 && context_20.id;
+    var __moduleName = context_19 && context_19.id;
     function loadPlayer(elmOrId, options) {
         return apiLoadedPromise.then(function () {
             var newOptions = {};
@@ -892,7 +890,7 @@ System.register("src/players/youtube/youtube.service", ["angular", "rxjs/Observa
                 .then(function (player) { return new Promise(function (resolve) { return player.on('onReady', function () { return resolve(player); }); }); });
         });
     }
-    exports_20("loadPlayer", loadPlayer);
+    exports_19("loadPlayer", loadPlayer);
     function createVideoPlayer(options, $videoDiv) {
         return Observable_4.Observable.create(function (observer) {
             options.height = options.height || '390';
@@ -913,7 +911,7 @@ System.register("src/players/youtube/youtube.service", ["angular", "rxjs/Observa
             };
         });
     }
-    exports_20("createVideoPlayer", createVideoPlayer);
+    exports_19("createVideoPlayer", createVideoPlayer);
     var angular, Observable_4, rx_video_service_2, facade_2, Factory, defaultOptions, autoload, apiLoadedPromise, Provider;
     return {
         setters: [
@@ -943,7 +941,7 @@ System.register("src/players/youtube/youtube.service", ["angular", "rxjs/Observa
             };
             autoload = true;
             // TODO: Replace with observable
-            exports_20("apiLoadedPromise", apiLoadedPromise = new Promise(function (resolve) {
+            exports_19("apiLoadedPromise", apiLoadedPromise = new Promise(function (resolve) {
                 // Youtube callback when API is ready
                 window['onYouTubeIframeAPIReady'] = resolve;
             }));
@@ -980,14 +978,14 @@ System.register("src/players/youtube/youtube.service", ["angular", "rxjs/Observa
                 ;
                 return Provider;
             }());
-            exports_20("Provider", Provider);
+            exports_19("Provider", Provider);
             angular.module('rxPlayer').provider('youtube', new Provider());
         }
     };
 });
-System.register("src/ng-helper/plain-model", ["angular"], function (exports_21, context_21) {
+System.register("src/ng-helper/plain-model", ["angular"], function (exports_20, context_20) {
     "use strict";
-    var __moduleName = context_21 && context_21.id;
+    var __moduleName = context_20 && context_20.id;
     function PlainModel(options) {
         return function (target) {
             var ng1Injects = Object.keys(options.$inject || {});
@@ -1010,7 +1008,7 @@ System.register("src/ng-helper/plain-model", ["angular"], function (exports_21, 
             }
         };
     }
-    exports_21("PlainModel", PlainModel);
+    exports_20("PlainModel", PlainModel);
     var angular;
     return {
         setters: [
@@ -1022,9 +1020,9 @@ System.register("src/ng-helper/plain-model", ["angular"], function (exports_21, 
         }
     };
 });
-System.register("src/players/youtube/youtube-quality-map.service", [], function (exports_22, context_22) {
+System.register("src/players/youtube/youtube-quality-map.service", [], function (exports_21, context_21) {
     "use strict";
-    var __moduleName = context_22 && context_22.id;
+    var __moduleName = context_21 && context_21.id;
     function invertKeyValues(map) {
         var inverseMap = {};
         var value;
@@ -1049,15 +1047,15 @@ System.register("src/players/youtube/youtube-quality-map.service", [], function 
                 'auto': 'Auto'
             };
             inverseMap = invertKeyValues(map);
-            exports_22("convertToYoutube", convertToYoutube = function (q) { return map[q] ? map[q] : 'Auto'; });
-            exports_22("convertFromYoutube", convertFromYoutube = function (q) { return inverseMap[q] ? inverseMap[q] : 'default'; });
-            exports_22("convertToYoutubeArray", convertToYoutubeArray = function (qArr) { return qArr.map(convertToYoutube); });
+            exports_21("convertToYoutube", convertToYoutube = function (q) { return map[q] ? map[q] : 'Auto'; });
+            exports_21("convertFromYoutube", convertFromYoutube = function (q) { return inverseMap[q] ? inverseMap[q] : 'default'; });
+            exports_21("convertToYoutubeArray", convertToYoutubeArray = function (qArr) { return qArr.map(convertToYoutube); });
         }
     };
 });
-System.register("src/service/youtube-readable-time.service", [], function (exports_23, context_23) {
+System.register("src/service/youtube-readable-time.service", [], function (exports_22, context_22) {
     "use strict";
-    var __moduleName = context_23 && context_23.id;
+    var __moduleName = context_22 && context_22.id;
     function youtubeReadableTime(t) {
         t = Math.floor(t);
         var seconds = t % 60;
@@ -1071,16 +1069,16 @@ System.register("src/service/youtube-readable-time.service", [], function (expor
             return minutes + ':' + String('00' + seconds).slice(-2);
         }
     }
-    exports_23("youtubeReadableTime", youtubeReadableTime);
+    exports_22("youtubeReadableTime", youtubeReadableTime);
     return {
         setters: [],
         execute: function () {
         }
     };
 });
-System.register("src/util/uuid.service", [], function (exports_24, context_24) {
+System.register("src/util/uuid.service", [], function (exports_23, context_23) {
     "use strict";
-    var __moduleName = context_24 && context_24.id;
+    var __moduleName = context_23 && context_23.id;
     /**
      * @description
      * Creates a hash string that follows the UUID standard
@@ -1090,16 +1088,16 @@ System.register("src/util/uuid.service", [], function (exports_24, context_24) {
             .toString(16)
             .substring(1);
     }
-    exports_24("uuid", uuid);
+    exports_23("uuid", uuid);
     return {
         setters: [],
         execute: function () {
         }
     };
 });
-System.register("src/service/youtube-marker-list.model", ["angular"], function (exports_25, context_25) {
+System.register("src/service/youtube-marker-list.model", ["angular"], function (exports_24, context_24) {
     "use strict";
-    var __moduleName = context_25 && context_25.id;
+    var __moduleName = context_24 && context_24.id;
     var angular;
     return {
         setters: [
@@ -1143,9 +1141,9 @@ System.register("src/service/youtube-marker-list.model", ["angular"], function (
         }
     };
 });
-System.register("src/players/youtube/youtube-player.model", ["angular", "rxjs/Observable", "src/ng-helper/plain-model", "src/players/youtube/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/util/uuid.service", "src/service/youtube-marker-list.model"], function (exports_26, context_26) {
+System.register("src/players/youtube/youtube-player.model", ["angular", "rxjs/Observable", "src/ng-helper/plain-model", "src/players/youtube/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/util/uuid.service", "src/service/youtube-marker-list.model"], function (exports_25, context_25) {
     "use strict";
-    var __moduleName = context_26 && context_26.id;
+    var __moduleName = context_25 && context_25.id;
     var angular, Observable_5, plain_model_1, youtube_quality_map_service_1, youtube_readable_time_service_1, uuid_service_1, imports, YoutubePlayer;
     return {
         setters: [
@@ -1190,6 +1188,8 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "rxjs/Ob
                     this._intendedQuality = 'default';
                     this._eventsInitialized = false;
                     this._markerListener = false;
+                    // TODO: need to map this event to a common interface once defined
+                    this.playState$ = this.fromEvent('onStateChange');
                     var op = angular.copy(options);
                     // TODO: Add a fit to parent or something like that
                     op.width = '100%';
@@ -1553,6 +1553,9 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "rxjs/Ob
                 YoutubePlayer.prototype.getAvailableQualityLevels = function () {
                     return this.player.getAvailableQualityLevels();
                 };
+                YoutubePlayer.prototype.isPlaying = function () {
+                    return this.player.getPlayerState() === YT.PlayerState.PLAYING;
+                };
                 return YoutubePlayer;
             }());
             YoutubePlayer = __decorate([
@@ -1562,7 +1565,7 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "rxjs/Ob
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], YoutubePlayer);
-            exports_26("YoutubePlayer", YoutubePlayer);
+            exports_25("YoutubePlayer", YoutubePlayer);
             // // TODO: Inherit better than these :S once i know if this is the way I want to access the object
             // angular.forEach([
             //     'getOptions', 'loadModule', 'loadVideoById', 'loadVideoByUrl', 'cueVideoById', 'cueVideoByUrl', 'cuePlaylist',
@@ -1581,9 +1584,9 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "rxjs/Ob
         }
     };
 });
-System.register("src/directive/yt-slider.directive", ["src/ng-helper/facade", "angular"], function (exports_27, context_27) {
+System.register("src/directive/yt-slider.directive", ["src/ng-helper/facade", "angular"], function (exports_26, context_26) {
     "use strict";
-    var __moduleName = context_27 && context_27.id;
+    var __moduleName = context_26 && context_26.id;
     var facade_3, angular, YoutubeSliderDirective;
     return {
         setters: [
@@ -1668,13 +1671,13 @@ System.register("src/directive/yt-slider.directive", ["src/ng-helper/facade", "a
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
             ], YoutubeSliderDirective);
-            exports_27("YoutubeSliderDirective", YoutubeSliderDirective);
+            exports_26("YoutubeSliderDirective", YoutubeSliderDirective);
         }
     };
 });
-System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper/facade"], function (exports_28, context_28) {
+System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper/facade"], function (exports_27, context_27) {
     "use strict";
-    var __moduleName = context_28 && context_28.id;
+    var __moduleName = context_27 && context_27.id;
     var angular, facade_4, YoutubeMarker;
     return {
         setters: [
@@ -1722,7 +1725,7 @@ System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper
                 return YoutubeMarker;
             }());
             YoutubeMarker.$inject = ['$element', '$scope'];
-            exports_28("YoutubeMarker", YoutubeMarker);
+            exports_27("YoutubeMarker", YoutubeMarker);
             angular
                 .module('rxPlayer')
                 .directive('hrYtMarker', function () {
@@ -1739,9 +1742,9 @@ System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper
         }
     };
 });
-System.register("src/overlay/player-current-quality.directive", ["src/ng-helper/facade"], function (exports_29, context_29) {
+System.register("src/overlay/player-current-quality.directive", ["src/ng-helper/facade"], function (exports_28, context_28) {
     "use strict";
-    var __moduleName = context_29 && context_29.id;
+    var __moduleName = context_28 && context_28.id;
     var facade_5, PlayerCurrentQualityComponent;
     return {
         setters: [
@@ -1790,13 +1793,13 @@ System.register("src/overlay/player-current-quality.directive", ["src/ng-helper/
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], PlayerCurrentQualityComponent);
-            exports_29("PlayerCurrentQualityComponent", PlayerCurrentQualityComponent);
+            exports_28("PlayerCurrentQualityComponent", PlayerCurrentQualityComponent);
         }
     };
 });
-System.register("src/overlay/player-current-speed.directive", ["src/ng-helper/facade"], function (exports_30, context_30) {
+System.register("src/overlay/player-current-speed.directive", ["src/ng-helper/facade"], function (exports_29, context_29) {
     "use strict";
-    var __moduleName = context_30 && context_30.id;
+    var __moduleName = context_29 && context_29.id;
     var facade_6, PlayerCurrentSpeedDirective;
     return {
         setters: [
@@ -1830,13 +1833,13 @@ System.register("src/overlay/player-current-speed.directive", ["src/ng-helper/fa
                 }),
                 __metadata("design:paramtypes", [Object])
             ], PlayerCurrentSpeedDirective);
-            exports_30("PlayerCurrentSpeedDirective", PlayerCurrentSpeedDirective);
+            exports_29("PlayerCurrentSpeedDirective", PlayerCurrentSpeedDirective);
         }
     };
 });
-System.register("src/overlay/player-current-time.directive", ["src/ng-helper/facade"], function (exports_31, context_31) {
+System.register("src/overlay/player-current-time.directive", ["src/ng-helper/facade"], function (exports_30, context_30) {
     "use strict";
-    var __moduleName = context_31 && context_31.id;
+    var __moduleName = context_30 && context_30.id;
     var facade_7, PlayerCurrentTimeComponent;
     return {
         setters: [
@@ -1873,13 +1876,13 @@ System.register("src/overlay/player-current-time.directive", ["src/ng-helper/fac
                 }),
                 __metadata("design:paramtypes", [Object])
             ], PlayerCurrentTimeComponent);
-            exports_31("PlayerCurrentTimeComponent", PlayerCurrentTimeComponent);
+            exports_30("PlayerCurrentTimeComponent", PlayerCurrentTimeComponent);
         }
     };
 });
-System.register("src/overlay/player-panel.component", ["src/ng-helper/facade"], function (exports_32, context_32) {
+System.register("src/overlay/player-panel.component", ["src/ng-helper/facade"], function (exports_31, context_31) {
     "use strict";
-    var __moduleName = context_32 && context_32.id;
+    var __moduleName = context_31 && context_31.id;
     var facade_8, PlayerPanelComponent;
     return {
         setters: [
@@ -1961,13 +1964,13 @@ System.register("src/overlay/player-panel.component", ["src/ng-helper/facade"], 
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
             ], PlayerPanelComponent);
-            exports_32("PlayerPanelComponent", PlayerPanelComponent);
+            exports_31("PlayerPanelComponent", PlayerPanelComponent);
         }
     };
 });
-System.register("src/overlay/player-pause.component", ["src/ng-helper/facade"], function (exports_33, context_33) {
+System.register("src/overlay/player-pause.component", ["src/ng-helper/facade"], function (exports_32, context_32) {
     "use strict";
-    var __moduleName = context_33 && context_33.id;
+    var __moduleName = context_32 && context_32.id;
     var facade_9, PlayerPauseComponent;
     return {
         setters: [
@@ -2001,13 +2004,13 @@ System.register("src/overlay/player-pause.component", ["src/ng-helper/facade"], 
                 }),
                 __metadata("design:paramtypes", [Object])
             ], PlayerPauseComponent);
-            exports_33("PlayerPauseComponent", PlayerPauseComponent);
+            exports_32("PlayerPauseComponent", PlayerPauseComponent);
         }
     };
 });
-System.register("src/overlay/player-play.component", ["src/ng-helper/facade"], function (exports_34, context_34) {
+System.register("src/overlay/player-play.component", ["src/ng-helper/facade"], function (exports_33, context_33) {
     "use strict";
-    var __moduleName = context_34 && context_34.id;
+    var __moduleName = context_33 && context_33.id;
     var facade_10, PlayerPlayComponent;
     return {
         setters: [
@@ -2041,13 +2044,13 @@ System.register("src/overlay/player-play.component", ["src/ng-helper/facade"], f
                 }),
                 __metadata("design:paramtypes", [Object])
             ], PlayerPlayComponent);
-            exports_34("PlayerPlayComponent", PlayerPlayComponent);
+            exports_33("PlayerPlayComponent", PlayerPlayComponent);
         }
     };
 });
-System.register("src/overlay/player-progress-bar-hover-indicator.component", ["src/ng-helper/facade", "src/service/youtube-readable-time.service"], function (exports_35, context_35) {
+System.register("src/overlay/player-progress-bar-hover-indicator.component", ["src/ng-helper/facade", "src/service/youtube-readable-time.service"], function (exports_34, context_34) {
     "use strict";
-    var __moduleName = context_35 && context_35.id;
+    var __moduleName = context_34 && context_34.id;
     var facade_11, youtube_readable_time_service_2, HoverIndicatorComponent;
     return {
         setters: [
@@ -2124,13 +2127,13 @@ System.register("src/overlay/player-progress-bar-hover-indicator.component", ["s
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object])
             ], HoverIndicatorComponent);
-            exports_35("HoverIndicatorComponent", HoverIndicatorComponent);
+            exports_34("HoverIndicatorComponent", HoverIndicatorComponent);
         }
     };
 });
-System.register("src/overlay/player-progress-bar.component", ["src/ng-helper/facade", "angular"], function (exports_36, context_36) {
+System.register("src/overlay/player-progress-bar.component", ["src/ng-helper/facade", "angular"], function (exports_35, context_35) {
     "use strict";
-    var __moduleName = context_36 && context_36.id;
+    var __moduleName = context_35 && context_35.id;
     var facade_12, angular, PlayerProgressBar;
     return {
         setters: [
@@ -2231,13 +2234,13 @@ System.register("src/overlay/player-progress-bar.component", ["src/ng-helper/fac
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], PlayerProgressBar);
-            exports_36("PlayerProgressBar", PlayerProgressBar);
+            exports_35("PlayerProgressBar", PlayerProgressBar);
         }
     };
 });
-System.register("src/overlay/player-repeat-available-quality.directive", ["src/ng-helper/facade", "src/players/youtube/youtube-quality-map.service"], function (exports_37, context_37) {
+System.register("src/overlay/player-repeat-available-quality.directive", ["src/ng-helper/facade", "src/players/youtube/youtube-quality-map.service"], function (exports_36, context_36) {
     "use strict";
-    var __moduleName = context_37 && context_37.id;
+    var __moduleName = context_36 && context_36.id;
     var facade_13, youtube_quality_map_service_2, PlayerRepeatAvailableSpeedDirective;
     return {
         setters: [
@@ -2293,13 +2296,13 @@ System.register("src/overlay/player-repeat-available-quality.directive", ["src/n
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object])
             ], PlayerRepeatAvailableSpeedDirective);
-            exports_37("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
+            exports_36("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
         }
     };
 });
-System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-helper/facade"], function (exports_38, context_38) {
+System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-helper/facade"], function (exports_37, context_37) {
     "use strict";
-    var __moduleName = context_38 && context_38.id;
+    var __moduleName = context_37 && context_37.id;
     var facade_14, PlayerRepeatAvailableSpeedDirective;
     return {
         setters: [
@@ -2344,13 +2347,13 @@ System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object])
             ], PlayerRepeatAvailableSpeedDirective);
-            exports_38("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
+            exports_37("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
         }
     };
 });
-System.register("src/overlay/player-set-quality.directive", ["src/ng-helper/facade"], function (exports_39, context_39) {
+System.register("src/overlay/player-set-quality.directive", ["src/ng-helper/facade"], function (exports_38, context_38) {
     "use strict";
-    var __moduleName = context_39 && context_39.id;
+    var __moduleName = context_38 && context_38.id;
     var facade_15, PlayerCurrentTimeComponent;
     return {
         setters: [
@@ -2390,13 +2393,13 @@ System.register("src/overlay/player-set-quality.directive", ["src/ng-helper/faca
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
             ], PlayerCurrentTimeComponent);
-            exports_39("PlayerCurrentTimeComponent", PlayerCurrentTimeComponent);
+            exports_38("PlayerCurrentTimeComponent", PlayerCurrentTimeComponent);
         }
     };
 });
-System.register("src/overlay/player-set-speed.directive", ["src/ng-helper/facade"], function (exports_40, context_40) {
+System.register("src/overlay/player-set-speed.directive", ["src/ng-helper/facade"], function (exports_39, context_39) {
     "use strict";
-    var __moduleName = context_40 && context_40.id;
+    var __moduleName = context_39 && context_39.id;
     var facade_16, PlayerSetSpeedDirective;
     return {
         setters: [
@@ -2437,13 +2440,13 @@ System.register("src/overlay/player-set-speed.directive", ["src/ng-helper/facade
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
             ], PlayerSetSpeedDirective);
-            exports_40("PlayerSetSpeedDirective", PlayerSetSpeedDirective);
+            exports_39("PlayerSetSpeedDirective", PlayerSetSpeedDirective);
         }
     };
 });
-System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facade"], function (exports_41, context_41) {
+System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facade"], function (exports_40, context_40) {
     "use strict";
-    var __moduleName = context_41 && context_41.id;
+    var __moduleName = context_40 && context_40.id;
     var facade_17, PlayerTotalTimeDirective;
     return {
         setters: [
@@ -2475,13 +2478,13 @@ System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facad
                 }),
                 __metadata("design:paramtypes", [Object])
             ], PlayerTotalTimeDirective);
-            exports_41("PlayerTotalTimeDirective", PlayerTotalTimeDirective);
+            exports_40("PlayerTotalTimeDirective", PlayerTotalTimeDirective);
         }
     };
 });
-System.register("src/overlay/player-volume-horizontal.component", ["angular", "src/ng-helper/facade"], function (exports_42, context_42) {
+System.register("src/overlay/player-volume-horizontal.component", ["angular", "src/ng-helper/facade"], function (exports_41, context_41) {
     "use strict";
-    var __moduleName = context_42 && context_42.id;
+    var __moduleName = context_41 && context_41.id;
     var angular, facade_18, PlayerVolumeHorizontalComponent;
     return {
         setters: [
@@ -2539,13 +2542,13 @@ System.register("src/overlay/player-volume-horizontal.component", ["angular", "s
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], PlayerVolumeHorizontalComponent);
-            exports_42("PlayerVolumeHorizontalComponent", PlayerVolumeHorizontalComponent);
+            exports_41("PlayerVolumeHorizontalComponent", PlayerVolumeHorizontalComponent);
         }
     };
 });
-System.register("src/overlay/show-if-muted.directive", ["src/ng-helper/facade"], function (exports_43, context_43) {
+System.register("src/overlay/show-if-muted.directive", ["src/ng-helper/facade"], function (exports_42, context_42) {
     "use strict";
-    var __moduleName = context_43 && context_43.id;
+    var __moduleName = context_42 && context_42.id;
     var facade_19, ShowIfMutedDirective;
     return {
         setters: [
@@ -2594,13 +2597,13 @@ System.register("src/overlay/show-if-muted.directive", ["src/ng-helper/facade"],
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object])
             ], ShowIfMutedDirective);
-            exports_43("ShowIfMutedDirective", ShowIfMutedDirective);
+            exports_42("ShowIfMutedDirective", ShowIfMutedDirective);
         }
     };
 });
-System.register("src/overlay/show-if-player-is.directive", ["src/ng-helper/facade"], function (exports_44, context_44) {
+System.register("src/overlay/show-if-player-is.directive", ["src/ng-helper/facade"], function (exports_43, context_43) {
     "use strict";
-    var __moduleName = context_44 && context_44.id;
+    var __moduleName = context_43 && context_43.id;
     var facade_20, ShowIfPlayerIsDirective;
     return {
         setters: [
@@ -2658,13 +2661,13 @@ System.register("src/overlay/show-if-player-is.directive", ["src/ng-helper/facad
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object])
             ], ShowIfPlayerIsDirective);
-            exports_44("ShowIfPlayerIsDirective", ShowIfPlayerIsDirective);
+            exports_43("ShowIfPlayerIsDirective", ShowIfPlayerIsDirective);
         }
     };
 });
-System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.service"], function (exports_45, context_45) {
+System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.service"], function (exports_44, context_44) {
     "use strict";
-    var __moduleName = context_45 && context_45.id;
+    var __moduleName = context_44 && context_44.id;
     var angular, uuid_service_2;
     return {
         setters: [
@@ -2796,9 +2799,9 @@ System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.s
         }
     };
 });
-System.register("src/service/youtube-template-marker.model", ["angular"], function (exports_46, context_46) {
+System.register("src/service/youtube-template-marker.model", ["angular"], function (exports_45, context_45) {
     "use strict";
-    var __moduleName = context_46 && context_46.id;
+    var __moduleName = context_45 && context_45.id;
     var angular;
     return {
         setters: [
@@ -2882,9 +2885,9 @@ System.register("src/service/youtube-template-marker.model", ["angular"], functi
         }
     };
 });
-System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPromise", "rxjs/add/observable/fromEventPattern", "rxjs/add/observable/of", "rxjs/add/observable/throw", "rxjs/add/operator/map", "rxjs/add/operator/scan", "rxjs/add/operator/withLatestFrom", "rxjs/add/operator/filter", "rxjs/add/operator/switchMap", "rxjs/add/operator/catch", "rxjs/add/operator/take", "rxjs/add/operator/do", "rxjs/add/operator/publishReplay", "rxjs/add/operator/multicast"], function (exports_47, context_47) {
+System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPromise", "rxjs/add/observable/fromEventPattern", "rxjs/add/observable/fromEvent", "rxjs/add/observable/of", "rxjs/add/observable/merge", "rxjs/add/observable/throw", "rxjs/add/operator/map", "rxjs/add/operator/mapTo", "rxjs/add/operator/scan", "rxjs/add/operator/withLatestFrom", "rxjs/add/operator/filter", "rxjs/add/operator/switchMap", "rxjs/add/operator/catch", "rxjs/add/operator/startWith", "rxjs/add/operator/take", "rxjs/add/operator/do", "rxjs/add/operator/publishReplay", "rxjs/add/operator/multicast"], function (exports_46, context_46) {
     "use strict";
-    var __moduleName = context_47 && context_47.id;
+    var __moduleName = context_46 && context_46.id;
     return {
         setters: [
             function (_6) {
@@ -2914,18 +2917,7 @@ System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPro
             function (_18) {
             },
             function (_19) {
-            }
-        ],
-        execute: function () {
-        }
-    };
-});
-System.register("src/main", ["src/directive/rx-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-pause.component", "src/overlay/player-play.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/overlay/show-if-muted.directive", "src/overlay/show-if-player-is.directive", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/players/youtube/youtube-player.model", "src/service/youtube-readable-time.service", "src/service/youtube-template-marker.model", "src/players/youtube/youtube.service", "src/util/rx/rx-operators-import", "angular"], function (exports_48, context_48) {
-    "use strict";
-    var __moduleName = context_48 && context_48.id;
-    var angular;
-    return {
-        setters: [
+            },
             function (_20) {
             },
             function (_21) {
@@ -2933,7 +2925,18 @@ System.register("src/main", ["src/directive/rx-player.component", "src/directive
             function (_22) {
             },
             function (_23) {
-            },
+            }
+        ],
+        execute: function () {
+        }
+    };
+});
+System.register("src/main", ["src/directive/rx-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-pause.component", "src/overlay/player-play.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/overlay/show-if-muted.directive", "src/overlay/show-if-player-is.directive", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/players/youtube/youtube-player.model", "src/service/youtube-readable-time.service", "src/service/youtube-template-marker.model", "src/players/youtube/youtube.service", "src/util/rx/rx-operators-import", "angular"], function (exports_47, context_47) {
+    "use strict";
+    var __moduleName = context_47 && context_47.id;
+    var angular;
+    return {
+        setters: [
             function (_24) {
             },
             function (_25) {
@@ -2977,6 +2980,14 @@ System.register("src/main", ["src/directive/rx-player.component", "src/directive
             function (_44) {
             },
             function (_45) {
+            },
+            function (_46) {
+            },
+            function (_47) {
+            },
+            function (_48) {
+            },
+            function (_49) {
             },
             function (angular_16) {
                 angular = angular_16;
@@ -3049,14 +3060,111 @@ TODO: Removed keep-aspect-ratio from rx-player, make it work later
 
         }
         */
+System.register("src/ng-helper/async.filter", ["angular"], function (exports_48, context_48) {
+    "use strict";
+    var __moduleName = context_48 && context_48.id;
+    // export function asyncFilter2 () {
+    //     var promiseValues = new WeakMap()
+    //     return function (promise) {
+    //         if (!promiseValues.has(promise)) {
+    //             promiseValues.set(promise, undefined);
+    //             promise.then(function (value) {
+    //                 promiseValues.set(promise, value);
+    //             });
+    //         } else {
+    //             return promiseValues.get(promise)
+    //         }
+    //     }
+    // }
+    // export function asyncFilter2 () {
+    //     const unfolded = new WeakMap();
+    //     return function (promiseOrObs, $scope) {
+    //         if (!unfolded.has(promiseOrObs)) {
+    //             unfolded.set(promiseOrObs, undefined);
+    //             if ('then' in promiseOrObs) {
+    //                 promiseOrObs.then(function (value) {
+    //                     unfolded.set(promiseOrObs, value);
+    //                 });
+    //             }
+    //             else if ('subscribe' in promiseOrObs) {
+    //                 takeUntilScopeDestroy(promiseOrObs, $scope)
+    //                     .subscribe(function (value) {
+    //                         console.log('the value is', value);
+    //                         unfolded.set(promiseOrObs, value);
+    //                     });
+    //             }
+    //         } else {
+    //             return unfolded.get(promiseOrObs);
+    //         }
+    //     };
+    // }
+    function asyncFilter() {
+        var values = {};
+        var subscriptions = {};
+        function async(input, scope) {
+            // Make sure we have an Observable or a Promise
+            if (!input || !(input.subscribe || input.then)) {
+                return input;
+            }
+            var inputId = objectId(input);
+            if (!(inputId in subscriptions)) {
+                var subscriptionStrategy = input.subscribe && input.subscribe.bind(input)
+                    || input.success && input.success.bind(input) // To make it work with HttpPromise
+                    || input.then.bind(input);
+                subscriptions[inputId] = subscriptionStrategy(function (value) {
+                    values[inputId] = value;
+                    if (scope && scope.$applyAsync) {
+                        scope.$applyAsync(); // Automatic safe apply, if scope provided
+                    }
+                });
+                if (scope && scope.$on) {
+                    // Clean up subscription and its last value when the scope is destroyed.
+                    scope.$on('$destroy', function () {
+                        if (subscriptions[inputId] && subscriptions[inputId].dispose) {
+                            subscriptions[inputId].dispose();
+                        }
+                        delete subscriptions[inputId];
+                        delete values[inputId];
+                    });
+                }
+            }
+            return values[inputId];
+        }
+        ;
+        // Need a way to tell the input objects apart from each other (so we only subscribe to them once)
+        var nextObjectID = 0;
+        function objectId(obj) {
+            if (!obj.hasOwnProperty('__asyncFilterObjectID__')) {
+                obj.__asyncFilterObjectID__ = ++nextObjectID;
+            }
+            return obj.__asyncFilterObjectID__;
+        }
+        // So that Angular does not cache the return value
+        async['$stateful'] = true;
+        return async;
+    }
+    var angular;
+    return {
+        setters: [
+            function (angular_17) {
+                angular = angular_17;
+            }
+        ],
+        execute: function () {
+            // import {takeUntilScopeDestroy} from 'src/util/rx/take-until-scope-destroy.util';
+            angular.module('rxPlayer').filter('async', asyncFilter);
+            ;
+        }
+    };
+});
 System.register("src/players/html5/html5-player.model", ["angular", "rxjs/Observable", "src/ng-helper/plain-model"], function (exports_49, context_49) {
     "use strict";
     var __moduleName = context_49 && context_49.id;
     var angular, Observable_6, plain_model_2, HTML5Player;
     return {
         setters: [
-            function (angular_17) {
-                angular = angular_17;
+            function (angular_18) {
+                angular = angular_18;
             },
             function (Observable_6_1) {
                 Observable_6 = Observable_6_1;
@@ -3068,12 +3176,13 @@ System.register("src/players/html5/html5-player.model", ["angular", "rxjs/Observ
         execute: function () {
             HTML5Player = (function () {
                 function HTML5Player(elm, options) {
-                    var video = angular.element('<video></video>');
+                    this.video = document.createElement('video');
+                    this.playState$ = Observable_6.Observable.merge(Observable_6.Observable.fromEvent(this.video, 'play'), Observable_6.Observable.fromEvent(this.video, 'pause'));
+                    var $video = angular.element(this.video);
                     options.sources
                         .map(function (source) { return angular.element("<source src=\"" + source.src + "\" type=\"" + source.type + "\">"); })
-                        .forEach(function (sourceElm) { return video.append(sourceElm); });
-                    angular.element(elm).replaceWith(video);
-                    this.video = video[0];
+                        .forEach(function (sourceElm) { return $video.append(sourceElm); });
+                    angular.element(elm).replaceWith($video);
                 }
                 HTML5Player.prototype.play = function () {
                     this.video.play();
@@ -3086,6 +3195,9 @@ System.register("src/players/html5/html5-player.model", ["angular", "rxjs/Observ
                     // TODO: Delete as soon as posible
                 };
                 HTML5Player.prototype.destroy = function () {
+                };
+                HTML5Player.prototype.isPlaying = function () {
+                    return !this.video.paused;
                 };
                 HTML5Player.prototype.load = function (_a) {
                     var sources = _a.sources;

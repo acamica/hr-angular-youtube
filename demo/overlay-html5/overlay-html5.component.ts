@@ -3,6 +3,7 @@ import {Component} from 'src/ng-helper/facade';
 import {RxPlayerComponent} from 'src/directive/rx-player.component';
 import 'src/main';
 import 'src/players/html5/html5-player.service';
+import 'src/ng-helper/async.filter';
 import 'rxPlayerTpl';
 import 'ui.bootstrap';
 
@@ -35,6 +36,12 @@ class ControlsDemoHTML5Component {
             type: 'video/ogg'
         }]
     };
+    // videoSource = {
+    //     player: 'YoutubePlayer',
+    //     youtubeId: 'QjX9Wu-MJ-s'
+    // };
+
+
 }
 
 

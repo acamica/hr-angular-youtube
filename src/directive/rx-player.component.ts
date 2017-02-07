@@ -10,7 +10,6 @@ import {Component, localTemplateVariableLink} from 'src/ng-helper/facade';
 
 // TODO: Put all video interfaces in a facade
 // import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
-import {IRxVideoPlayer} from 'src/service/rx-video-player.model';
 import {IVideoPlayer} from 'src/service/video-player.model';
 import {RxVideoInterface} from 'src/service/rx-video-interface.model';
 
@@ -41,7 +40,7 @@ const playerVarAttrs = ['autohide', 'autoplay', 'ccLoadPolicy', 'color', 'contro
 })
 export class RxPlayerComponent {
     player$: Observable<IVideoPlayer>;
-    video: IRxVideoPlayer;
+    video: RxVideoInterface;
 
     static $inject = ['$element', '$attrs', '$scope', 'youtube'];
 

@@ -18,7 +18,6 @@
   "lint-staged": {
     "*.ts": "tslint"
   },
-
   "keywords": [
     "angular",
     "youtube",

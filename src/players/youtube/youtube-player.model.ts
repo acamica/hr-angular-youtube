@@ -442,6 +442,13 @@ export class YoutubePlayer
     getAvailableQualityLevels () {
         return this.player.getAvailableQualityLevels();
     }
+
+    isPlaying () {
+        return this.player.getPlayerState() === YT.PlayerState.PLAYING;
+    }
+
+    // TODO: need to map this event to a common interface once defined
+    playState$ = this.fromEvent('onStateChange');
 }
 
 

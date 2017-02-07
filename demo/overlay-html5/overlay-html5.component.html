@@ -3,14 +3,14 @@
     <player-panel  class="bottom-panel ng-show">
         <!--<player-progress-bar hover-indicator></player-progress-bar>-->
         <div class="controls">
-            <!--<span class="control-element">
-                <player-play show-if-player-is="cued,unstarted,ended,paused">
+            <span class="control-element">
+                <player-play ng-hide="playerCtrl.video.isPlaying | async:this">
                     <i class="fa fa-play"></i>
                 </player-play>
-                <player-pause show-if-player-is="buffering,playing">
+                <player-pause ng-hide="playerCtrl.video.isNotPlaying | async:this">
                     <i class="fa fa-pause"></i>
                 </player-pause>
-            </span>-->
+            </span>
             <!--<span class="control-element">
                 <player-volume-horizontal>
                     <i show-if-muted=true class="fa fa-volume-off"></i>

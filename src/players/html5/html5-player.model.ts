@@ -22,17 +22,17 @@ export interface IHTML5PlayerOptions {
 export class HTML5Player
                             implements IVideoPlayer {
 
+    private video = document.createElement('video') as HTMLVideoElement;
+
     constructor (elm: HTML5Player, options: IHTML5PlayerOptions) {
-        const video = angular.element('<video></video>');
+        const $video = angular.element(this.video);
         options.sources
             .map(source => angular.element(`<source src="${source.src}" type="${source.type}">`))
-            .forEach(sourceElm => video.append(sourceElm));
+            .forEach(sourceElm => $video.append(sourceElm));
 
-        angular.element(elm).replaceWith(video);
-        this.video = video[0] as HTMLVideoElement;
+        angular.element(elm).replaceWith($video);
     }
 
-    private video: HTMLVideoElement;
 
     play () {
         this.video.play();
@@ -50,9 +50,16 @@ export class HTML5Player
     destroy () {
     }
 
+    isPlaying () {
+        return !this.video.paused;
+    }
+
     load ({sources}): Observable<HTML5Player> {
         return Observable.of(this);
     }
 
-
+    playState$ = Observable.merge(
+        Observable.fromEvent(this.video, 'play'),
+        Observable.fromEvent(this.video, 'pause'),
+    );
 }

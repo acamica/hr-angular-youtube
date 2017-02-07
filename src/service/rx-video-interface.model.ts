@@ -1,23 +1,31 @@
 import {Observable} from 'rxjs/Observable';
-import {IRxVideoPlayer} from './rx-video-player.model';
 import {IVideoPlayer} from './video-player.model';
 
-export class RxVideoInterface implements IRxVideoPlayer {
+export class RxVideoInterface {
+    // implements IVideoPlayer {
 
-    constructor(private player$: Observable<IVideoPlayer>) {
+    constructor (private player$: Observable<IVideoPlayer>) {
 
     }
 
-    play() {
+    play () {
         this.player$
             .take(1)
             .subscribe(player => player.play());
     }
 
-    pause() {
+    pause () {
         this.player$
             .take(1)
             .subscribe(player => player.pause());
     }
+
+
+    isPlaying = this.player$
+                    .switchMap(player => player.playState$.mapTo(player))
+                    .map(player => player.isPlaying())
+                    .startWith(false);
+
+    isNotPlaying = this.isPlaying.map(isPlaying => !isPlaying);
 
 }

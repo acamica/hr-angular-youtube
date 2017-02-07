@@ -3,6 +3,10 @@ SystemJS.config({
         '/src': {
             defaultExtension: 'ts',
         },
+        '/demo': {
+            defaultExtension: 'ts',
+        },
+
         '/node_modules/rxjs': {
             // defaultExtension: 'js',
         }
