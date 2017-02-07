@@ -1,7 +1,7 @@
 import * as angular from 'angular';
 import {Component} from 'src/ng-helper/facade';
 import {RxPlayerComponent} from 'src/directive/rx-player.component';
-import {fromAngularWatch} from 'src/util/rx/from-angular-watch.util';
+import {fromAngularWatch} from 'src/util/rx/facade';
 import 'src/main';
 import 'rxPlayerTpl';
 

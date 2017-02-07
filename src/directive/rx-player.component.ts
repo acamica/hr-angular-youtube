@@ -1,10 +1,7 @@
 // TODO: Move this into players folder
 import * as angular from 'angular';
-// TODO Put all RxJs methods in a facade
-import {Observable} from 'rxjs/Observable';
+import {Observable, fromAngularWatch, takeUntilScopeDestroy} from 'src/util/rx/facade';
 // import {ReplaySubject} from 'rxjs/ReplaySubject';
-import {fromAngularWatch} from 'src/util/rx/from-angular-watch.util';
-import {takeUntilScopeDestroy} from 'src/util/rx/take-until-scope-destroy.util';
 
 import {Component, localTemplateVariableLink} from 'src/ng-helper/facade';
 

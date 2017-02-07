@@ -1,5 +1,6 @@
 import * as angular from 'angular';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'src/util/rx/facade';
+
 import {PlainModel} from 'src/ng-helper/plain-model';
 // import {convertToYoutube, convertFromYoutube} from 'src/service/youtube-quality-map.service';
 // import {youtubeReadableTime} from 'src/service/youtube-readable-time.service';

@@ -1,4 +1,4 @@
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'src/util/rx/facade';
 import {IVideoPlayer} from 'src/service/video-player.model';
 import {Maybe} from 'src/util/algebras/maybe';
 import 'src/util/algebras/maybe-rx';

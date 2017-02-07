@@ -1,5 +1,5 @@
 import * as angular from 'angular';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'src/util/rx/facade';
 import {IYoutubePlayerOptions} from 'src/players/youtube/youtube.service';
 import {PlainModel} from 'src/ng-helper/plain-model';
 import {convertToYoutube, convertFromYoutube} from 'src/players/youtube/youtube-quality-map.service';

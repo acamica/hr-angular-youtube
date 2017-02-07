@@ -1,4 +1,4 @@
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'src/util/rx/facade';
 import {IVideoPlayer} from './video-player.model';
 
 export class RxVideoInterface {

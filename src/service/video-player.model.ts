@@ -1,5 +1,4 @@
-import {Observable} from 'rxjs/Observable';
-
+import {Observable} from 'src/util/rx/facade';
 
 export interface IVideoPlayer {
     play (): void;
