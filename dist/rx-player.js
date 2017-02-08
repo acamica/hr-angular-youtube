@@ -2512,64 +2512,9 @@ System.register("src/overlay/player-volume-horizontal.component", ["angular", "s
         }
     };
 });
-System.register("src/overlay/show-if-muted.directive", ["src/ng-helper/facade"], function (exports_41, context_41) {
+System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.service"], function (exports_41, context_41) {
     "use strict";
     var __moduleName = context_41 && context_41.id;
-    var facade_21, ShowIfMutedDirective;
-    return {
-        setters: [
-            function (facade_21_1) {
-                facade_21 = facade_21_1;
-            }
-        ],
-        execute: function () {
-            ShowIfMutedDirective = (function () {
-                function ShowIfMutedDirective(elm, $animate, attrs) {
-                    this.elm = elm;
-                    this.$animate = $animate;
-                    this.attrs = attrs;
-                    // By default hide
-                    $animate.addClass(elm, 'ng-hide');
-                }
-                ShowIfMutedDirective.prototype.ngOnInit = function () {
-                    var _this = this;
-                    this.rxPlayer
-                        .player$
-                        .subscribe(function (player) {
-                        var hideOrShow = function () {
-                            var show = !player.isMuted();
-                            if (_this.attrs.showIfMuted === 'true') {
-                                show = !show;
-                            }
-                            if (show) {
-                                _this.$animate.removeClass(_this.elm, 'ng-hide');
-                            }
-                            else {
-                                _this.$animate.addClass(_this.elm, 'ng-hide');
-                            }
-                        };
-                        hideOrShow();
-                        player.on('muteChange', hideOrShow);
-                    });
-                };
-                return ShowIfMutedDirective;
-            }());
-            ShowIfMutedDirective.$inject = ['$element', '$animate', '$attrs'];
-            ShowIfMutedDirective = __decorate([
-                facade_21.Directive({
-                    selector: 'showIfMuted',
-                    link: facade_21.bindToCtrlCallOnInit(['rxPlayer']),
-                    require: ['^rxPlayer']
-                }),
-                __metadata("design:paramtypes", [Object, Object, Object])
-            ], ShowIfMutedDirective);
-            exports_41("ShowIfMutedDirective", ShowIfMutedDirective);
-        }
-    };
-});
-System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.service"], function (exports_42, context_42) {
-    "use strict";
-    var __moduleName = context_42 && context_42.id;
     var angular, uuid_service_2;
     return {
         setters: [
@@ -2701,9 +2646,9 @@ System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.s
         }
     };
 });
-System.register("src/service/youtube-template-marker.model", ["angular"], function (exports_43, context_43) {
+System.register("src/service/youtube-template-marker.model", ["angular"], function (exports_42, context_42) {
     "use strict";
-    var __moduleName = context_43 && context_43.id;
+    var __moduleName = context_42 && context_42.id;
     var angular;
     return {
         setters: [
@@ -2787,9 +2732,9 @@ System.register("src/service/youtube-template-marker.model", ["angular"], functi
         }
     };
 });
-System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPromise", "rxjs/add/observable/fromEventPattern", "rxjs/add/observable/fromEvent", "rxjs/add/observable/of", "rxjs/add/observable/merge", "rxjs/add/observable/throw", "rxjs/add/operator/map", "rxjs/add/operator/mapTo", "rxjs/add/operator/merge", "rxjs/add/operator/scan", "rxjs/add/operator/withLatestFrom", "rxjs/add/operator/filter", "rxjs/add/operator/switchMap", "rxjs/add/operator/catch", "rxjs/add/operator/startWith", "rxjs/add/operator/take", "rxjs/add/operator/do", "rxjs/add/operator/publishReplay", "rxjs/add/operator/multicast"], function (exports_44, context_44) {
+System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPromise", "rxjs/add/observable/fromEventPattern", "rxjs/add/observable/fromEvent", "rxjs/add/observable/of", "rxjs/add/observable/merge", "rxjs/add/observable/throw", "rxjs/add/operator/map", "rxjs/add/operator/mapTo", "rxjs/add/operator/merge", "rxjs/add/operator/scan", "rxjs/add/operator/withLatestFrom", "rxjs/add/operator/filter", "rxjs/add/operator/switchMap", "rxjs/add/operator/catch", "rxjs/add/operator/startWith", "rxjs/add/operator/take", "rxjs/add/operator/do", "rxjs/add/operator/publishReplay", "rxjs/add/operator/multicast"], function (exports_43, context_43) {
     "use strict";
-    var __moduleName = context_44 && context_44.id;
+    var __moduleName = context_43 && context_43.id;
     return {
         setters: [
             function (_6) {
@@ -2835,9 +2780,9 @@ System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPro
         }
     };
 });
-System.register("src/main", ["src/directive/rx-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/overlay/show-if-muted.directive", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/players/youtube/youtube-player.model", "src/service/youtube-readable-time.service", "src/service/youtube-template-marker.model", "src/players/youtube/youtube.service", "src/util/rx/rx-operators-import", "angular"], function (exports_45, context_45) {
+System.register("src/main", ["src/directive/rx-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/players/youtube/youtube-player.model", "src/service/youtube-readable-time.service", "src/service/youtube-template-marker.model", "src/players/youtube/youtube.service", "src/util/rx/rx-operators-import", "angular"], function (exports_44, context_44) {
     "use strict";
-    var __moduleName = context_45 && context_45.id;
+    var __moduleName = context_44 && context_44.id;
     var angular;
     return {
         setters: [
@@ -2884,8 +2829,6 @@ System.register("src/main", ["src/directive/rx-player.component", "src/directive
             function (_45) {
             },
             function (_46) {
-            },
-            function (_47) {
             },
             function (angular_16) {
                 angular = angular_16;
@@ -2958,9 +2901,9 @@ TODO: Removed keep-aspect-ratio from rx-player, make it work later
 
         }
         */
-System.register("src/ng-helper/async.filter", ["angular"], function (exports_46, context_46) {
+System.register("src/ng-helper/async.filter", ["angular"], function (exports_45, context_45) {
     "use strict";
-    var __moduleName = context_46 && context_46.id;
+    var __moduleName = context_45 && context_45.id;
     // export function asyncFilter2 () {
     //     var promiseValues = new WeakMap()
     //     return function (promise) {
@@ -3055,17 +2998,17 @@ System.register("src/ng-helper/async.filter", ["angular"], function (exports_46,
         }
     };
 });
-System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx/facade", "src/ng-helper/plain-model"], function (exports_47, context_47) {
+System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx/facade", "src/ng-helper/plain-model"], function (exports_46, context_46) {
     "use strict";
-    var __moduleName = context_47 && context_47.id;
-    var angular, facade_22, plain_model_2, HTML5Player;
+    var __moduleName = context_46 && context_46.id;
+    var angular, facade_21, plain_model_2, HTML5Player;
     return {
         setters: [
             function (angular_18) {
                 angular = angular_18;
             },
-            function (facade_22_1) {
-                facade_22 = facade_22_1;
+            function (facade_21_1) {
+                facade_21 = facade_21_1;
             },
             function (plain_model_2_1) {
                 plain_model_2 = plain_model_2_1;
@@ -3077,8 +3020,8 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                     var _this = this;
                     this.video = document.createElement('video');
                     // TODO: Map to the correct event
-                    this.playState$ = facade_22.Observable.merge(facade_22.Observable.fromEvent(this.video, 'play'), facade_22.Observable.fromEvent(this.video, 'pause'));
-                    this.volumeState$ = facade_22.Observable
+                    this.playState$ = facade_21.Observable.merge(facade_21.Observable.fromEvent(this.video, 'play'), facade_21.Observable.fromEvent(this.video, 'pause'));
+                    this.volumeState$ = facade_21.Observable
                         .fromEvent(this.video, 'volumechange')
                         .map(function (_) {
                         var event = {
@@ -3112,7 +3055,7 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                 };
                 HTML5Player.prototype.load = function (_a) {
                     var sources = _a.sources;
-                    return facade_22.Observable.of(this);
+                    return facade_21.Observable.of(this);
                 };
                 // -------------------
                 // -      Volume     -
@@ -3139,25 +3082,25 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                 }),
                 __metadata("design:paramtypes", [HTML5Player, Object])
             ], HTML5Player);
-            exports_47("HTML5Player", HTML5Player);
+            exports_46("HTML5Player", HTML5Player);
         }
     };
 });
-System.register("src/players/html5/html5-player.service", ["src/util/rx/facade", "src/players/html5/html5-player.model", "src/service/rx-video.service", "src/ng-helper/facade"], function (exports_48, context_48) {
+System.register("src/players/html5/html5-player.service", ["src/util/rx/facade", "src/players/html5/html5-player.model", "src/service/rx-video.service", "src/ng-helper/facade"], function (exports_47, context_47) {
     "use strict";
-    var __moduleName = context_48 && context_48.id;
+    var __moduleName = context_47 && context_47.id;
     function loadPlayer(elm, options) {
         // Get the angular 1 injector
-        return facade_23.getInjector()
+        return facade_22.getInjector()
             .then(function (injector) { return injector.get('HTML5Player'); })
             .then(function (HTML5Player) { return new HTML5Player(elm, options); });
         // When the player says its ready, so do we
         // .then(player => new Promise(resolve => player.on('onReady', () => resolve(player))));
     }
-    exports_48("loadPlayer", loadPlayer);
+    exports_47("loadPlayer", loadPlayer);
     // TODO: This is so far equal to the YoutubePlayer fn
     function createVideoPlayer(options, $videoDiv) {
-        return facade_24.Observable.create(function (observer) {
+        return facade_23.Observable.create(function (observer) {
             options.height = options.height || '390';
             options.width = options.width || '640';
             // TODO: Need to see where to put this after refactor
@@ -3176,12 +3119,12 @@ System.register("src/players/html5/html5-player.service", ["src/util/rx/facade",
             };
         });
     }
-    exports_48("createVideoPlayer", createVideoPlayer);
-    var facade_24, html5_player_model_1, rx_video_service_3, facade_23, Factory;
+    exports_47("createVideoPlayer", createVideoPlayer);
+    var facade_23, html5_player_model_1, rx_video_service_3, facade_22, Factory;
     return {
         setters: [
-            function (facade_24_1) {
-                facade_24 = facade_24_1;
+            function (facade_23_1) {
+                facade_23 = facade_23_1;
             },
             function (html5_player_model_1_1) {
                 html5_player_model_1 = html5_player_model_1_1;
@@ -3189,8 +3132,8 @@ System.register("src/players/html5/html5-player.service", ["src/util/rx/facade",
             function (rx_video_service_3_1) {
                 rx_video_service_3 = rx_video_service_3_1;
             },
-            function (facade_23_1) {
-                facade_23 = facade_23_1;
+            function (facade_22_1) {
+                facade_22 = facade_22_1;
             }
         ],
         execute: function () {

@@ -14,7 +14,6 @@ import './overlay/player-set-quality.directive';
 import './overlay/player-set-speed.directive';
 import './overlay/player-total-time.directive';
 import './overlay/player-volume-horizontal.component';
-import './overlay/show-if-muted.directive';
 import './service/youtube-marker-list.model';
 import './service/youtube-marker.model';
 import './players/youtube/youtube-player.model';
