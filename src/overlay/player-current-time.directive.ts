@@ -1,23 +1,22 @@
-import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
-import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
-import {RxPlayerComponent} from 'src/directive/rx-player.component';
+import {Observable} from 'src/util/rx/facade';
+import {IVideoPlayer} from 'src/service/video-player.model';
+import {Directive, mockNgOnInitFromAttr} from 'src/ng-helper/facade';
 import {readableTime} from 'src/service/readable-time.service';
 
 @Directive({
     selector: 'playerCurrentTime',
-    link: bindToCtrlCallOnInit(['rxPlayer']),
-    require: ['^rxPlayer']
+    link: mockNgOnInitFromAttr('playerCurrentTime'),
 })
 export class PlayerCurrentTimeComponent {
-    private rxPlayer: RxPlayerComponent;
 
-    static $inject = ['$element'];
-    constructor (private elm) {
+    static $inject = ['$scope', '$element', '$attrs', '$parse'];
+    constructor (private $scope, private elm, private attr, private $parse) {
     }
 
     ngOnInit () {
-        this.rxPlayer
-            .player$
+        const player$ = this.$parse(this.attr.playerCurrentTime)(this.$scope) as Observable<IVideoPlayer>;
+
+        player$
             // Whenever the player updates its progress
             .switchMap(player => player.progress$)
             // Get the current time in readable form

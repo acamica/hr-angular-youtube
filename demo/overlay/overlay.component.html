@@ -20,7 +20,9 @@
                 </player-volume-horizontal>
             </span>
             <span class="control-element">
-                <span player-current-time>0:00</span> / <span player-total-time>0:00</span>
+                <span player-current-time="playerCtrl.player$">0:00</span>
+                 /
+                 <span player-total-time="playerCtrl.player$">0:00</span>
             </span>
             <span class="control-element" show-if-full-screen-enabled  style="float:right">
                 <player-toggle-fullscreen>

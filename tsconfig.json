@@ -7,6 +7,7 @@
         "rootDir": ".",
         "outFile": "main.js",
         "baseUrl": ".",
+        "noUnusedLocals": true,
         "paths": {
             "src": ["src"]
         },

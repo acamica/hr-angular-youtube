@@ -1,6 +1,6 @@
-function getter(accesor: string) {
-    let parts = accesor.split('.');
-     function doGet(obj: any, p: string[]) {
+function getter (accesor: string) {
+    const parts = accesor.split('.');
+    function doGet (obj: any, p: string[]) {
         if (obj === undefined || p.length === 0) {
             return obj;
         }
@@ -9,12 +9,12 @@ function getter(accesor: string) {
     return (obj) => doGet(obj, parts);
 }
 
-function watchAndCall(watchers: string[], hook: string) {
+function watchAndCall (watchers: string[], hook: string) {
     return function (scope: ng.IScope, elm, attr, ctrls) {
-        let ctrl = ctrls[0];
-        let watcherGetter = watchers.map(w => getter(w));
+        const ctrl = ctrls[0];
+        const watcherGetter = watchers.map(w => getter(w));
 
-        let u = scope.$watch(function() {
+        const u = scope.$watch(function () {
             // if (hook === 'ngAfterContentInit') console.log('hey', scope);
             for (let i = 0; i < watchers.length; i++) {
                 // If the watcher is not in the scope nor the ctrl, we continue watching
@@ -36,7 +36,7 @@ function watchAndCall(watchers: string[], hook: string) {
  *      * The component's require definition is an array and its first value is the component ctrl
  *      * The components ctrl has a method ngOnInit
  */
-export function mockNgOnInitLink(watchers: string[]) {
+export function mockNgOnInitLink (watchers: string[]) {
     return watchAndCall(watchers, 'ngOnInit');
 }
 
@@ -48,7 +48,7 @@ export function mockNgOnInitLink(watchers: string[]) {
  *      * The component's require definition is an array and its first value is the component ctrl
  *      * The components ctrl has a method ngAfterViewInit
  */
-export function mockNgAfterViewInit(watchers: string[]) {
+export function mockNgAfterViewInit (watchers: string[]) {
     return watchAndCall(watchers, 'ngAfterViewInit');
 }
 
@@ -60,14 +60,14 @@ export function mockNgAfterViewInit(watchers: string[]) {
  *      * The component's require definition is an array and its first value is the component ctrl
  *      * The components ctrl has a method ngAfterViewInit
  */
-export function mockNgAfterContentInit(watchers: string[]) {
+export function mockNgAfterContentInit (watchers: string[]) {
     return watchAndCall(watchers, 'ngAfterContentInit');
 }
 
 
-export function mockNgOnInitFromAttr(attribute: string) {
+export function mockNgOnInitFromAttr (attribute: string) {
     return function (scope, elm, attr, ctrls) {
-        const u = scope.$watch(attr[attribute], function(attributeWatched) {
+        const u = scope.$watch(attr[attribute], function (attributeWatched) {
             if (typeof attributeWatched !== 'undefined') {
                 u();
                 ctrls[0]['ngOnInit']();
