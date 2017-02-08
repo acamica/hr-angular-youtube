@@ -72,10 +72,10 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-volume-horizontal.component.html',
-    '<div ng-click="toggleMute()" class="ng-transclude"></div>\n' +
+    '<div ng-click="ctrl.toggleMute()" class="ng-transclude"></div>\n' +
     '    <div class="hr-yt-volume-hr-bar"\n' +
-    '         yt-slider-move="onSliderMove($percentage)"\n' +
-    '         yt-slider="onSliderUp($percentage)">\n' +
+    '         yt-slider-move="ctrl.updateVolume($percentage)"\n' +
+    '         yt-slider="ctrl.updateVolume($percentage)">\n' +
     '    <div class="hr-yt-setted"></div>\n' +
     '    <div class="hr-yt-handle"></div>\n' +
     '</div>\n' +
@@ -161,7 +161,7 @@ System.register("src/util/rx/take-until-scope-destroy.util", ["rxjs/Observable",
         }
     };
 });
-System.register("src/util/rx/facade", ["rxjs/Observable", "src/util/rx/from-angular-watch.util", "src/util/rx/take-until-scope-destroy.util"], function (exports_3, context_3) {
+System.register("src/util/rx/facade", ["rxjs/Observable", "rxjs/Subject", "src/util/rx/from-angular-watch.util", "src/util/rx/take-until-scope-destroy.util"], function (exports_3, context_3) {
     "use strict";
     var __moduleName = context_3 && context_3.id;
     function exportStar_1(m) {
@@ -175,6 +175,9 @@ System.register("src/util/rx/facade", ["rxjs/Observable", "src/util/rx/from-angu
         setters: [
             function (Observable_3_1) {
                 exportStar_1(Observable_3_1);
+            },
+            function (Subject_1_1) {
+                exportStar_1(Subject_1_1);
             },
             function (from_angular_watch_util_1_1) {
                 exportStar_1(from_angular_watch_util_1_1);
@@ -589,7 +592,6 @@ System.register("src/service/video-player.model", [], function (exports_13, cont
     return {
         setters: [],
         execute: function () {
-            // StartEvent | PauseEvent | StopEvent
         }
     };
 });
@@ -889,7 +891,6 @@ System.register("src/directive/rx-player.component", ["angular", "src/util/rx/fa
                     this.attrs = attrs;
                     this.scope = scope;
                     this.youtube = youtube;
-                    this.$videoElm = null;
                     // TODO: See why this was set. I remember something in the lines of not
                     // providing css if not needed but this being some of the basics
                     elm.css('position', 'relative');
@@ -897,7 +898,7 @@ System.register("src/directive/rx-player.component", ["angular", "src/util/rx/fa
                     // Save the overlay element in the controller so child directives can use it
                     // TODO: check this out again
                     this.setOverlayElement(elm);
-                    this.ngOnInit();
+                    this.ngOnInit(); // TODO: Change once we migrate to ng 1.6
                 }
                 RxPlayerComponent.prototype.setOverlayElement = function (elm) {
                     this.$overlayElm = elm;
@@ -905,13 +906,6 @@ System.register("src/directive/rx-player.component", ["angular", "src/util/rx/fa
                 RxPlayerComponent.prototype.getOverlayElement = function () {
                     return this.$overlayElm;
                 };
-                RxPlayerComponent.prototype.getVideoElement = function () {
-                    if (this.$videoElm === null) {
-                        this.$videoElm = angular.element(this.getOverlayElement()[0].querySelector('.hr-yt-video-place-holder'));
-                    }
-                    return this.$videoElm;
-                };
-                ;
                 RxPlayerComponent.prototype.ngOnInit = function () {
                     var _this = this;
                     // TODO: Type this
@@ -941,12 +935,10 @@ System.register("src/directive/rx-player.component", ["angular", "src/util/rx/fa
                         // TODO: Hardcoded to HTML5 sources :/
                         options: __assign({}, options, { sources: source.sources })
                     }); })
-                        .do(function (x) { return console.log('video source', x); })
                         .switchMap(function (_a) {
                         var playerClass = _a.playerClass, options = _a.options;
                         return rx_video_service_1.createVideoPlayer(playerClass, options, $videoDiv);
                     })
-                        .do(function (x) { return console.log('video player created', x); })
                         .withLatestFrom(watchVideoSource$, function (player, source) { return ({ player: player, source: source }); })
                         .switchMap(function (_a) {
                         var player = _a.player, source = _a.source;
@@ -979,9 +971,94 @@ System.register("src/directive/rx-player.component", ["angular", "src/util/rx/fa
         }
     };
 });
-System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/facade", "src/service/rx-video.service", "src/ng-helper/facade"], function (exports_20, context_20) {
+System.register("src/directive/yt-slider.directive", ["src/ng-helper/facade", "angular"], function (exports_20, context_20) {
     "use strict";
     var __moduleName = context_20 && context_20.id;
+    var facade_4, angular, YoutubeSliderDirective;
+    return {
+        setters: [
+            function (facade_4_1) {
+                facade_4 = facade_4_1;
+            },
+            function (angular_6) {
+                angular = angular_6;
+            }
+        ],
+        execute: function () {
+            YoutubeSliderDirective = (function () {
+                function YoutubeSliderDirective(elm, attrs, scope, $parse, $document) {
+                    this.elm = elm;
+                    this.attrs = attrs;
+                    this.scope = scope;
+                    this.$parse = $parse;
+                    this.$document = $document;
+                    this.ngOnInit(); // TODO: Remove after upgrade to ng 1.6
+                }
+                YoutubeSliderDirective.prototype.ngOnInit = function () {
+                    var _this = this;
+                    var slideDown = this.$parse(this.attrs.ytSliderDown);
+                    var sliderMove = this.$parse(this.attrs.ytSliderMove);
+                    var sliderUp = this.$parse(this.attrs.ytSlider);
+                    var getPercentageFromPageX = function (pagex) {
+                        // Get the player bar x from the page x
+                        var left = _this.elm[0].getBoundingClientRect().left;
+                        var x = Math.min(Math.max(0, pagex - left), _this.elm[0].clientWidth);
+                        // Get the percentage of the bar
+                        var xpercent = x / _this.elm[0].clientWidth;
+                        return xpercent;
+                    };
+                    this.elm.on('mousedown', function (e) {
+                        // If it wasn't a left click, end
+                        if (e.button !== 0) {
+                            return;
+                        }
+                        var p = getPercentageFromPageX(e.pageX);
+                        slideDown(_this.scope, { $percentage: p });
+                        // Create a blocker div, so that the iframe doesn't eat the mouse up events
+                        var $blocker = angular.element('<div></div>');
+                        $blocker.css('position', 'absolute');
+                        $blocker.css('width', '100%');
+                        $blocker.css('height', '100%');
+                        $blocker.css('pointer-events', 'false');
+                        $blocker.css('top', '0');
+                        document.body.appendChild($blocker[0]);
+                        var documentMouseMove = function (event) {
+                            _this.scope.$apply(function () {
+                                var p = getPercentageFromPageX(event.pageX);
+                                sliderMove(_this.scope, { $percentage: p });
+                            });
+                        };
+                        var documentMouseUp = function (event) {
+                            _this.scope.$apply(function () {
+                                var p = getPercentageFromPageX(event.pageX);
+                                // Remove the event listeners for the drag and drop
+                                _this.$document.off('mousemove', documentMouseMove);
+                                _this.$document.off('mouseup', documentMouseUp);
+                                // remove the div that was blocking the events of the iframe
+                                $blocker.remove();
+                                sliderUp(_this.scope, { $percentage: p });
+                            });
+                        };
+                        _this.$document.on('mousemove', documentMouseMove);
+                        _this.$document.on('mouseup', documentMouseUp);
+                    });
+                };
+                return YoutubeSliderDirective;
+            }());
+            YoutubeSliderDirective.$inject = ['$element', '$attrs', '$scope', '$parse', '$document'];
+            YoutubeSliderDirective = __decorate([
+                facade_4.Directive({
+                    selector: 'ytSlider',
+                }),
+                __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
+            ], YoutubeSliderDirective);
+            exports_20("YoutubeSliderDirective", YoutubeSliderDirective);
+        }
+    };
+});
+System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/facade", "src/service/rx-video.service", "src/ng-helper/facade"], function (exports_21, context_21) {
+    "use strict";
+    var __moduleName = context_21 && context_21.id;
     function loadPlayer(elmOrId, options) {
         return apiLoadedPromise.then(function () {
             var newOptions = {};
@@ -992,15 +1069,15 @@ System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/
             angular.extend(newOptions.playerVars, angular.copy(defaultOptions.playerVars), options.playerVars);
             // TODO: Replace with observable
             // Get the angular 1 injector
-            return facade_4.getInjector()
+            return facade_5.getInjector()
                 .then(function (injector) { return injector.get('YoutubePlayer'); })
                 .then(function (YoutubePlayer) { return new YoutubePlayer(elmOrId, newOptions); })
                 .then(function (player) { return new Promise(function (resolve) { return player.on('onReady', function () { return resolve(player); }); }); });
         });
     }
-    exports_20("loadPlayer", loadPlayer);
+    exports_21("loadPlayer", loadPlayer);
     function createVideoPlayer(options, $videoDiv) {
-        return facade_5.Observable.create(function (observer) {
+        return facade_6.Observable.create(function (observer) {
             options.height = options.height || '390';
             options.width = options.width || '640';
             // TODO: Need to see where to put this after refactor
@@ -1019,21 +1096,21 @@ System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/
             };
         });
     }
-    exports_20("createVideoPlayer", createVideoPlayer);
-    var angular, facade_5, rx_video_service_2, facade_4, Factory, defaultOptions, autoload, apiLoadedPromise, Provider;
+    exports_21("createVideoPlayer", createVideoPlayer);
+    var angular, facade_6, rx_video_service_2, facade_5, Factory, defaultOptions, autoload, apiLoadedPromise, Provider;
     return {
         setters: [
-            function (angular_6) {
-                angular = angular_6;
+            function (angular_7) {
+                angular = angular_7;
             },
-            function (facade_5_1) {
-                facade_5 = facade_5_1;
+            function (facade_6_1) {
+                facade_6 = facade_6_1;
             },
             function (rx_video_service_2_1) {
                 rx_video_service_2 = rx_video_service_2_1;
             },
-            function (facade_4_1) {
-                facade_4 = facade_4_1;
+            function (facade_5_1) {
+                facade_5 = facade_5_1;
             }
         ],
         execute: function () {
@@ -1049,7 +1126,7 @@ System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/
             };
             autoload = true;
             // TODO: Replace with observable
-            exports_20("apiLoadedPromise", apiLoadedPromise = new Promise(function (resolve) {
+            exports_21("apiLoadedPromise", apiLoadedPromise = new Promise(function (resolve) {
                 // Youtube callback when API is ready
                 window['onYouTubeIframeAPIReady'] = resolve;
             }));
@@ -1086,14 +1163,14 @@ System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/
                 ;
                 return Provider;
             }());
-            exports_20("Provider", Provider);
+            exports_21("Provider", Provider);
             angular.module('rxPlayer').provider('youtube', new Provider());
         }
     };
 });
-System.register("src/ng-helper/plain-model", ["angular"], function (exports_21, context_21) {
+System.register("src/ng-helper/plain-model", ["angular"], function (exports_22, context_22) {
     "use strict";
-    var __moduleName = context_21 && context_21.id;
+    var __moduleName = context_22 && context_22.id;
     function PlainModel(options) {
         return function (target) {
             var ng1Injects = Object.keys(options.$inject || {});
@@ -1116,21 +1193,21 @@ System.register("src/ng-helper/plain-model", ["angular"], function (exports_21, 
             }
         };
     }
-    exports_21("PlainModel", PlainModel);
+    exports_22("PlainModel", PlainModel);
     var angular;
     return {
         setters: [
-            function (angular_7) {
-                angular = angular_7;
+            function (angular_8) {
+                angular = angular_8;
             }
         ],
         execute: function () {
         }
     };
 });
-System.register("src/players/youtube/youtube-quality-map.service", [], function (exports_22, context_22) {
+System.register("src/players/youtube/youtube-quality-map.service", [], function (exports_23, context_23) {
     "use strict";
-    var __moduleName = context_22 && context_22.id;
+    var __moduleName = context_23 && context_23.id;
     function invertKeyValues(map) {
         var inverseMap = {};
         var value;
@@ -1155,15 +1232,15 @@ System.register("src/players/youtube/youtube-quality-map.service", [], function 
                 'auto': 'Auto'
             };
             inverseMap = invertKeyValues(map);
-            exports_22("convertToYoutube", convertToYoutube = function (q) { return map[q] ? map[q] : 'Auto'; });
-            exports_22("convertFromYoutube", convertFromYoutube = function (q) { return inverseMap[q] ? inverseMap[q] : 'default'; });
-            exports_22("convertToYoutubeArray", convertToYoutubeArray = function (qArr) { return qArr.map(convertToYoutube); });
+            exports_23("convertToYoutube", convertToYoutube = function (q) { return map[q] ? map[q] : 'Auto'; });
+            exports_23("convertFromYoutube", convertFromYoutube = function (q) { return inverseMap[q] ? inverseMap[q] : 'default'; });
+            exports_23("convertToYoutubeArray", convertToYoutubeArray = function (qArr) { return qArr.map(convertToYoutube); });
         }
     };
 });
-System.register("src/service/youtube-readable-time.service", [], function (exports_23, context_23) {
+System.register("src/service/youtube-readable-time.service", [], function (exports_24, context_24) {
     "use strict";
-    var __moduleName = context_23 && context_23.id;
+    var __moduleName = context_24 && context_24.id;
     function youtubeReadableTime(t) {
         t = Math.floor(t);
         var seconds = t % 60;
@@ -1177,16 +1254,16 @@ System.register("src/service/youtube-readable-time.service", [], function (expor
             return minutes + ':' + String('00' + seconds).slice(-2);
         }
     }
-    exports_23("youtubeReadableTime", youtubeReadableTime);
+    exports_24("youtubeReadableTime", youtubeReadableTime);
     return {
         setters: [],
         execute: function () {
         }
     };
 });
-System.register("src/util/uuid.service", [], function (exports_24, context_24) {
+System.register("src/util/uuid.service", [], function (exports_25, context_25) {
     "use strict";
-    var __moduleName = context_24 && context_24.id;
+    var __moduleName = context_25 && context_25.id;
     /**
      * @description
      * Creates a hash string that follows the UUID standard
@@ -1196,21 +1273,21 @@ System.register("src/util/uuid.service", [], function (exports_24, context_24) {
             .toString(16)
             .substring(1);
     }
-    exports_24("uuid", uuid);
+    exports_25("uuid", uuid);
     return {
         setters: [],
         execute: function () {
         }
     };
 });
-System.register("src/service/youtube-marker-list.model", ["angular"], function (exports_25, context_25) {
+System.register("src/service/youtube-marker-list.model", ["angular"], function (exports_26, context_26) {
     "use strict";
-    var __moduleName = context_25 && context_25.id;
+    var __moduleName = context_26 && context_26.id;
     var angular;
     return {
         setters: [
-            function (angular_8) {
-                angular = angular_8;
+            function (angular_9) {
+                angular = angular_9;
             }
         ],
         execute: function () {
@@ -1249,17 +1326,17 @@ System.register("src/service/youtube-marker-list.model", ["angular"], function (
         }
     };
 });
-System.register("src/players/youtube/youtube-player.model", ["angular", "src/util/rx/facade", "src/ng-helper/plain-model", "src/players/youtube/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/util/uuid.service", "src/service/youtube-marker-list.model"], function (exports_26, context_26) {
+System.register("src/players/youtube/youtube-player.model", ["angular", "src/util/rx/facade", "src/ng-helper/plain-model", "src/players/youtube/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/util/uuid.service", "src/service/youtube-marker-list.model"], function (exports_27, context_27) {
     "use strict";
-    var __moduleName = context_26 && context_26.id;
-    var angular, facade_6, plain_model_1, youtube_quality_map_service_1, youtube_readable_time_service_1, uuid_service_1, imports, YoutubePlayer;
+    var __moduleName = context_27 && context_27.id;
+    var angular, facade_7, plain_model_1, youtube_quality_map_service_1, youtube_readable_time_service_1, uuid_service_1, imports, YoutubePlayer;
     return {
         setters: [
-            function (angular_9) {
-                angular = angular_9;
+            function (angular_10) {
+                angular = angular_10;
             },
-            function (facade_6_1) {
-                facade_6 = facade_6_1;
+            function (facade_7_1) {
+                facade_7 = facade_7_1;
             },
             function (plain_model_1_1) {
                 plain_model_1 = plain_model_1_1;
@@ -1294,8 +1371,21 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     this._muted = false;
                     this._volume = 100;
                     this._intendedQuality = 'default';
+                    // TODO: Improve, maybe add a store
+                    this.eventEmmiter = new facade_7.Subject();
                     this._eventsInitialized = false;
                     this._markerListener = false;
+                    this.volumeState$ = this.eventEmmiter
+                        .filter(function (event) { return event.type === 'volumechange'; })
+                        .map(function (_) {
+                        var event = {
+                            player: _this,
+                            type: 'volumechange',
+                            volume: _this.getVolume(),
+                            isMuted: _this.isMuted()
+                        };
+                        return event;
+                    });
                     // TODO: need to map this event to a common interface once defined
                     this.playState$ = this.fromEvent('onStateChange');
                     var op = angular.copy(options);
@@ -1442,6 +1532,7 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     });
                     this._eventsInitialized = true;
                 };
+                // TODO: Deprecate this shit
                 YoutubePlayer.prototype.on = function (name, handler) {
                     this._initializeEventListener();
                     return imports.$rootScope.$on(this._eventHash + name, function (e, eventData) {
@@ -1449,6 +1540,7 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     });
                 };
                 ;
+                // TODO: Deprecate this shit
                 YoutubePlayer.prototype.emit = function (name, data) {
                     imports.$rootScope.$emit(this._eventHash + name, data);
                 };
@@ -1533,11 +1625,31 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     return this.markerList.getMarker(id);
                 };
                 ;
+                // -------------------
+                // -      Volume     -
+                // -------------------
+                YoutubePlayer.prototype.toggleMute = function () {
+                    if (this.isMuted()) {
+                        this.unMute();
+                    }
+                    else {
+                        this.mute();
+                    }
+                };
+                ;
+                YoutubePlayer.prototype.isMuted = function () {
+                    return this._muted || this._volume === 0;
+                };
+                ;
                 YoutubePlayer.prototype.setVolume = function (volume) {
+                    var changed = this._volume !== volume;
                     // If volume is 0, then set as muted, if not is unmuted
                     this._setMuted(volume === 0);
                     this._volume = volume;
                     this.player.setVolume(volume);
+                    if (changed) {
+                        this.eventEmmiter.next({ player: this, type: 'volumechange' });
+                    }
                 };
                 ;
                 YoutubePlayer.prototype.getVolume = function () {
@@ -1551,7 +1663,7 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     var changed = this._muted !== muted;
                     this._muted = muted;
                     if (changed) {
-                        this.emit('muteChange');
+                        this.eventEmmiter.next({ player: this, type: 'volumechange' });
                     }
                 };
                 ;
@@ -1563,19 +1675,6 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                 YoutubePlayer.prototype.unMute = function () {
                     this._setMuted(false);
                     this.player.unMute();
-                };
-                ;
-                YoutubePlayer.prototype.isMuted = function () {
-                    return this._muted;
-                };
-                ;
-                YoutubePlayer.prototype.toggleMute = function () {
-                    if (this.isMuted()) {
-                        this.unMute();
-                    }
-                    else {
-                        this.mute();
-                    }
                 };
                 ;
                 YoutubePlayer.prototype.getHumanPlaybackQuality = function () {
@@ -1622,7 +1721,7 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     var _this = this;
                     var addHandler = function (h) { return _this.player.addEventListener(eventName, h); };
                     var removeHandler = function (h) { return _this.player.removeEventListener(eventName, h); };
-                    return facade_6.Observable.fromEventPattern(addHandler, removeHandler);
+                    return facade_7.Observable.fromEventPattern(addHandler, removeHandler);
                 };
                 // TODO: type youtube source
                 /**
@@ -1673,7 +1772,7 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], YoutubePlayer);
-            exports_26("YoutubePlayer", YoutubePlayer);
+            exports_27("YoutubePlayer", YoutubePlayer);
             // // TODO: Inherit better than these :S once i know if this is the way I want to access the object
             // angular.forEach([
             //     'getOptions', 'loadModule', 'loadVideoById', 'loadVideoByUrl', 'cueVideoById', 'cueVideoByUrl', 'cuePlaylist',
@@ -1689,97 +1788,6 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
             //         return this.player[name].apply(this.player, arguments);
             //     };
             // });
-        }
-    };
-});
-System.register("src/directive/yt-slider.directive", ["src/ng-helper/facade", "angular"], function (exports_27, context_27) {
-    "use strict";
-    var __moduleName = context_27 && context_27.id;
-    var facade_7, angular, YoutubeSliderDirective;
-    return {
-        setters: [
-            function (facade_7_1) {
-                facade_7 = facade_7_1;
-            },
-            function (angular_10) {
-                angular = angular_10;
-            }
-        ],
-        execute: function () {
-            YoutubeSliderDirective = (function () {
-                function YoutubeSliderDirective(elm, attrs, scope, $parse, $document) {
-                    this.elm = elm;
-                    this.attrs = attrs;
-                    this.scope = scope;
-                    this.$parse = $parse;
-                    this.$document = $document;
-                }
-                YoutubeSliderDirective.prototype.ngOnInit = function () {
-                    var _this = this;
-                    var slideDown = this.$parse(this.attrs.ytSliderDown);
-                    var sliderMove = this.$parse(this.attrs.ytSliderMove);
-                    var sliderUp = this.$parse(this.attrs.ytSlider);
-                    var getPercentageFromPageX = function (pagex) {
-                        // Get the player bar x from the page x
-                        var left = _this.elm[0].getBoundingClientRect().left;
-                        var x = Math.min(Math.max(0, pagex - left), _this.elm[0].clientWidth);
-                        // Get the percentage of the bar
-                        var xpercent = x / _this.elm[0].clientWidth;
-                        return xpercent;
-                    };
-                    this.rxPlayer
-                        .player$
-                        .subscribe(function (player) {
-                        var $videoElm = _this.rxPlayer.getVideoElement();
-                        _this.elm.on('mousedown', function (e) {
-                            // If it wasn't a left click, end
-                            if (e.button !== 0) {
-                                return;
-                            }
-                            var p = getPercentageFromPageX(e.pageX);
-                            slideDown(_this.scope, { $percentage: p });
-                            // Create a blocker div, so that the iframe doesn't eat the mouse up events
-                            var $blocker = angular.element('<div></div>');
-                            $blocker.css('position', 'absolute');
-                            $blocker.css('width', $videoElm[0].clientWidth + 'px');
-                            $blocker.css('height', $videoElm[0].clientHeight + 'px');
-                            $blocker.css('pointer-events', 'false');
-                            $blocker.css('top', '0');
-                            $videoElm.parent().append($blocker);
-                            var documentMouseMove = function (event) {
-                                _this.scope.$apply(function () {
-                                    var p = getPercentageFromPageX(event.pageX);
-                                    sliderMove(_this.scope, { $percentage: p });
-                                });
-                            };
-                            var documentMouseUp = function (event) {
-                                _this.scope.$apply(function () {
-                                    var p = getPercentageFromPageX(event.pageX);
-                                    // Remove the event listeners for the drag and drop
-                                    _this.$document.off('mousemove', documentMouseMove);
-                                    _this.$document.off('mouseup', documentMouseUp);
-                                    // remove the div that was blocking the events of the iframe
-                                    $blocker.remove();
-                                    sliderUp(_this.scope, { $percentage: p });
-                                });
-                            };
-                            _this.$document.on('mousemove', documentMouseMove);
-                            _this.$document.on('mouseup', documentMouseUp);
-                        });
-                    });
-                };
-                return YoutubeSliderDirective;
-            }());
-            YoutubeSliderDirective.$inject = ['$element', '$attrs', '$scope', '$parse', '$document'];
-            YoutubeSliderDirective = __decorate([
-                facade_7.Directive({
-                    selector: 'ytSlider',
-                    link: facade_7.bindToCtrlCallOnInit(['rxPlayer']),
-                    require: ['^rxPlayer']
-                }),
-                __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
-            ], YoutubeSliderDirective);
-            exports_27("YoutubeSliderDirective", YoutubeSliderDirective);
         }
     };
 });
@@ -2528,34 +2536,44 @@ System.register("src/overlay/player-volume-horizontal.component", ["angular", "s
                 function PlayerVolumeHorizontalComponent(elm, scope) {
                     this.elm = elm;
                     this.scope = scope;
+                    this.$volumeBar = angular.element(this.elm[0].querySelector('.hr-yt-volume-hr-bar'));
+                    this.$settedBar = angular.element(this.elm[0].querySelector('.hr-yt-setted'));
+                    this.$handle = angular.element(this.elm[0].querySelector('.hr-yt-handle'));
                 }
+                PlayerVolumeHorizontalComponent.prototype.updateVolumeBar = function (volume) {
+                    var handleX = volume * this.$volumeBar[0].clientWidth - this.$handle[0].clientWidth / 2;
+                    handleX = Math.min(Math.max(0, handleX), this.$volumeBar[0].clientWidth - this.$handle[0].clientWidth / 2);
+                    this.$settedBar.css('width', volume * 100 + '%');
+                    this.$handle.css('left', handleX + 'px');
+                };
                 PlayerVolumeHorizontalComponent.prototype.ngOnInit = function () {
                     var _this = this;
-                    var $volumeBar = angular.element(this.elm[0].querySelector('.hr-yt-volume-hr-bar'));
-                    var $settedBar = angular.element(this.elm[0].querySelector('.hr-yt-setted'));
-                    var $handle = angular.element(this.elm[0].querySelector('.hr-yt-handle'));
-                    this.rxPlayer
-                        .player$
-                        .subscribe(function (player) {
-                        var updateVolumeBar = function (volume) {
-                            var handleX = volume * $volumeBar[0].clientWidth - $handle[0].clientWidth / 2;
-                            handleX = Math.min(Math.max(0, handleX), $volumeBar[0].clientWidth - $handle[0].clientWidth / 2);
-                            $settedBar.css('width', volume * 100 + '%');
-                            $handle.css('left', handleX + 'px');
-                        };
-                        _this.scope.toggleMute = function () {
-                            player.toggleMute();
-                        };
-                        _this.scope.onSliderMove = function (volume) {
-                            player.setVolume(volume * 100);
-                            updateVolumeBar(volume);
-                        };
-                        _this.scope.onSliderUp = function (volume) {
-                            player.setVolume(volume * 100);
-                            updateVolumeBar(volume);
-                        };
-                        _this.scope.$watch(function () { return player.getVolume(); }, function (volumeFromModel) { return updateVolumeBar(volumeFromModel / 100); });
+                    // Update the volume bar whenever we change volume
+                    this.player
+                        .switchMap(function (player) { return player.volumeState$; })
+                        .map(function (event) { return event.volume; })
+                        .startWith(100)
+                        .subscribe(function (volume) {
+                        _this.updateVolumeBar(volume / 100);
                     });
+                    this.isMuted = this.player
+                        .switchMap(function (player) { return player.volumeState$; })
+                        .map(function (event) { return event.isMuted; })
+                        .startWith(false);
+                };
+                PlayerVolumeHorizontalComponent.prototype.updateVolume = function (volume) {
+                    this.setVolume(volume);
+                    this.updateVolumeBar(volume);
+                };
+                PlayerVolumeHorizontalComponent.prototype.setVolume = function (volume) {
+                    this.player
+                        .take(1)
+                        .subscribe(function (player) { return player.setVolume(volume * 100); });
+                };
+                PlayerVolumeHorizontalComponent.prototype.toggleMute = function () {
+                    this.player
+                        .take(1)
+                        .subscribe(function (player) { return player.toggleMute(); });
                 };
                 return PlayerVolumeHorizontalComponent;
             }());
@@ -2564,9 +2582,14 @@ System.register("src/overlay/player-volume-horizontal.component", ["angular", "s
                 facade_20.Component({
                     selector: 'playerVolumeHorizontal',
                     templateUrl: '/template/overlay/player-volume-horizontal.component.html',
-                    link: facade_20.bindToCtrlCallOnInit(['rxPlayer']),
+                    link: facade_20.composeLinkFn([
+                        facade_20.mockNgOnInitLink(['player']),
+                        facade_20.localTemplateVariableLink
+                    ]),
+                    scope: {
+                        player: '='
+                    },
                     transclude: true,
-                    require: ['^rxPlayer']
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], PlayerVolumeHorizontalComponent);
@@ -2849,7 +2872,7 @@ System.register("src/service/youtube-template-marker.model", ["angular"], functi
         }
     };
 });
-System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPromise", "rxjs/add/observable/fromEventPattern", "rxjs/add/observable/fromEvent", "rxjs/add/observable/of", "rxjs/add/observable/merge", "rxjs/add/observable/throw", "rxjs/add/operator/map", "rxjs/add/operator/mapTo", "rxjs/add/operator/scan", "rxjs/add/operator/withLatestFrom", "rxjs/add/operator/filter", "rxjs/add/operator/switchMap", "rxjs/add/operator/catch", "rxjs/add/operator/startWith", "rxjs/add/operator/take", "rxjs/add/operator/do", "rxjs/add/operator/publishReplay", "rxjs/add/operator/multicast"], function (exports_44, context_44) {
+System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPromise", "rxjs/add/observable/fromEventPattern", "rxjs/add/observable/fromEvent", "rxjs/add/observable/of", "rxjs/add/observable/merge", "rxjs/add/observable/throw", "rxjs/add/operator/map", "rxjs/add/operator/mapTo", "rxjs/add/operator/merge", "rxjs/add/operator/scan", "rxjs/add/operator/withLatestFrom", "rxjs/add/operator/filter", "rxjs/add/operator/switchMap", "rxjs/add/operator/catch", "rxjs/add/operator/startWith", "rxjs/add/operator/take", "rxjs/add/operator/do", "rxjs/add/operator/publishReplay", "rxjs/add/operator/multicast"], function (exports_44, context_44) {
     "use strict";
     var __moduleName = context_44 && context_44.id;
     return {
@@ -2889,6 +2912,8 @@ System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPro
             function (_22) {
             },
             function (_23) {
+            },
+            function (_24) {
             }
         ],
         execute: function () {
@@ -2901,8 +2926,6 @@ System.register("src/main", ["src/directive/rx-player.component", "src/directive
     var angular;
     return {
         setters: [
-            function (_24) {
-            },
             function (_25) {
             },
             function (_26) {
@@ -2946,6 +2969,8 @@ System.register("src/main", ["src/directive/rx-player.component", "src/directive
             function (_45) {
             },
             function (_46) {
+            },
+            function (_47) {
             },
             function (angular_16) {
                 angular = angular_16;
@@ -3134,8 +3159,21 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
         execute: function () {
             HTML5Player = (function () {
                 function HTML5Player(elm, options) {
+                    var _this = this;
                     this.video = document.createElement('video');
+                    // TODO: Map to the correct event
                     this.playState$ = facade_22.Observable.merge(facade_22.Observable.fromEvent(this.video, 'play'), facade_22.Observable.fromEvent(this.video, 'pause'));
+                    this.volumeState$ = facade_22.Observable
+                        .fromEvent(this.video, 'volumechange')
+                        .map(function (_) {
+                        var event = {
+                            player: _this,
+                            type: 'volumechange',
+                            volume: _this.getVolume(),
+                            isMuted: _this.isMuted()
+                        };
+                        return event;
+                    });
                     var $video = angular.element(this.video);
                     options.sources
                         .map(function (source) { return angular.element("<source src=\"" + source.src + "\" type=\"" + source.type + "\">"); })
@@ -3161,6 +3199,23 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                     var sources = _a.sources;
                     return facade_22.Observable.of(this);
                 };
+                // -------------------
+                // -      Volume     -
+                // -------------------
+                HTML5Player.prototype.toggleMute = function () {
+                    this.video.muted = !this.video.muted;
+                };
+                HTML5Player.prototype.isMuted = function () {
+                    return this.video.muted || this.video.volume === 0;
+                };
+                HTML5Player.prototype.setVolume = function (volume) {
+                    this.video.volume = volume / 100;
+                    this.video.muted = volume === 0;
+                };
+                HTML5Player.prototype.getVolume = function () {
+                    return this.video.muted ? 0 : this.video.volume * 100;
+                };
+                ;
                 return HTML5Player;
             }());
             HTML5Player = __decorate([

@@ -72,10 +72,10 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-volume-horizontal.component.html',
-    '<div ng-click="toggleMute()" class="ng-transclude"></div>\n' +
+    '<div ng-click="ctrl.toggleMute()" class="ng-transclude"></div>\n' +
     '    <div class="hr-yt-volume-hr-bar"\n' +
-    '         yt-slider-move="onSliderMove($percentage)"\n' +
-    '         yt-slider="onSliderUp($percentage)">\n' +
+    '         yt-slider-move="ctrl.updateVolume($percentage)"\n' +
+    '         yt-slider="ctrl.updateVolume($percentage)">\n' +
     '    <div class="hr-yt-setted"></div>\n' +
     '    <div class="hr-yt-handle"></div>\n' +
     '</div>\n' +

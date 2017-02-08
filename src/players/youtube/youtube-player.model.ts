@@ -1,12 +1,17 @@
 import * as angular from 'angular';
-import {Observable} from 'src/util/rx/facade';
+import {Observable, Subject} from 'src/util/rx/facade';
 import {IYoutubePlayerOptions} from 'src/players/youtube/youtube.service';
 import {PlainModel} from 'src/ng-helper/plain-model';
 import {convertToYoutube, convertFromYoutube} from 'src/players/youtube/youtube-quality-map.service';
 import {youtubeReadableTime} from 'src/service/youtube-readable-time.service';
 import {uuid} from 'src/util/uuid.service';
-import {IVideoPlayer} from 'src/service/video-player.model';
+import {IVideoPlayer, IVolumeStateEvent} from 'src/service/video-player.model';
 import 'src/service/youtube-marker-list.model'; // TODO: Refactor markers
+
+export interface IPlayerEvent {
+    type: string;
+    player: IVideoPlayer;
+}
 
 const imports = {
     // TODO: Remove in favour of plain promises
@@ -31,6 +36,9 @@ export class YoutubePlayer
     private _volume = 100;
     private _intendedQuality: YT.SuggestedVideoQuality = 'default';
     private _element: any;
+    // TODO: Improve, maybe add a store
+    private eventEmmiter = new Subject<IPlayerEvent>();
+
     constructor (elmOrId, private options) {
         const op = angular.copy(options);
         // TODO: Add a fit to parent or something like that
@@ -200,6 +208,7 @@ export class YoutubePlayer
         this._eventsInitialized = true;
     }
 
+    // TODO: Deprecate this shit
     on (name, handler) {
         this._initializeEventListener();
 
@@ -207,7 +216,7 @@ export class YoutubePlayer
             handler(eventData);
         });
     };
-
+    // TODO: Deprecate this shit
     emit (name, data?) {
         imports.$rootScope.$emit(this._eventHash + name, data);
     };
@@ -296,12 +305,30 @@ export class YoutubePlayer
         return this.markerList.getMarker(id);
     };
 
+    // -------------------
+    // -      Volume     -
+    // -------------------
+    toggleMute () {
+        if (this.isMuted()) {
+            this.unMute();
+        } else {
+            this.mute();
+        }
+    };
+
+    isMuted () {
+        return this._muted || this._volume === 0;
+    };
 
     setVolume (volume) {
+        const changed = this._volume !== volume;
         // If volume is 0, then set as muted, if not is unmuted
         this._setMuted(volume === 0);
         this._volume = volume;
         this.player.setVolume(volume);
+        if (changed) {
+            this.eventEmmiter.next({player: this, type: 'volumechange'});
+        }
     };
 
     getVolume () {
@@ -315,31 +342,32 @@ export class YoutubePlayer
         const changed = this._muted !== muted;
         this._muted = muted;
         if (changed) {
-            this.emit('muteChange');
+            this.eventEmmiter.next({player: this, type: 'volumechange'});
         }
     };
 
-    mute () {
+    volumeState$ = this.eventEmmiter
+        .filter(event => event.type === 'volumechange')
+        .map(_ => {
+            const event = {
+                player: this,
+                type: 'volumechange',
+                volume: this.getVolume(),
+                isMuted: this.isMuted()
+            } as IVolumeStateEvent;
+            return event;
+        });
+    private mute () {
         this._setMuted(true);
         this.player.mute();
     };
 
-    unMute () {
+    private unMute () {
         this._setMuted(false);
         this.player.unMute();
     };
 
-    isMuted () {
-        return this._muted;
-    };
 
-    toggleMute () {
-        if (this.isMuted()) {
-            this.unMute();
-        } else {
-            this.mute();
-        }
-    };
 
     getHumanPlaybackQuality () {
         return convertToYoutube(this.player.getPlaybackQuality());

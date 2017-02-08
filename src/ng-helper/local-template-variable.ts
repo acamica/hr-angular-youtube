@@ -18,7 +18,7 @@
  * <div ng-if="thisLongVariable.foo"></div>
  * where foo can be a property of the component controller
  */
-export function localTemplateVariableLink(scope: ng.IScope, elm, attr: ng.IAttributes, ctrl) {
+export function localTemplateVariableLink (scope: ng.IScope, elm, attr: ng.IAttributes, ctrl) {
     // Get the attributes that comply to the local template variable format
     getLocalTemplateVariables(attr)
         // Set this controller to the the parents scope and parent controller
@@ -29,14 +29,14 @@ export function localTemplateVariableLink(scope: ng.IScope, elm, attr: ng.IAttri
  * This helper function is equal to 'localTemplateVariableLink' but thinked for directives
  * instead of components
  */
-export function directiveLocalTemplateVariableLink(scope: ng.IScope, elm, attr: ng.IAttributes, ctrl) {
+export function directiveLocalTemplateVariableLink (scope: ng.IScope, elm, attr: ng.IAttributes, ctrl) {
     // Get the attributes that comply to the local template variable format
     getLocalTemplateVariables(attr)
         // Set this controller to the  scope and the scope controllers
         .forEach(a => applyToScopeAndCtrl(a, scope, ctrl[0]));
 }
 
-function applyToScopeAndCtrl(attr: string, scope: ng.IScope, ctrl) {
+function applyToScopeAndCtrl (attr: string, scope: ng.IScope, ctrl) {
     // Add it to scope
     scope[attr] = ctrl;
     // See if there is a ctrl variable in scope and add it there
@@ -44,7 +44,7 @@ function applyToScopeAndCtrl(attr: string, scope: ng.IScope, ctrl) {
         scope['ctrl'][attr] = ctrl;
     }
 }
-function getLocalTemplateVariables(attr) {
+function getLocalTemplateVariables (attr) {
     // Convert the attributes to array
     return Object.keys(attr)
         // Filter the ones starting with #

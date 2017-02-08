@@ -1,57 +1,73 @@
 import * as angular from 'angular';
-
-import {Component, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
-import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
+import {Observable} from 'src/util/rx/facade';
+import {Component, mockNgOnInitLink, composeLinkFn, localTemplateVariableLink} from 'src/ng-helper/facade';
+import {IVideoPlayer} from 'src/service/video-player.model';
 import {RxPlayerComponent} from 'src/directive/rx-player.component';
 
 
 @Component({
     selector: 'playerVolumeHorizontal',
     templateUrl: '/template/overlay/player-volume-horizontal.component.html',
-    link: bindToCtrlCallOnInit(['rxPlayer']),
+    link: composeLinkFn([
+        mockNgOnInitLink(['player']),
+        localTemplateVariableLink
+    ]),
+    scope: {
+        player: '='
+    },
     transclude: true,
-    require: ['^rxPlayer']
 })
 export class PlayerVolumeHorizontalComponent {
-    private rxPlayer: RxPlayerComponent;
+    private player: Observable<IVideoPlayer>;
+    isMuted: Observable<boolean>;
 
     static $inject = ['$element', '$scope'];
     constructor (private elm, private scope) {
     }
 
+    private $volumeBar = angular.element(this.elm[0].querySelector('.hr-yt-volume-hr-bar'));
+    private $settedBar = angular.element(this.elm[0].querySelector('.hr-yt-setted'));
+    private $handle    = angular.element(this.elm[0].querySelector('.hr-yt-handle'));
+
+    private updateVolumeBar (volume) {
+        let handleX = volume * this.$volumeBar[0].clientWidth - this.$handle[0].clientWidth / 2  ;
+        handleX = Math.min(Math.max(0, handleX), this.$volumeBar[0].clientWidth - this.$handle[0].clientWidth / 2);
+        this.$settedBar.css('width', volume * 100 + '%');
+        this.$handle.css('left', handleX + 'px');
+    }
+
     ngOnInit () {
-        const $volumeBar = angular.element(this.elm[0].querySelector('.hr-yt-volume-hr-bar'));
-        const $settedBar = angular.element(this.elm[0].querySelector('.hr-yt-setted'));
-        const $handle    = angular.element(this.elm[0].querySelector('.hr-yt-handle'));
-
-        this.rxPlayer
-            .player$
-            .subscribe((player: YoutubePlayer) => {
-                const updateVolumeBar = (volume) => {
-                    let handleX = volume * $volumeBar[0].clientWidth - $handle[0].clientWidth / 2  ;
-                    handleX = Math.min(Math.max(0, handleX), $volumeBar[0].clientWidth - $handle[0].clientWidth / 2);
-                    $settedBar.css('width', volume * 100 + '%');
-                    $handle.css('left', handleX + 'px');
-                };
-
-                this.scope.toggleMute = function () {
-                    player.toggleMute();
-                };
-
-                this.scope.onSliderMove = function (volume) {
-                    player.setVolume(volume * 100);
-                    updateVolumeBar(volume);
-                };
-
-                this.scope.onSliderUp = function (volume) {
-                    player.setVolume(volume * 100);
-                    updateVolumeBar(volume);
-                };
-
-                this.scope.$watch(
-                    () => player.getVolume(),
-                    (volumeFromModel) => updateVolumeBar(volumeFromModel / 100)
-                );
+        // Update the volume bar whenever we change volume
+        this.player
+            // For every volume event
+            .switchMap(player => player.volumeState$)
+            .map(event => event.volume)
+            .startWith(100)
+            // Update the volume bar
+            .subscribe(volume => {
+                this.updateVolumeBar(volume / 100);
             });
+
+        this.isMuted = this.player
+                            .switchMap(player => player.volumeState$)
+                            .map(event => event.isMuted)
+                            .startWith(false);
+    }
+
+    updateVolume (volume) {
+        this.setVolume(volume);
+        this.updateVolumeBar(volume);
+    }
+
+    setVolume (volume) {
+        this.player
+            .take(1)
+            .subscribe(player => player.setVolume(volume * 100));
+    }
+
+    toggleMute () {
+        this.player
+            .take(1)
+            .subscribe(player => player.toggleMute());
     }
 }

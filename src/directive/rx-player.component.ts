@@ -50,7 +50,7 @@ export class RxPlayerComponent {
         // Save the overlay element in the controller so child directives can use it
         // TODO: check this out again
         this.setOverlayElement(elm);
-        this.ngOnInit();
+        this.ngOnInit(); // TODO: Change once we migrate to ng 1.6
     }
 
     private $overlayElm;
@@ -62,17 +62,6 @@ export class RxPlayerComponent {
         return this.$overlayElm;
     }
 
-    private $videoElm = null;
-
-
-    getVideoElement () {
-        if (this.$videoElm === null) {
-            this.$videoElm = angular.element(this.getOverlayElement()[0].querySelector('.hr-yt-video-place-holder'));
-        }
-        return this.$videoElm;
-    };
-
-    // FROM ex LINK
     private videoSource: IVideoSource;
 
     ngOnInit () {
@@ -108,13 +97,11 @@ export class RxPlayerComponent {
                             // TODO: Hardcoded to HTML5 sources :/
                             options: {...options, sources: source.sources}
                         }))
-                        .do(x => console.log('video source', x))
                         // TODO: add takeUntilScopeDestroy before sharing
                         // Create a video player of the provided type
                         .switchMap(({playerClass, options}) =>
                              createVideoPlayer(playerClass, options, $videoDiv),
                         )
-                        .do(x => console.log('video player created', x))
                         .withLatestFrom(watchVideoSource$, (player, source) => ({player, source}))
                         .switchMap(({player, source}) => player.load(source))
                         .publishReplay(1)

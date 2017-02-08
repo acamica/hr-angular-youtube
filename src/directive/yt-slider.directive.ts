@@ -1,18 +1,14 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
-import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
-import {RxPlayerComponent} from 'src/directive/rx-player.component';
 import * as angular from 'angular';
 
 @Directive({
     selector: 'ytSlider',
-    link: bindToCtrlCallOnInit(['rxPlayer']),
-    require: ['^rxPlayer']
 })
 export class YoutubeSliderDirective {
-    private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$attrs', '$scope', '$parse', '$document'];
     constructor (private elm, private attrs, private scope, private $parse, private $document) {
+        this.ngOnInit(); // TODO: Remove after upgrade to ng 1.6
     }
 
     ngOnInit () {
@@ -30,55 +26,49 @@ export class YoutubeSliderDirective {
             return xpercent;
         };
 
-        this.rxPlayer
-            .player$
-            .subscribe((player: YoutubePlayer) => {
-                const $videoElm = this.rxPlayer.getVideoElement();
 
-                this.elm.on('mousedown', (e) => {
-                    // If it wasn't a left click, end
-                    if (e.button !== 0) {
-                        return;
-                    }
+        this.elm.on('mousedown', (e) => {
+            // If it wasn't a left click, end
+            if (e.button !== 0) {
+                return;
+            }
 
-                    const p = getPercentageFromPageX(e.pageX);
-                    slideDown(this.scope, {$percentage: p});
+            const p = getPercentageFromPageX(e.pageX);
+            slideDown(this.scope, {$percentage: p});
 
-                    // Create a blocker div, so that the iframe doesn't eat the mouse up events
-                    const $blocker = angular.element('<div></div>');
-                    $blocker.css('position', 'absolute');
-                    $blocker.css('width', $videoElm[0].clientWidth + 'px');
-                    $blocker.css('height', $videoElm[0].clientHeight + 'px');
-                    $blocker.css('pointer-events', 'false');
-                    $blocker.css('top', '0');
-                    $videoElm.parent().append($blocker);
+            // Create a blocker div, so that the iframe doesn't eat the mouse up events
+            const $blocker = angular.element('<div></div>');
+            $blocker.css('position', 'absolute');
+            $blocker.css('width', '100%');
+            $blocker.css('height', '100%');
+            $blocker.css('pointer-events', 'false');
+            $blocker.css('top', '0');
+            document.body.appendChild($blocker[0]);
 
-
-                    const documentMouseMove = (event) => {
-                        this.scope.$apply(() => {
-                            const p = getPercentageFromPageX(event.pageX);
-                            sliderMove(this.scope, {$percentage: p});
-                        });
-                    };
-
-                    const documentMouseUp = (event) => {
-                        this.scope.$apply(() => {
-                            const p = getPercentageFromPageX(event.pageX);
-
-                            // Remove the event listeners for the drag and drop
-                            this.$document.off('mousemove', documentMouseMove );
-                            this.$document.off('mouseup', documentMouseUp);
-                            // remove the div that was blocking the events of the iframe
-                            $blocker.remove();
-
-                            sliderUp(this.scope, {$percentage: p});
-                        });
-
-                    };
-
-                    this.$document.on('mousemove', documentMouseMove );
-                    this.$document.on('mouseup', documentMouseUp);
+            const documentMouseMove = (event) => {
+                this.scope.$apply(() => {
+                    const p = getPercentageFromPageX(event.pageX);
+                    sliderMove(this.scope, {$percentage: p});
                 });
-            });
+            };
+
+            const documentMouseUp = (event) => {
+                this.scope.$apply(() => {
+                    const p = getPercentageFromPageX(event.pageX);
+
+                    // Remove the event listeners for the drag and drop
+                    this.$document.off('mousemove', documentMouseMove );
+                    this.$document.off('mouseup', documentMouseUp);
+                    // remove the div that was blocking the events of the iframe
+                    $blocker.remove();
+
+                    sliderUp(this.scope, {$percentage: p});
+                });
+
+            };
+
+            this.$document.on('mousemove', documentMouseMove );
+            this.$document.on('mouseup', documentMouseUp);
+        });
     }
 }

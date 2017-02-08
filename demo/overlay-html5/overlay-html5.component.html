@@ -13,13 +13,13 @@
                     <i class="fa fa-pause"></i>
                 </div>
             </span>
-            <!--<span class="control-element">
-                <player-volume-horizontal>
-                    <i show-if-muted=true class="fa fa-volume-off"></i>
-                    <i show-if-muted=false class="fa fa-volume-up"></i>
+            <span class="control-element">
+                <player-volume-horizontal player="playerCtrl.player$" #volume-ctrl>
+                    <i ng-show="volumeCtrl.isMuted | async:this" class="fa fa-volume-off"></i>
+                    <i ng-hide="volumeCtrl.isMuted | async:this" class="fa fa-volume-up"></i>
                 </player-volume-horizontal>
             </span>
-            <span class="control-element">
+            <!--<span class="control-element">
                 <span player-current-time>0:00</span> / <span player-total-time>0:00</span>
             </span>
             <span class="control-element" show-if-full-screen-enabled  style="float:right">
