@@ -5,7 +5,7 @@ import {PlainModel} from 'src/ng-helper/plain-model';
 // import {convertToYoutube, convertFromYoutube} from 'src/service/youtube-quality-map.service';
 // import {youtubeReadableTime} from 'src/service/youtube-readable-time.service';
 // import {uuid} from 'src/util/uuid.service';
-import {IVideoPlayer, IVolumeStateEvent} from 'src/service/video-player.model';
+import {IVideoPlayer, IVolumeStateEvent, IProgressStateEvent} from 'src/service/video-player.model';
 
 export interface IHTML5Source {
     src: string;
@@ -34,7 +34,25 @@ export class HTML5Player
         angular.element(elm).replaceWith($video);
     }
 
+    // -------------------
+    // -     Loading     -
+    // -------------------
+    load ({sources}): Observable<HTML5Player> {
+        // debugger;
+        // this.video.load();
+        // this.video.preload = 'metadata';
+        return Observable
+            .fromEvent(this.video, 'loadedmetadata')
+            .mapTo(this);
+    }
 
+    ready$ = Observable
+                .fromEvent(this.video, 'loadstart')
+                .mapTo(this);
+
+    // -------------------
+    // -     Playing     -
+    // -------------------
     play () {
         this.video.play();
     }
@@ -55,15 +73,32 @@ export class HTML5Player
         return !this.video.paused;
     }
 
-    load ({sources}): Observable<HTML5Player> {
-        return Observable.of(this);
-    }
 
     // TODO: Map to the correct event
     playState$ = Observable.merge(
         Observable.fromEvent(this.video, 'play'),
         Observable.fromEvent(this.video, 'pause'),
     );
+
+    progress$ = Observable
+        .fromEvent(this.video, 'timeupdate')
+        .map(_ => {
+            const event = {
+                player: this,
+                type: 'videoprogress',
+                time: this.getCurrentTime()
+            } as IProgressStateEvent;
+            return event;
+        });
+
+    getCurrentTime () {
+        return this.video.currentTime;
+    }
+
+    getDuration () {
+        return this.video.duration;
+    }
+
     // -------------------
     // -      Volume     -
     // -------------------

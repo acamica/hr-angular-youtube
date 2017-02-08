@@ -3,9 +3,8 @@ import {Observable, Subject} from 'src/util/rx/facade';
 import {IYoutubePlayerOptions} from 'src/players/youtube/youtube.service';
 import {PlainModel} from 'src/ng-helper/plain-model';
 import {convertToYoutube, convertFromYoutube} from 'src/players/youtube/youtube-quality-map.service';
-import {youtubeReadableTime} from 'src/service/youtube-readable-time.service';
 import {uuid} from 'src/util/uuid.service';
-import {IVideoPlayer, IVolumeStateEvent} from 'src/service/video-player.model';
+import {IVideoPlayer, IVolumeStateEvent, IProgressStateEvent} from 'src/service/video-player.model';
 import 'src/service/youtube-marker-list.model'; // TODO: Refactor markers
 
 export interface IPlayerEvent {
@@ -74,15 +73,32 @@ export class YoutubePlayer
     }
 
 
-    getHumanReadableDuration () {
-        return youtubeReadableTime(this.getDuration());
-    }
+    // getHumanReadableDuration () {
+    //     return youtubeReadableTime(this.getDuration());
+    // }
 
-    getHumanReadableCurrentTime () {
-        return youtubeReadableTime(this.getCurrentTime());
-    }
+    // getHumanReadableCurrentTime () {
+    //     return youtubeReadableTime(this.getCurrentTime());
+    // }
 
+    progress$ = this.fromEvent('onStateChange')
+                    .switchMap(event => {
+                        if (event.data !== YT.PlayerState.PLAYING) {
+                            return Observable.empty();
+                        } else {
+                            return Observable.interval(100);
+                        }
+                     })
+                    .map(_ => {
+                        const event = {
+                            player: this,
+                            type: 'videoprogress',
+                            time: this.getCurrentTime()
+                        } as IProgressStateEvent;
+                        return event;
+                    });
 
+    // TODO: Deprecate
     onProgress (fn, resolution?) {
         if (typeof resolution === 'undefined') {
             resolution = 100;
@@ -401,6 +417,7 @@ export class YoutubePlayer
     getCurrentTime () {
         return this.player.getCurrentTime();
     }
+
     getPlayerState () {
         return this.player.getPlayerState();
     }

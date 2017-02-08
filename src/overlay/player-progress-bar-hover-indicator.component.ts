@@ -1,5 +1,5 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
-import {youtubeReadableTime} from 'src/service/youtube-readable-time.service';
+import {readableTime} from 'src/service/readable-time.service';
 import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
 import {RxPlayerComponent} from 'src/directive/rx-player.component';
 
@@ -54,7 +54,7 @@ export class HoverIndicatorComponent {
                 const barMove = (event) => {
                     const p = getPercentageFromPageX(event.pageX);
                     indicatorScope.$apply(scope => {
-                        scope.time = youtubeReadableTime(p * duration);
+                        scope.time = readableTime(p * duration);
                     });
                     indicatorElm.css('left', (p * 100) + '%');
                 };

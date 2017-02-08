@@ -1238,32 +1238,9 @@ System.register("src/players/youtube/youtube-quality-map.service", [], function 
         }
     };
 });
-System.register("src/service/youtube-readable-time.service", [], function (exports_24, context_24) {
+System.register("src/util/uuid.service", [], function (exports_24, context_24) {
     "use strict";
     var __moduleName = context_24 && context_24.id;
-    function youtubeReadableTime(t) {
-        t = Math.floor(t);
-        var seconds = t % 60;
-        var minutes = Math.floor(t / 60);
-        var hours = Math.floor(minutes / 60);
-        minutes = minutes % 60;
-        if (hours > 0) {
-            return hours + ':' + String('00' + minutes).slice(-2) + ':' + String('00' + seconds).slice(-2);
-        }
-        else {
-            return minutes + ':' + String('00' + seconds).slice(-2);
-        }
-    }
-    exports_24("youtubeReadableTime", youtubeReadableTime);
-    return {
-        setters: [],
-        execute: function () {
-        }
-    };
-});
-System.register("src/util/uuid.service", [], function (exports_25, context_25) {
-    "use strict";
-    var __moduleName = context_25 && context_25.id;
     /**
      * @description
      * Creates a hash string that follows the UUID standard
@@ -1273,16 +1250,16 @@ System.register("src/util/uuid.service", [], function (exports_25, context_25) {
             .toString(16)
             .substring(1);
     }
-    exports_25("uuid", uuid);
+    exports_24("uuid", uuid);
     return {
         setters: [],
         execute: function () {
         }
     };
 });
-System.register("src/service/youtube-marker-list.model", ["angular"], function (exports_26, context_26) {
+System.register("src/service/youtube-marker-list.model", ["angular"], function (exports_25, context_25) {
     "use strict";
-    var __moduleName = context_26 && context_26.id;
+    var __moduleName = context_25 && context_25.id;
     var angular;
     return {
         setters: [
@@ -1326,10 +1303,10 @@ System.register("src/service/youtube-marker-list.model", ["angular"], function (
         }
     };
 });
-System.register("src/players/youtube/youtube-player.model", ["angular", "src/util/rx/facade", "src/ng-helper/plain-model", "src/players/youtube/youtube-quality-map.service", "src/service/youtube-readable-time.service", "src/util/uuid.service", "src/service/youtube-marker-list.model"], function (exports_27, context_27) {
+System.register("src/players/youtube/youtube-player.model", ["angular", "src/util/rx/facade", "src/ng-helper/plain-model", "src/players/youtube/youtube-quality-map.service", "src/util/uuid.service", "src/service/youtube-marker-list.model"], function (exports_26, context_26) {
     "use strict";
-    var __moduleName = context_27 && context_27.id;
-    var angular, facade_7, plain_model_1, youtube_quality_map_service_1, youtube_readable_time_service_1, uuid_service_1, imports, YoutubePlayer;
+    var __moduleName = context_26 && context_26.id;
+    var angular, facade_7, plain_model_1, youtube_quality_map_service_1, uuid_service_1, imports, YoutubePlayer;
     return {
         setters: [
             function (angular_10) {
@@ -1343,9 +1320,6 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
             },
             function (youtube_quality_map_service_1_1) {
                 youtube_quality_map_service_1 = youtube_quality_map_service_1_1;
-            },
-            function (youtube_readable_time_service_1_1) {
-                youtube_readable_time_service_1 = youtube_readable_time_service_1_1;
             },
             function (uuid_service_1_1) {
                 uuid_service_1 = uuid_service_1_1;
@@ -1373,6 +1347,29 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     this._intendedQuality = 'default';
                     // TODO: Improve, maybe add a store
                     this.eventEmmiter = new facade_7.Subject();
+                    // getHumanReadableDuration () {
+                    //     return youtubeReadableTime(this.getDuration());
+                    // }
+                    // getHumanReadableCurrentTime () {
+                    //     return youtubeReadableTime(this.getCurrentTime());
+                    // }
+                    this.progress$ = this.fromEvent('onStateChange')
+                        .switchMap(function (event) {
+                        if (event.data !== YT.PlayerState.PLAYING) {
+                            return facade_7.Observable.empty();
+                        }
+                        else {
+                            return facade_7.Observable.interval(100);
+                        }
+                    })
+                        .map(function (_) {
+                        var event = {
+                            player: _this,
+                            type: 'videoprogress',
+                            time: _this.getCurrentTime()
+                        };
+                        return event;
+                    });
                     this._eventsInitialized = false;
                     this._markerListener = false;
                     this.volumeState$ = this.eventEmmiter
@@ -1414,12 +1411,7 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                 YoutubePlayer.prototype.getOverlayElement = function () {
                     return this._element;
                 };
-                YoutubePlayer.prototype.getHumanReadableDuration = function () {
-                    return youtube_readable_time_service_1.youtubeReadableTime(this.getDuration());
-                };
-                YoutubePlayer.prototype.getHumanReadableCurrentTime = function () {
-                    return youtube_readable_time_service_1.youtubeReadableTime(this.getCurrentTime());
-                };
+                // TODO: Deprecate
                 YoutubePlayer.prototype.onProgress = function (fn, resolution) {
                     if (typeof resolution === 'undefined') {
                         resolution = 100;
@@ -1772,7 +1764,7 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], YoutubePlayer);
-            exports_27("YoutubePlayer", YoutubePlayer);
+            exports_26("YoutubePlayer", YoutubePlayer);
             // // TODO: Inherit better than these :S once i know if this is the way I want to access the object
             // angular.forEach([
             //     'getOptions', 'loadModule', 'loadVideoById', 'loadVideoByUrl', 'cueVideoById', 'cueVideoByUrl', 'cuePlaylist',
@@ -1791,9 +1783,9 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
         }
     };
 });
-System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper/facade"], function (exports_28, context_28) {
+System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper/facade"], function (exports_27, context_27) {
     "use strict";
-    var __moduleName = context_28 && context_28.id;
+    var __moduleName = context_27 && context_27.id;
     var angular, facade_8, YoutubeMarker;
     return {
         setters: [
@@ -1841,7 +1833,7 @@ System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper
                 return YoutubeMarker;
             }());
             YoutubeMarker.$inject = ['$element', '$scope'];
-            exports_28("YoutubeMarker", YoutubeMarker);
+            exports_27("YoutubeMarker", YoutubeMarker);
             angular
                 .module('rxPlayer')
                 .directive('hrYtMarker', function () {
@@ -1858,9 +1850,9 @@ System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper
         }
     };
 });
-System.register("src/overlay/player-current-quality.directive", ["src/ng-helper/facade"], function (exports_29, context_29) {
+System.register("src/overlay/player-current-quality.directive", ["src/ng-helper/facade"], function (exports_28, context_28) {
     "use strict";
-    var __moduleName = context_29 && context_29.id;
+    var __moduleName = context_28 && context_28.id;
     var facade_9, PlayerCurrentQualityComponent;
     return {
         setters: [
@@ -1909,13 +1901,13 @@ System.register("src/overlay/player-current-quality.directive", ["src/ng-helper/
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], PlayerCurrentQualityComponent);
-            exports_29("PlayerCurrentQualityComponent", PlayerCurrentQualityComponent);
+            exports_28("PlayerCurrentQualityComponent", PlayerCurrentQualityComponent);
         }
     };
 });
-System.register("src/overlay/player-current-speed.directive", ["src/ng-helper/facade"], function (exports_30, context_30) {
+System.register("src/overlay/player-current-speed.directive", ["src/ng-helper/facade"], function (exports_29, context_29) {
     "use strict";
-    var __moduleName = context_30 && context_30.id;
+    var __moduleName = context_29 && context_29.id;
     var facade_10, PlayerCurrentSpeedDirective;
     return {
         setters: [
@@ -1949,18 +1941,45 @@ System.register("src/overlay/player-current-speed.directive", ["src/ng-helper/fa
                 }),
                 __metadata("design:paramtypes", [Object])
             ], PlayerCurrentSpeedDirective);
-            exports_30("PlayerCurrentSpeedDirective", PlayerCurrentSpeedDirective);
+            exports_29("PlayerCurrentSpeedDirective", PlayerCurrentSpeedDirective);
         }
     };
 });
-System.register("src/overlay/player-current-time.directive", ["src/ng-helper/facade"], function (exports_31, context_31) {
+System.register("src/service/readable-time.service", [], function (exports_30, context_30) {
+    "use strict";
+    var __moduleName = context_30 && context_30.id;
+    // TODO: Change to util
+    function readableTime(seconds) {
+        seconds = Math.floor(seconds);
+        var secs = seconds % 60;
+        var mins = Math.floor(seconds / 60);
+        var hrs = Math.floor(mins / 60);
+        mins = mins % 60;
+        if (hrs > 0) {
+            return hrs + ':' + String('00' + mins).slice(-2) + ':' + String('00' + secs).slice(-2);
+        }
+        else {
+            return mins + ':' + String('00' + secs).slice(-2);
+        }
+    }
+    exports_30("readableTime", readableTime);
+    return {
+        setters: [],
+        execute: function () {
+        }
+    };
+});
+System.register("src/overlay/player-current-time.directive", ["src/ng-helper/facade", "src/service/readable-time.service"], function (exports_31, context_31) {
     "use strict";
     var __moduleName = context_31 && context_31.id;
-    var facade_11, PlayerCurrentTimeComponent;
+    var facade_11, readable_time_service_1, PlayerCurrentTimeComponent;
     return {
         setters: [
             function (facade_11_1) {
                 facade_11 = facade_11_1;
+            },
+            function (readable_time_service_1_1) {
+                readable_time_service_1 = readable_time_service_1_1;
             }
         ],
         execute: function () {
@@ -1972,14 +1991,10 @@ System.register("src/overlay/player-current-time.directive", ["src/ng-helper/fac
                     var _this = this;
                     this.rxPlayer
                         .player$
-                        .subscribe(function (player) {
-                        player.onProgress(function () {
-                            return _this.elm.html(player.getHumanReadableCurrentTime());
-                        }, 250);
-                        player.on('seekToCompleted', function () {
-                            _this.elm.html(player.getHumanReadableCurrentTime());
-                        });
-                    });
+                        .switchMap(function (player) { return player.progress$; })
+                        .map(function (event) { return event.time; })
+                        .map(function (time) { return readable_time_service_1.readableTime(time); })
+                        .subscribe(function (readableTime) { return _this.elm.html(readableTime); });
                 };
                 return PlayerCurrentTimeComponent;
             }());
@@ -2084,17 +2099,17 @@ System.register("src/overlay/player-panel.component", ["src/ng-helper/facade"], 
         }
     };
 });
-System.register("src/overlay/player-progress-bar-hover-indicator.component", ["src/ng-helper/facade", "src/service/youtube-readable-time.service"], function (exports_33, context_33) {
+System.register("src/overlay/player-progress-bar-hover-indicator.component", ["src/ng-helper/facade", "src/service/readable-time.service"], function (exports_33, context_33) {
     "use strict";
     var __moduleName = context_33 && context_33.id;
-    var facade_13, youtube_readable_time_service_2, HoverIndicatorComponent;
+    var facade_13, readable_time_service_2, HoverIndicatorComponent;
     return {
         setters: [
             function (facade_13_1) {
                 facade_13 = facade_13_1;
             },
-            function (youtube_readable_time_service_2_1) {
-                youtube_readable_time_service_2 = youtube_readable_time_service_2_1;
+            function (readable_time_service_2_1) {
+                readable_time_service_2 = readable_time_service_2_1;
             }
         ],
         execute: function () {
@@ -2137,7 +2152,7 @@ System.register("src/overlay/player-progress-bar-hover-indicator.component", ["s
                         var barMove = function (event) {
                             var p = getPercentageFromPageX(event.pageX);
                             indicatorScope.$apply(function (scope) {
-                                scope.time = youtube_readable_time_service_2.youtubeReadableTime(p * duration);
+                                scope.time = readable_time_service_2.readableTime(p * duration);
                             });
                             indicatorElm.css('left', (p * 100) + '%');
                         };
@@ -2480,14 +2495,17 @@ System.register("src/overlay/player-set-speed.directive", ["src/ng-helper/facade
         }
     };
 });
-System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facade"], function (exports_39, context_39) {
+System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facade", "src/service/readable-time.service"], function (exports_39, context_39) {
     "use strict";
     var __moduleName = context_39 && context_39.id;
-    var facade_19, PlayerTotalTimeDirective;
+    var facade_19, readable_time_service_3, PlayerTotalTimeDirective;
     return {
         setters: [
             function (facade_19_1) {
                 facade_19 = facade_19_1;
+            },
+            function (readable_time_service_3_1) {
+                readable_time_service_3 = readable_time_service_3_1;
             }
         ],
         execute: function () {
@@ -2499,9 +2517,9 @@ System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facad
                     var _this = this;
                     this.rxPlayer
                         .player$
-                        .subscribe(function (player) {
-                        _this.elm.html(player.getHumanReadableDuration());
-                    });
+                        .map(function (player) { return player.getDuration(); })
+                        .map(function (time) { return readable_time_service_3.readableTime(time); })
+                        .subscribe(function (readableTime) { return _this.elm.html(readableTime); });
                 };
                 return PlayerTotalTimeDirective;
             }());
@@ -2817,7 +2835,7 @@ System.register("src/service/youtube-template-marker.model", ["angular"], functi
         }
     };
 });
-System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPromise", "rxjs/add/observable/fromEventPattern", "rxjs/add/observable/fromEvent", "rxjs/add/observable/of", "rxjs/add/observable/merge", "rxjs/add/observable/throw", "rxjs/add/operator/map", "rxjs/add/operator/mapTo", "rxjs/add/operator/merge", "rxjs/add/operator/scan", "rxjs/add/operator/withLatestFrom", "rxjs/add/operator/filter", "rxjs/add/operator/switchMap", "rxjs/add/operator/catch", "rxjs/add/operator/startWith", "rxjs/add/operator/take", "rxjs/add/operator/do", "rxjs/add/operator/publishReplay", "rxjs/add/operator/multicast"], function (exports_43, context_43) {
+System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPromise", "rxjs/add/observable/fromEventPattern", "rxjs/add/observable/fromEvent", "rxjs/add/observable/of", "rxjs/add/observable/merge", "rxjs/add/observable/throw", "rxjs/add/observable/empty", "rxjs/add/observable/interval", "rxjs/add/operator/map", "rxjs/add/operator/mapTo", "rxjs/add/operator/merge", "rxjs/add/operator/scan", "rxjs/add/operator/withLatestFrom", "rxjs/add/operator/filter", "rxjs/add/operator/switchMap", "rxjs/add/operator/catch", "rxjs/add/operator/startWith", "rxjs/add/operator/toPromise", "rxjs/add/operator/take", "rxjs/add/operator/do", "rxjs/add/operator/publishReplay", "rxjs/add/operator/multicast"], function (exports_43, context_43) {
     "use strict";
     var __moduleName = context_43 && context_43.id;
     return {
@@ -2859,24 +2877,24 @@ System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPro
             function (_23) {
             },
             function (_24) {
+            },
+            function (_25) {
+            },
+            function (_26) {
+            },
+            function (_27) {
             }
         ],
         execute: function () {
         }
     };
 });
-System.register("src/main", ["src/directive/rx-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/players/youtube/youtube-player.model", "src/service/youtube-readable-time.service", "src/service/youtube-template-marker.model", "src/players/youtube/youtube.service", "src/util/rx/rx-operators-import", "angular"], function (exports_44, context_44) {
+System.register("src/main", ["src/directive/rx-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/players/youtube/youtube-player.model", "src/service/youtube-template-marker.model", "src/players/youtube/youtube.service", "src/util/rx/rx-operators-import", "angular"], function (exports_44, context_44) {
     "use strict";
     var __moduleName = context_44 && context_44.id;
     var angular;
     return {
         setters: [
-            function (_25) {
-            },
-            function (_26) {
-            },
-            function (_27) {
-            },
             function (_28) {
             },
             function (_29) {
@@ -2914,6 +2932,10 @@ System.register("src/main", ["src/directive/rx-player.component", "src/directive
             function (_45) {
             },
             function (_46) {
+            },
+            function (_47) {
+            },
+            function (_48) {
             },
             function (angular_16) {
                 angular = angular_16;
@@ -3104,8 +3126,21 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                 function HTML5Player(elm, options) {
                     var _this = this;
                     this.video = document.createElement('video');
+                    this.ready$ = facade_21.Observable
+                        .fromEvent(this.video, 'loadstart')
+                        .mapTo(this);
                     // TODO: Map to the correct event
                     this.playState$ = facade_21.Observable.merge(facade_21.Observable.fromEvent(this.video, 'play'), facade_21.Observable.fromEvent(this.video, 'pause'));
+                    this.progress$ = facade_21.Observable
+                        .fromEvent(this.video, 'timeupdate')
+                        .map(function (_) {
+                        var event = {
+                            player: _this,
+                            type: 'videoprogress',
+                            time: _this.getCurrentTime()
+                        };
+                        return event;
+                    });
                     this.volumeState$ = facade_21.Observable
                         .fromEvent(this.video, 'volumechange')
                         .map(function (_) {
@@ -3123,6 +3158,21 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                         .forEach(function (sourceElm) { return $video.append(sourceElm); });
                     angular.element(elm).replaceWith($video);
                 }
+                // -------------------
+                // -     Loading     -
+                // -------------------
+                HTML5Player.prototype.load = function (_a) {
+                    var sources = _a.sources;
+                    // debugger;
+                    // this.video.load();
+                    // this.video.preload = 'metadata';
+                    return facade_21.Observable
+                        .fromEvent(this.video, 'loadedmetadata')
+                        .mapTo(this);
+                };
+                // -------------------
+                // -     Playing     -
+                // -------------------
                 HTML5Player.prototype.play = function () {
                     this.video.play();
                 };
@@ -3138,9 +3188,11 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                 HTML5Player.prototype.isPlaying = function () {
                     return !this.video.paused;
                 };
-                HTML5Player.prototype.load = function (_a) {
-                    var sources = _a.sources;
-                    return facade_21.Observable.of(this);
+                HTML5Player.prototype.getCurrentTime = function () {
+                    return this.video.currentTime;
+                };
+                HTML5Player.prototype.getDuration = function () {
+                    return this.video.duration;
                 };
                 // -------------------
                 // -      Volume     -
@@ -3175,12 +3227,12 @@ System.register("src/players/html5/html5-player.service", ["src/util/rx/facade",
     "use strict";
     var __moduleName = context_47 && context_47.id;
     function loadPlayer(elm, options) {
+        // TODO: Refactor into rxjs
         // Get the angular 1 injector
         return facade_22.getInjector()
             .then(function (injector) { return injector.get('HTML5Player'); })
-            .then(function (HTML5Player) { return new HTML5Player(elm, options); });
-        // When the player says its ready, so do we
-        // .then(player => new Promise(resolve => player.on('onReady', () => resolve(player))));
+            .then(function (HTML5Player) { return new HTML5Player(elm, options); })
+            .then(function (player) { return player.ready$.take(1).toPromise(); });
     }
     exports_47("loadPlayer", loadPlayer);
     // TODO: This is so far equal to the YoutubePlayer fn

@@ -6,6 +6,9 @@ export interface IVideoPlayer {
     // Playing
     play (): void;
     pause (): void;
+    progress$: Observable<IProgressStateEvent>;
+    getDuration (): number;
+    getCurrentTime (): number;
 
     // Volume
     toggleMute (): void;
@@ -27,9 +30,15 @@ export interface IVideoPlayer {
 type IPlayStateEvent = any; // TODO: Minify to selected events
     // StartEvent | PauseEvent | StopEvent
 
-export type IVolumeStateEvent = {
+export interface IVolumeStateEvent {
     player: IVideoPlayer;
     type: 'volumechange';
     volume: number;
     isMuted: boolean;
-};
+}
+
+export interface IProgressStateEvent {
+    player: IVideoPlayer;
+    type: 'videoprogress';
+    time: number;
+}

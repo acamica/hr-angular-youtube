@@ -17,7 +17,6 @@ import './overlay/player-volume-horizontal.component';
 import './service/youtube-marker-list.model';
 import './service/youtube-marker.model';
 import './players/youtube/youtube-player.model';
-import './service/youtube-readable-time.service';
 import './service/youtube-template-marker.model';
 import './players/youtube/youtube.service';
 import './util/rx/rx-operators-import';

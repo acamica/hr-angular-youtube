@@ -12,15 +12,16 @@ registerVideoPlayer('HTML5Player', Factory);
 
 
 export function loadPlayer (elm, options: IHTML5PlayerOptions): Promise<HTML5Player> {
-
+        // TODO: Refactor into rxjs
         // Get the angular 1 injector
         return getInjector()
             // Get the YoutubePlayer constructor
             .then(injector => injector.get('HTML5Player') as typeof HTML5Player)
             // Create an instance of the player
-            .then(HTML5Player => new HTML5Player(elm, options));
+            .then(HTML5Player => new HTML5Player(elm, options))
             // When the player says its ready, so do we
             // .then(player => new Promise(resolve => player.on('onReady', () => resolve(player))));
+            .then(player => player.ready$.take(1).toPromise());
 }
 
 

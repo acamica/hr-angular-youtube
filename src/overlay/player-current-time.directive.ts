@@ -1,6 +1,7 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
 import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
 import {RxPlayerComponent} from 'src/directive/rx-player.component';
+import {readableTime} from 'src/service/readable-time.service';
 
 @Directive({
     selector: 'playerCurrentTime',
@@ -17,13 +18,12 @@ export class PlayerCurrentTimeComponent {
     ngOnInit () {
         this.rxPlayer
             .player$
-            .subscribe((player: YoutubePlayer) => {
-                player.onProgress(() =>
-                    this.elm.html(player.getHumanReadableCurrentTime())
-                , 250);
-                player.on('seekToCompleted', () => {
-                    this.elm.html(player.getHumanReadableCurrentTime());
-                });
-            });
+            // Whenever the player updates its progress
+            .switchMap(player => player.progress$)
+            // Get the current time in readable form
+            .map(event => event.time)
+            .map(time => readableTime(time))
+            // And assing it to the HTML
+            .subscribe(readableTime => this.elm.html(readableTime));
     }
 }
