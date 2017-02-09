@@ -5,7 +5,12 @@ import {PlainModel} from 'src/ng-helper/plain-model';
 // import {convertToYoutube, convertFromYoutube} from 'src/service/youtube-quality-map.service';
 // import {youtubeReadableTime} from 'src/service/youtube-readable-time.service';
 // import {uuid} from 'src/util/uuid.service';
-import {IVideoPlayer, IVolumeStateEvent, IProgressStateEvent} from 'src/service/video-player.model';
+import {
+    IVideoPlayer,
+    IVolumeStateEvent,
+    IProgressStateEvent,
+    IRateChangeEvent
+} from 'src/service/video-player.model';
 
 export interface IHTML5Source {
     src: string;
@@ -98,6 +103,31 @@ export class HTML5Player
     getDuration () {
         return this.video.duration;
     }
+    // -------------------
+    // -     Rate     -
+    // -------------------
+    getPlaybackRate () {
+        return this.video.playbackRate;
+    }
+
+    setPlaybackRate (rate: number) {
+        this.video.playbackRate = rate;
+    }
+
+    getAvailablePlaybackRates (): number[] {
+        return [1, 1.25, 1.5, 1.75, 2];
+    }
+
+    playbackRate$ = Observable
+        .fromEvent(this.video, 'ratechange')
+        .map(_ => {
+            const event = {
+                player: this,
+                type: 'ratechange',
+                rate: this.getPlaybackRate()
+            } as IRateChangeEvent;
+            return event;
+        });
 
     // -------------------
     // -      Volume     -

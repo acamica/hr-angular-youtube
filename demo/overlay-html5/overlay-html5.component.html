@@ -29,16 +29,17 @@
                     <i show-if-fullscreen=true class="fa fa-expand"></i>
                     <i show-if-fullscreen=false class="fa fa-compress"></i>
                 </player-toggle-fullscreen>
-            </span>
+            </span>-->
             <span class="control-element dropdown-control" uib-dropdown style="float:right">
-                <div class="dropdown-toggle" uib-dropdown-toggle><span player-current-speed >1</span>x</div>
+                <div class="dropdown-toggle" uib-dropdown-toggle>
+                    <span player-current-speed="playerCtrl.player$">1</span>x</div>
                 <ul class="dropdown-control-options dropdown-menu">
                     <li player-repeat-available-speed reverse ng-class="{'active': $speed == video.getPlaybackRate()}">
                         <a dropdown-toggle player-set-speed="$speed">{{$speed}}x</a>
                     </li>
                 </ul>
             </span>
-            <span class="control-element dropdown-control" uib-dropdown style="float:right">
+            <!--<span class="control-element dropdown-control" uib-dropdown style="float:right">
                 <div class="dropdown-toggle" uib-dropdown-toggle><span player-current-quality intended-quality show-real-auto >Auto</span></div>
                 <ul class="dropdown-control-options dropdown-menu">
                     <li player-repeat-available-quality ng-class="{'active': $quality == video.getHumanIntendedPlaybackQuality()}">

@@ -1,8 +1,9 @@
 import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
-import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
 import {RxPlayerComponent} from 'src/directive/rx-player.component';
 // TODO: this is similar to a behaviour directive, refactor so we don't
 // need to use the repeat logic
+// We could add the whole control into a component, expose the available speeds
+// and use a normal ng-repeat
 @Directive({
     selector: 'playerRepeatAvailableSpeed',
     link: bindToCtrlCallOnInit(['rxPlayer']),
@@ -20,14 +21,14 @@ import {RxPlayerComponent} from 'src/directive/rx-player.component';
 export class PlayerRepeatAvailableSpeedDirective {
     private rxPlayer: RxPlayerComponent;
 
-    static $inject = ['$element', '$scope', '$attrs'];
-    constructor (private elm, private scope, private attrs) {
+    static $inject = ['$scope', '$attrs'];
+    constructor (private scope, private attrs) {
     }
 
     ngOnInit () {
         this.rxPlayer
             .player$
-            .subscribe((player: YoutubePlayer) => {
+            .subscribe(player => {
                 this.scope.availableSpeeds = player.getAvailablePlaybackRates();
                 if (this.attrs.hasOwnProperty('reverse')) {
                     this.scope.availableSpeeds.reverse();

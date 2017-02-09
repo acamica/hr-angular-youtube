@@ -10,6 +10,12 @@ export interface IVideoPlayer {
     getDuration (): number;
     getCurrentTime (): number;
 
+    // Rate
+    playbackRate$:  Observable<IRateChangeEvent>;
+    getPlaybackRate (): number;
+    setPlaybackRate (rate: number): void;
+    getAvailablePlaybackRates (): number[];
+
     // Volume
     toggleMute (): void;
     isMuted (): boolean;
@@ -42,3 +48,10 @@ export interface IProgressStateEvent {
     type: 'videoprogress';
     time: number;
 }
+
+export interface IRateChangeEvent {
+    player: IVideoPlayer;
+    type: 'ratechange';
+    rate: number;
+}
+

@@ -2,7 +2,6 @@ import * as angular from 'angular';
 import {Observable} from 'src/util/rx/facade';
 import {Component, mockNgOnInitLink, composeLinkFn, localTemplateVariableLink} from 'src/ng-helper/facade';
 import {IVideoPlayer} from 'src/service/video-player.model';
-import {RxPlayerComponent} from 'src/directive/rx-player.component';
 
 
 @Component({
@@ -21,8 +20,8 @@ export class PlayerVolumeHorizontalComponent {
     private player: Observable<IVideoPlayer>;
     isMuted: Observable<boolean>;
 
-    static $inject = ['$element', '$scope'];
-    constructor (private elm, private scope) {
+    static $inject = ['$element'];
+    constructor (private elm) {
     }
 
     private $volumeBar = angular.element(this.elm[0].querySelector('.hr-yt-volume-hr-bar'));

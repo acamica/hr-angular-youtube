@@ -3,7 +3,12 @@ import {Observable, Subject} from 'src/util/rx/facade';
 import {PlainModel} from 'src/ng-helper/plain-model';
 import {convertToYoutube, convertFromYoutube} from 'src/players/youtube/youtube-quality-map.service';
 import {uuid} from 'src/util/uuid.service';
-import {IVideoPlayer, IVolumeStateEvent, IProgressStateEvent} from 'src/service/video-player.model';
+import {
+    IVideoPlayer,
+    IVolumeStateEvent,
+    IProgressStateEvent,
+    IRateChangeEvent
+} from 'src/service/video-player.model';
 import 'src/service/youtube-marker-list.model'; // TODO: Refactor markers
 
 export interface IPlayerEvent {
@@ -38,7 +43,7 @@ export class YoutubePlayer
     private eventEmmiter = new Subject<IPlayerEvent>();
 
     constructor (elmOrId, private options) {
-        const op = angular.copy(options);
+        const op = angular.copy(this.options);
         // TODO: Add a fit to parent or something like that
         op.width = '100%';
         op.height = '100%';
@@ -462,6 +467,17 @@ export class YoutubePlayer
     getPlaybackRate () {
         return this.player.getPlaybackRate();
     }
+
+    playbackRate$ = this.fromEvent('onPlaybackRateChange')
+        .map(_ => {
+            const event = {
+                player: this,
+                type: 'ratechange',
+                rate: this.getPlaybackRate()
+            } as IRateChangeEvent;
+            return event;
+        });
+
 
     play () {
         return this.player.playVideo();
