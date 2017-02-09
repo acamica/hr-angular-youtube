@@ -1236,12 +1236,8 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     this._intendedQuality = 'default';
                     // TODO: Improve, maybe add a store
                     this.eventEmmiter = new facade_5.Subject();
-                    // getHumanReadableDuration () {
-                    //     return youtubeReadableTime(this.getDuration());
-                    // }
-                    // getHumanReadableCurrentTime () {
-                    //     return youtubeReadableTime(this.getCurrentTime());
-                    // }
+                    // TODO: need to map this event to a common interface once defined
+                    this.playState$ = this.fromEvent('onStateChange');
                     this.progress$ = this.fromEvent('onStateChange')
                         .switchMap(function (event) {
                         if (event.data !== YT.PlayerState.PLAYING) {
@@ -1259,8 +1255,18 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                         };
                         return event;
                     });
-                    this._eventsInitialized = false;
-                    this._markerListener = false;
+                    // -------------------
+                    // -     Rate     -
+                    // -------------------
+                    this.playbackRate$ = this.fromEvent('onPlaybackRateChange')
+                        .map(function (_) {
+                        var event = {
+                            player: _this,
+                            type: 'ratechange',
+                            rate: _this.getPlaybackRate()
+                        };
+                        return event;
+                    });
                     this.volumeState$ = this.eventEmmiter
                         .filter(function (event) { return event.type === 'volumechange'; })
                         .map(function (_) {
@@ -1272,17 +1278,8 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                         };
                         return event;
                     });
-                    this.playbackRate$ = this.fromEvent('onPlaybackRateChange')
-                        .map(function (_) {
-                        var event = {
-                            player: _this,
-                            type: 'ratechange',
-                            rate: _this.getPlaybackRate()
-                        };
-                        return event;
-                    });
-                    // TODO: need to map this event to a common interface once defined
-                    this.playState$ = this.fromEvent('onStateChange');
+                    this._eventsInitialized = false;
+                    this._markerListener = false;
                     var op = angular.copy(this.options);
                     // TODO: Add a fit to parent or something like that
                     op.width = '100%';
@@ -1303,6 +1300,111 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     // If a marker is removed make sure its stoped
                     this.on('markerRemove', function (marker) { return marker.end(); });
                 }
+                // -------------------
+                // -     Loading     -
+                // -------------------
+                /**
+                 * Loads a source and emit a single value when the video is loaded
+                 */
+                // TODO: type youtube source
+                YoutubePlayer.prototype.load = function (source) {
+                    var _this = this;
+                    var loadVideo$ = this.fromEvent('onStateChange')
+                        .filter(function (x) { return x.data === YT.PlayerState.PLAYING; })
+                        .scan(function (n) { return n + 1; }, 0)
+                        .filter(function (n) { return n === 1; })
+                        .do(function (_) { return _this.player.pauseVideo(); })
+                        .map(function (_) { return _this; });
+                    // TODO: It would be nice if this is part of the stream
+                    this.player.loadVideoById(source.youtubeId);
+                    return loadVideo$;
+                };
+                // -------------------
+                // -     Playing     -
+                // -------------------
+                YoutubePlayer.prototype.play = function () {
+                    return this.player.playVideo();
+                };
+                YoutubePlayer.prototype.pause = function () {
+                    return this.player.pauseVideo();
+                };
+                YoutubePlayer.prototype.isPlaying = function () {
+                    return this.player.getPlayerState() === YT.PlayerState.PLAYING;
+                };
+                YoutubePlayer.prototype.getDuration = function () {
+                    return this.player.getDuration();
+                };
+                YoutubePlayer.prototype.getCurrentTime = function () {
+                    return this.player.getCurrentTime();
+                };
+                YoutubePlayer.prototype.getPlayerState = function () {
+                    return this.player.getPlayerState();
+                };
+                YoutubePlayer.prototype.getPlaybackRate = function () {
+                    return this.player.getPlaybackRate();
+                };
+                YoutubePlayer.prototype.setPlaybackRate = function (suggestedRate) {
+                    return this.player.setPlaybackRate(suggestedRate);
+                };
+                YoutubePlayer.prototype.getAvailablePlaybackRates = function () {
+                    return this.player.getAvailablePlaybackRates();
+                };
+                // -------------------
+                // -      Volume     -
+                // -------------------
+                YoutubePlayer.prototype.toggleMute = function () {
+                    if (this.isMuted()) {
+                        this.unMute();
+                    }
+                    else {
+                        this.mute();
+                    }
+                };
+                ;
+                YoutubePlayer.prototype.isMuted = function () {
+                    return this._muted || this._volume === 0;
+                };
+                ;
+                YoutubePlayer.prototype.setVolume = function (volume) {
+                    var changed = this._volume !== volume;
+                    // If volume is 0, then set as muted, if not is unmuted
+                    this._setMuted(volume === 0);
+                    this._volume = volume;
+                    this.player.setVolume(volume);
+                    if (changed) {
+                        this.eventEmmiter.next({ player: this, type: 'volumechange' });
+                    }
+                };
+                ;
+                YoutubePlayer.prototype.getVolume = function () {
+                    if (this._muted) {
+                        return 0;
+                    }
+                    return this._volume;
+                };
+                ;
+                // TODO: Maybe refactor into property setter
+                YoutubePlayer.prototype._setMuted = function (muted) {
+                    var changed = this._muted !== muted;
+                    this._muted = muted;
+                    if (changed) {
+                        this.eventEmmiter.next({ player: this, type: 'volumechange' });
+                    }
+                };
+                ;
+                YoutubePlayer.prototype.mute = function () {
+                    this._setMuted(true);
+                    this.player.mute();
+                };
+                ;
+                YoutubePlayer.prototype.unMute = function () {
+                    this._setMuted(false);
+                    this.player.unMute();
+                };
+                ;
+                // -------------------
+                // -  REFACTOR THIS  -
+                // -------------------
                 YoutubePlayer.prototype.setOverlayElement = function (elm) {
                     this._element = elm;
                 };
@@ -1515,58 +1617,6 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     return this.markerList.getMarker(id);
                 };
                 ;
-                // -------------------
-                // -      Volume     -
-                // -------------------
-                YoutubePlayer.prototype.toggleMute = function () {
-                    if (this.isMuted()) {
-                        this.unMute();
-                    }
-                    else {
-                        this.mute();
-                    }
-                };
-                ;
-                YoutubePlayer.prototype.isMuted = function () {
-                    return this._muted || this._volume === 0;
-                };
-                ;
-                YoutubePlayer.prototype.setVolume = function (volume) {
-                    var changed = this._volume !== volume;
-                    // If volume is 0, then set as muted, if not is unmuted
-                    this._setMuted(volume === 0);
-                    this._volume = volume;
-                    this.player.setVolume(volume);
-                    if (changed) {
-                        this.eventEmmiter.next({ player: this, type: 'volumechange' });
-                    }
-                };
-                ;
-                YoutubePlayer.prototype.getVolume = function () {
-                    if (this._muted) {
-                        return 0;
-                    }
-                    return this._volume;
-                };
-                ;
-                YoutubePlayer.prototype._setMuted = function (muted) {
-                    var changed = this._muted !== muted;
-                    this._muted = muted;
-                    if (changed) {
-                        this.eventEmmiter.next({ player: this, type: 'volumechange' });
-                    }
-                };
-                ;
-                YoutubePlayer.prototype.mute = function () {
-                    this._setMuted(true);
-                    this.player.mute();
-                };
-                ;
-                YoutubePlayer.prototype.unMute = function () {
-                    this._setMuted(false);
-                    this.player.unMute();
-                };
-                ;
                 YoutubePlayer.prototype.getHumanPlaybackQuality = function () {
                     return youtube_quality_map_service_1.convertToYoutube(this.player.getPlaybackQuality());
                 };
@@ -1590,15 +1640,8 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     this.player.setPlaybackQuality(q);
                 };
                 ;
-                // TODO: See what to do with this proxy methods
-                YoutubePlayer.prototype.getDuration = function () {
-                    return this.player.getDuration();
-                };
-                YoutubePlayer.prototype.getCurrentTime = function () {
-                    return this.player.getCurrentTime();
-                };
-                YoutubePlayer.prototype.getPlayerState = function () {
-                    return this.player.getPlayerState();
+                YoutubePlayer.prototype.getVideoLoadedFraction = function () {
+                    return this.player.getVideoLoadedFraction();
                 };
                 YoutubePlayer.prototype.destroy = function () {
                     return this.player.destroy();
@@ -1613,45 +1656,8 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     var removeHandler = function (h) { return _this.player.removeEventListener(eventName, h); };
                     return facade_5.Observable.fromEventPattern(addHandler, removeHandler);
                 };
-                // TODO: type youtube source
-                /**
-                 * Loads a source and emit a single value when the video is loaded
-                 */
-                YoutubePlayer.prototype.load = function (source) {
-                    var _this = this;
-                    var loadVideo$ = this.fromEvent('onStateChange')
-                        .filter(function (x) { return x.data === YT.PlayerState.PLAYING; })
-                        .scan(function (n) { return n + 1; }, 0)
-                        .filter(function (n) { return n === 1; })
-                        .do(function (_) { return _this.player.pauseVideo(); })
-                        .map(function (_) { return _this; });
-                    // TODO: It would be nice if this is part of the stream
-                    this.player.loadVideoById(source.youtubeId);
-                    return loadVideo$;
-                };
-                YoutubePlayer.prototype.getPlaybackRate = function () {
-                    return this.player.getPlaybackRate();
-                };
-                YoutubePlayer.prototype.play = function () {
-                    return this.player.playVideo();
-                };
-                YoutubePlayer.prototype.pause = function () {
-                    return this.player.pauseVideo();
-                };
-                YoutubePlayer.prototype.getVideoLoadedFraction = function () {
-                    return this.player.getVideoLoadedFraction();
-                };
-                YoutubePlayer.prototype.getAvailablePlaybackRates = function () {
-                    return this.player.getAvailablePlaybackRates();
-                };
-                YoutubePlayer.prototype.setPlaybackRate = function (suggestedRate) {
-                    return this.player.setPlaybackRate(suggestedRate);
-                };
                 YoutubePlayer.prototype.getAvailableQualityLevels = function () {
                     return this.player.getAvailableQualityLevels();
-                };
-                YoutubePlayer.prototype.isPlaying = function () {
-                    return this.player.getPlayerState() === YT.PlayerState.PLAYING;
                 };
                 return YoutubePlayer;
             }());
@@ -3154,6 +3160,9 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                         };
                         return event;
                     });
+                    // -------------------
+                    // -     Rate     -
+                    // -------------------
                     this.playbackRate$ = facade_21.Observable
                         .fromEvent(this.video, 'ratechange')
                         .map(function (_) {
@@ -3202,24 +3211,15 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                 HTML5Player.prototype.pause = function () {
                     this.video.pause();
                 };
-                // Refactor these
-                HTML5Player.prototype.setOverlayElement = function (elm) {
-                    // TODO: Delete as soon as posible
-                };
-                HTML5Player.prototype.destroy = function () {
-                };
                 HTML5Player.prototype.isPlaying = function () {
                     return !this.video.paused;
-                };
-                HTML5Player.prototype.getCurrentTime = function () {
-                    return this.video.currentTime;
                 };
                 HTML5Player.prototype.getDuration = function () {
                     return this.video.duration;
                 };
-                // -------------------
-                // -     Rate     -
-                // -------------------
+                HTML5Player.prototype.getCurrentTime = function () {
+                    return this.video.currentTime;
+                };
                 HTML5Player.prototype.getPlaybackRate = function () {
                     return this.video.playbackRate;
                 };
@@ -3246,6 +3246,14 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                     return this.video.muted ? 0 : this.video.volume * 100;
                 };
                 ;
+                // -------------------
+                // -  REFACTOR THIS  -
+                // -------------------
+                HTML5Player.prototype.setOverlayElement = function (elm) {
+                    // TODO: Delete as soon as posible
+                };
+                HTML5Player.prototype.destroy = function () {
+                };
                 return HTML5Player;
             }());
             HTML5Player = __decorate([

@@ -68,22 +68,51 @@ export class YoutubePlayer
         this.on('markerRemove', marker => marker.end());
     }
 
-    setOverlayElement (elm) {
-        this._element = elm;
+    // -------------------
+    // -     Loading     -
+    // -------------------
+
+    /**
+     * Loads a source and emit a single value when the video is loaded
+     */
+    // TODO: type youtube source
+    load (source): Observable<YoutubePlayer> {
+        const loadVideo$ = this.fromEvent('onStateChange')
+            // .do(x => console.log('state', x.data))
+            .filter(x => x.data === YT.PlayerState.PLAYING)
+            // Count the number of times the player start playing
+            .scan(n => n + 1, 0)
+            // We only care about the first time
+            .filter(n => n === 1)
+            // The first time pause the video (kind of autoload)
+            .do(_ => this.player.pauseVideo())
+            // .do(x => console.log('pause', x))
+            .map(_ => this);
+
+        // TODO: It would be nice if this is part of the stream
+        this.player.loadVideoById(source.youtubeId);
+
+        return loadVideo$;
     }
 
-    getOverlayElement () {
-        return this._element;
+    // -------------------
+    // -     Playing     -
+    // -------------------
+
+    play () {
+        return this.player.playVideo();
     }
 
+    pause () {
+        return this.player.pauseVideo();
+    }
 
-    // getHumanReadableDuration () {
-    //     return youtubeReadableTime(this.getDuration());
-    // }
+    isPlaying () {
+        return this.player.getPlayerState() === YT.PlayerState.PLAYING;
+    }
 
-    // getHumanReadableCurrentTime () {
-    //     return youtubeReadableTime(this.getCurrentTime());
-    // }
+    // TODO: need to map this event to a common interface once defined
+    playState$ = this.fromEvent('onStateChange');
 
     progress$ = this.fromEvent('onStateChange')
                     .switchMap(event => {
@@ -101,6 +130,122 @@ export class YoutubePlayer
                         } as IProgressStateEvent;
                         return event;
                     });
+    getDuration () {
+        return this.player.getDuration();
+    }
+
+    getCurrentTime () {
+        return this.player.getCurrentTime();
+    }
+
+    getPlayerState () {
+        return this.player.getPlayerState();
+    }
+
+
+    // -------------------
+    // -     Rate     -
+    // -------------------
+    playbackRate$ = this.fromEvent('onPlaybackRateChange')
+                        .map(_ => {
+                            const event = {
+                                player: this,
+                                type: 'ratechange',
+                                rate: this.getPlaybackRate()
+                            } as IRateChangeEvent;
+                            return event;
+                        });
+
+    getPlaybackRate () {
+        return this.player.getPlaybackRate();
+    }
+
+    setPlaybackRate (suggestedRate: number) {
+        return this.player.setPlaybackRate(suggestedRate);
+    }
+
+    getAvailablePlaybackRates () {
+        return this.player.getAvailablePlaybackRates();
+    }
+
+    // -------------------
+    // -      Volume     -
+    // -------------------
+
+    toggleMute () {
+        if (this.isMuted()) {
+            this.unMute();
+        } else {
+            this.mute();
+        }
+    };
+
+    isMuted () {
+        return this._muted || this._volume === 0;
+    };
+
+    setVolume (volume) {
+        const changed = this._volume !== volume;
+        // If volume is 0, then set as muted, if not is unmuted
+        this._setMuted(volume === 0);
+        this._volume = volume;
+        this.player.setVolume(volume);
+        if (changed) {
+            this.eventEmmiter.next({player: this, type: 'volumechange'});
+        }
+    };
+
+    getVolume () {
+        if (this._muted) {
+            return 0;
+        }
+        return this._volume;
+    };
+
+    volumeState$ = this.eventEmmiter
+        .filter(event => event.type === 'volumechange')
+        .map(_ => {
+            const event = {
+                player: this,
+                type: 'volumechange',
+                volume: this.getVolume(),
+                isMuted: this.isMuted()
+            } as IVolumeStateEvent;
+            return event;
+        });
+
+    // TODO: Maybe refactor into property setter
+    private _setMuted (muted) {
+        const changed = this._muted !== muted;
+        this._muted = muted;
+        if (changed) {
+            this.eventEmmiter.next({player: this, type: 'volumechange'});
+        }
+    };
+
+    private mute () {
+        this._setMuted(true);
+        this.player.mute();
+    };
+
+    private unMute () {
+        this._setMuted(false);
+        this.player.unMute();
+    };
+
+
+    // -------------------
+    // -  REFACTOR THIS  -
+    // -------------------
+
+
+    setOverlayElement (elm) {
+        this._element = elm;
+    }
+
+    getOverlayElement () {
+        return this._element;
+    }
 
     // TODO: Deprecate
     onProgress (fn, resolution?) {
@@ -325,69 +470,6 @@ export class YoutubePlayer
         return this.markerList.getMarker(id);
     };
 
-    // -------------------
-    // -      Volume     -
-    // -------------------
-    toggleMute () {
-        if (this.isMuted()) {
-            this.unMute();
-        } else {
-            this.mute();
-        }
-    };
-
-    isMuted () {
-        return this._muted || this._volume === 0;
-    };
-
-    setVolume (volume) {
-        const changed = this._volume !== volume;
-        // If volume is 0, then set as muted, if not is unmuted
-        this._setMuted(volume === 0);
-        this._volume = volume;
-        this.player.setVolume(volume);
-        if (changed) {
-            this.eventEmmiter.next({player: this, type: 'volumechange'});
-        }
-    };
-
-    getVolume () {
-        if (this._muted) {
-            return 0;
-        }
-        return this._volume;
-    };
-
-    private _setMuted (muted) {
-        const changed = this._muted !== muted;
-        this._muted = muted;
-        if (changed) {
-            this.eventEmmiter.next({player: this, type: 'volumechange'});
-        }
-    };
-
-    volumeState$ = this.eventEmmiter
-        .filter(event => event.type === 'volumechange')
-        .map(_ => {
-            const event = {
-                player: this,
-                type: 'volumechange',
-                volume: this.getVolume(),
-                isMuted: this.isMuted()
-            } as IVolumeStateEvent;
-            return event;
-        });
-    private mute () {
-        this._setMuted(true);
-        this.player.mute();
-    };
-
-    private unMute () {
-        this._setMuted(false);
-        this.player.unMute();
-    };
-
-
 
     getHumanPlaybackQuality () {
         return convertToYoutube(this.player.getPlaybackQuality());
@@ -413,18 +495,11 @@ export class YoutubePlayer
         this.player.setPlaybackQuality(q);
     };
 
-    // TODO: See what to do with this proxy methods
-    getDuration () {
-        return this.player.getDuration();
+    getVideoLoadedFraction () {
+        return this.player.getVideoLoadedFraction();
     }
 
-    getCurrentTime () {
-        return this.player.getCurrentTime();
-    }
 
-    getPlayerState () {
-        return this.player.getPlayerState();
-    }
 
     destroy () {
         return this.player.destroy();
@@ -441,74 +516,10 @@ export class YoutubePlayer
         return Observable.fromEventPattern(addHandler, removeHandler);
     }
 
-    // TODO: type youtube source
-    /**
-     * Loads a source and emit a single value when the video is loaded
-     */
-    load (source): Observable<YoutubePlayer> {
-        const loadVideo$ = this.fromEvent('onStateChange')
-            // .do(x => console.log('state', x.data))
-            .filter(x => x.data === YT.PlayerState.PLAYING)
-            // Count the number of times the player start playing
-            .scan(n => n + 1, 0)
-            // We only care about the first time
-            .filter(n => n === 1)
-            // The first time pause the video (kind of autoload)
-            .do(_ => this.player.pauseVideo())
-            // .do(x => console.log('pause', x))
-            .map(_ => this);
-
-        // TODO: It would be nice if this is part of the stream
-        this.player.loadVideoById(source.youtubeId);
-
-        return loadVideo$;
-    }
-
-    getPlaybackRate () {
-        return this.player.getPlaybackRate();
-    }
-
-    playbackRate$ = this.fromEvent('onPlaybackRateChange')
-        .map(_ => {
-            const event = {
-                player: this,
-                type: 'ratechange',
-                rate: this.getPlaybackRate()
-            } as IRateChangeEvent;
-            return event;
-        });
-
-
-    play () {
-        return this.player.playVideo();
-    }
-
-    pause () {
-        return this.player.pauseVideo();
-    }
-
-    getVideoLoadedFraction () {
-        return this.player.getVideoLoadedFraction();
-    }
-
-    getAvailablePlaybackRates () {
-        return this.player.getAvailablePlaybackRates();
-    }
-
-    setPlaybackRate (suggestedRate: number) {
-        return this.player.setPlaybackRate(suggestedRate);
-    }
-
     getAvailableQualityLevels () {
         return this.player.getAvailableQualityLevels();
     }
 
-    isPlaying () {
-        return this.player.getPlayerState() === YT.PlayerState.PLAYING;
-    }
-
-    // TODO: need to map this event to a common interface once defined
-    playState$ = this.fromEvent('onStateChange');
 }
 
 

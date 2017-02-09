@@ -66,18 +66,9 @@ export class HTML5Player
         this.video.pause();
     }
 
-    // Refactor these
-    setOverlayElement (elm: any) {
-        // TODO: Delete as soon as posible
-    }
-
-    destroy () {
-    }
-
     isPlaying () {
         return !this.video.paused;
     }
-
 
     // TODO: Map to the correct event
     playState$ = Observable.merge(
@@ -96,16 +87,28 @@ export class HTML5Player
             return event;
         });
 
+    getDuration () {
+        return this.video.duration;
+    }
+
     getCurrentTime () {
         return this.video.currentTime;
     }
 
-    getDuration () {
-        return this.video.duration;
-    }
     // -------------------
     // -     Rate     -
     // -------------------
+    playbackRate$ = Observable
+        .fromEvent(this.video, 'ratechange')
+        .map(_ => {
+            const event = {
+                player: this,
+                type: 'ratechange',
+                rate: this.getPlaybackRate()
+            } as IRateChangeEvent;
+            return event;
+        });
+
     getPlaybackRate () {
         return this.video.playbackRate;
     }
@@ -117,17 +120,6 @@ export class HTML5Player
     getAvailablePlaybackRates (): number[] {
         return [1, 1.25, 1.5, 1.75, 2];
     }
-
-    playbackRate$ = Observable
-        .fromEvent(this.video, 'ratechange')
-        .map(_ => {
-            const event = {
-                player: this,
-                type: 'ratechange',
-                rate: this.getPlaybackRate()
-            } as IRateChangeEvent;
-            return event;
-        });
 
     // -------------------
     // -      Volume     -
@@ -161,4 +153,16 @@ export class HTML5Player
             } as IVolumeStateEvent;
             return event;
         });
+
+    // -------------------
+    // -  REFACTOR THIS  -
+    // -------------------
+
+    setOverlayElement (elm: any) {
+        // TODO: Delete as soon as posible
+    }
+
+    destroy () {
+    }
+
 }
