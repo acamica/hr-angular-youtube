@@ -918,7 +918,9 @@ System.register("src/directive/rx-player.component", ["src/util/rx/facade", "src
                     var watchVideoSource$ = facade_2.fromAngularWatch(function () { return _this.videoSource; }, this.scope)
                         .publishReplay(1)
                         .refCount();
-                    this.player$ = watchVideoSource$
+                    // Recipe to create a video player
+                    // Whenever we have a video source
+                    var player$ = watchVideoSource$
                         .map(function (source) { return ({
                         playerClass: source.player,
                         // TODO: Hardcoded to HTML5 sources :/
@@ -932,13 +934,12 @@ System.register("src/directive/rx-player.component", ["src/util/rx/facade", "src
                         .switchMap(function (_a) {
                         var player = _a.player, source = _a.source;
                         return player.load(source);
-                    })
+                    });
+                    this.player$ = facade_2.takeUntilScopeDestroy(player$, this.scope)
                         .publishReplay(1)
                         .refCount();
-                    // As long as this component is alive, subscribe to the player to have
-                    // the shared instance (TODO: Revisit this)
-                    facade_2.takeUntilScopeDestroy(this.player$, this.scope)
-                        .subscribe(function () { }, function (error) { return console.error("There was a problem loading the video player: " + error); });
+                    // Suscribe to the observable to trigger the creation of the player
+                    this.player$.subscribe(function () { }, function (error) { return console.error("There was a problem loading the video player: " + error); });
                     // TODO: I think I want to deprecate this in favour of having local controllers
                     // with their own adaptors
                     this.video = new rx_video_interface_model_1.RxVideoInterface(this.player$);

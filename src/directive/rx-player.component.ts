@@ -90,29 +90,33 @@ export class RxPlayerComponent {
                                     .publishReplay(1)
                                     .refCount();
 
-        this.player$ = watchVideoSource$
+        // Recipe to create a video player
+        // Whenever we have a video source
+        const player$ = watchVideoSource$
                         .map(source => ({
                             playerClass: source.player,
                             // TODO: Hardcoded to HTML5 sources :/
                             options: {...options, sources: source.sources}
                         }))
-                        // TODO: add takeUntilScopeDestroy before sharing
                         // Create a video player of the provided type
                         .switchMap(({playerClass, options}) =>
                              createVideoPlayer(playerClass, options, $videoDiv),
                         )
+                        // Put in the stream both the player and the source
                         .withLatestFrom(watchVideoSource$, (player, source) => ({player, source}))
-                        .switchMap(({player, source}) => player.load(source))
+                        // Load the source and wait until the video is ready to play
+                        .switchMap(({player, source}) => player.load(source));
+
+        this.player$ = takeUntilScopeDestroy(player$, this.scope)
                         .publishReplay(1)
                         // .multicast(() => new ReplaySubject(1))
                         .refCount();
 
-        // As long as this component is alive, subscribe to the player to have
-        // the shared instance (TODO: Revisit this)
-        takeUntilScopeDestroy(this.player$, this.scope)
-            .subscribe(
+        // Suscribe to the observable to trigger the creation of the player
+        this.player$.subscribe(
                 () => {},
-                error => console.error(`There was a problem loading the video player: ${error}`));
+                error => console.error(`There was a problem loading the video player: ${error}`)
+        );
 
         // TODO: I think I want to deprecate this in favour of having local controllers
         // with their own adaptors
