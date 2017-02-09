@@ -19,8 +19,10 @@ export interface IVideoPlayer {
     isPlaying (): boolean;
     playState$: Observable<IPlayStateEvent>;
     progress$: Observable<IProgressStateEvent>;
+    loaded$: Observable<ILoadedStateEvent>;
     getDuration (): number;
     getCurrentTime (): number;
+    getLoadedPercent (): number;
 
     // -------------------
     // -     Rate     -
@@ -69,4 +71,12 @@ export interface IRateChangeEvent {
     type: 'ratechange';
     rate: number;
 }
+
+export interface ILoadedStateEvent {
+    player: IVideoPlayer;
+    type: 'loaded';
+    loaded: number;
+}
+
+
 

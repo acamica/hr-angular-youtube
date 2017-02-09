@@ -517,6 +517,7 @@ System.register("src/service/rx-video-interface.model", [], function (exports_14
     return {
         setters: [],
         execute: function () {
+            // TODO: Try to deprecate this in favour of having local adaptors in each component
             RxVideoInterface = (function () {
                 // implements IVideoPlayer {
                 function RxVideoInterface(player$) {
@@ -1170,6 +1171,10 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                         };
                         return event;
                     });
+                    // TODO: There is no specific event from youtube to indicate that the video is
+                    // being loaded, for now this recipe is disabled. Eventually we can combine onStateChange with
+                    // an interval to poll when the event happens
+                    this.loaded$ = facade_5.Observable.empty();
                     // -------------------
                     // -     Rate     -
                     // -------------------
@@ -1246,14 +1251,23 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                 YoutubePlayer.prototype.isPlaying = function () {
                     return this.player.getPlayerState() === YT.PlayerState.PLAYING;
                 };
+                // .fromEvent('progress')
+                // .map(_ => {
+                //     const event = {
+                //         player: this,
+                //         type: 'loaded',
+                //         loaded: this.getLoadedPercent()
+                //     } as ILoadedStateEvent;
+                //     return event;
+                // });
                 YoutubePlayer.prototype.getDuration = function () {
                     return this.player.getDuration();
                 };
                 YoutubePlayer.prototype.getCurrentTime = function () {
                     return this.player.getCurrentTime();
                 };
-                YoutubePlayer.prototype.getPlayerState = function () {
-                    return this.player.getPlayerState();
+                YoutubePlayer.prototype.getLoadedPercent = function () {
+                    return this.player.getVideoLoadedFraction() * 100;
                 };
                 YoutubePlayer.prototype.getPlaybackRate = function () {
                     return this.player.getPlaybackRate();
@@ -1555,12 +1569,10 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     this.player.setPlaybackQuality(q);
                 };
                 ;
-                YoutubePlayer.prototype.getVideoLoadedFraction = function () {
-                    return this.player.getVideoLoadedFraction();
-                };
                 YoutubePlayer.prototype.destroy = function () {
                     return this.player.destroy();
                 };
+                // TODO: Deprecated in favour of load?
                 YoutubePlayer.prototype.loadVideoById = function (videoId, startSeconds, suggestedQuality) {
                     this.player.loadVideoById(videoId, startSeconds, suggestedQuality);
                     return this;
@@ -1573,6 +1585,9 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                 };
                 YoutubePlayer.prototype.getAvailableQualityLevels = function () {
                     return this.player.getAvailableQualityLevels();
+                };
+                YoutubePlayer.prototype.getPlayerState = function () {
+                    return this.player.getPlayerState();
                 };
                 return YoutubePlayer;
             }());
@@ -1967,6 +1982,7 @@ System.register("src/overlay/player-progress-bar-hover-indicator.component", ["s
                         // Add it to the parent
                         _this.elm.parent().append(indicatorElm);
                     });
+                    // TODO: Refactor to rxjs
                     this.rxPlayer
                         .player$
                         .subscribe(function (player) {
@@ -2004,14 +2020,17 @@ System.register("src/overlay/player-progress-bar-hover-indicator.component", ["s
         }
     };
 });
-System.register("src/overlay/player-progress-bar.component", ["src/ng-helper/facade", "angular"], function (exports_33, context_33) {
+System.register("src/overlay/player-progress-bar.component", ["src/util/rx/facade", "src/ng-helper/facade", "angular"], function (exports_33, context_33) {
     "use strict";
     var __moduleName = context_33 && context_33.id;
-    var facade_12, angular, PlayerProgressBar;
+    var facade_12, facade_13, angular, PlayerProgressBar;
     return {
         setters: [
             function (facade_12_1) {
                 facade_12 = facade_12_1;
+            },
+            function (facade_13_1) {
+                facade_13 = facade_13_1;
             },
             function (angular_10) {
                 angular = angular_10;
@@ -2028,81 +2047,99 @@ System.register("src/overlay/player-progress-bar.component", ["src/ng-helper/fac
                     var $played = angular.element(this.elm[0].querySelector('.hr-yt-played'));
                     var $loaded = angular.element(this.elm[0].querySelector('.hr-yt-loaded'));
                     var $handle = angular.element(this.elm[0].querySelector('.hr-yt-handle'));
+                    // TODO: See what happens when it ends
+                    // if (player.getPlayerState() === YT.PlayerState.ENDED ) {
+                    //     played = 100;
+                    //     loaded = 100;
+                    // } else {
+                    //     played = 100 * player.getCurrentTime() / duration;
+                    //     loaded = player.getVideoLoadedFraction() * 100;
+                    // }
+                    // Need to pass this
+                    // loaded = player.getVideoLoadedFraction() * 100;
+                    var updateProgress = function (sec, duration, loaded) {
+                        var played = 100 * sec / duration;
+                        // This was calculated manually, but cant have
+                        // outerwidth without adding jquery
+                        var handleOuterWidth = 15;
+                        var handleX = played * _this.elm[0].clientWidth / 100 - handleOuterWidth / 2;
+                        handleX = Math.min(Math.max(0, handleX), _this.elm[0].clientWidth - handleOuterWidth);
+                        $loaded.css('width', loaded + '%');
+                        $played.css('width', played + '%');
+                        $handle.css('left', handleX + 'px');
+                    };
+                    // TODO: see if needed Update the progress every time there state changes
+                    // player.on('onStateChange', updateProgress);
+                    // When someone seeks the video update the progress to the intended seek time
+                    // player.on('seekToBegin', (seekTime) => updateProgress(seekTime.newTime));
+                    /* SEEK
+                    let playStatus = null;
+                    this.scope.onSliderDown = function () {
+                        // Save the status of the player at the begining of the dragndrop
+                        playStatus = player.getPlayerState();
+                        player.pause();
+                    };
+            
+                    this.scope.onSliderMove = function (percentage) {
+                        // See what second it corresponds to
+                        const sec = Math.round(duration * percentage);
+                        // player.eventSeekTo(sec, false);
+                        updateProgress(sec);
+                    };
+            
+                    this.scope.onSliderUp = function (percentage) {
+                        // See what second it corresponds to
+                        const sec = Math.round(duration * percentage);
+                        if (playStatus === YT.PlayerState.PLAYING || playStatus === YT.PlayerState.PAUSED) {
+                            // Load it in the player
+                            player.eventSeekTo(sec, true);
+                        } else {
+                            player.startLoading(sec);
+                        }
+            
+                        // If it was playin before, play now as well
+                        if (playStatus === YT.PlayerState.PLAYING) {
+                            player.play();
+                        }
+                    };
+                    */
+                    // TODO: Reenable once the markers are refactored
+                    // this.scope.markers = player.getMarkers();
+                    // player.on('markerListChanged', () =>  this.scope.markers = player.getMarkers());
                     this.rxPlayer
                         .player$
-                        .subscribe(function (player) {
-                        var duration = player.getDuration();
-                        var updateProgress = function (sec) {
-                            var played, loaded;
-                            if (player.getPlayerState() === YT.PlayerState.ENDED) {
-                                played = 100;
-                                loaded = 100;
-                            }
-                            else if (typeof sec === 'number') {
-                                played = 100 * sec / duration;
-                                loaded = player.getVideoLoadedFraction() * 100;
-                            }
-                            else {
-                                played = 100 * player.getCurrentTime() / duration;
-                                loaded = player.getVideoLoadedFraction() * 100;
-                            }
-                            // This was calculated manually, but cant have
-                            // outerwidth without adding jquery
-                            var handleOuterWidth = 15;
-                            var handleX = played * _this.elm[0].clientWidth / 100 - handleOuterWidth / 2;
-                            handleX = Math.min(Math.max(0, handleX), _this.elm[0].clientWidth - handleOuterWidth);
-                            $loaded.css('width', loaded + '%');
-                            $played.css('width', played + '%');
-                            $handle.css('left', handleX + 'px');
+                        .switchMap(function (player) {
+                        return facade_12.Observable
+                            .merge(player.progress$, player.loaded$)
+                            .mapTo(player);
+                    })
+                        .map(function (player) {
+                        return {
+                            time: player.getCurrentTime(),
+                            duration: player.getDuration(),
+                            loaded: player.getLoadedPercent()
                         };
-                        // Update the progress on an interval when playing
-                        player.onProgress(function () {
-                            // The interval calls updateProgress with a number, so we need to add this inner fn
-                            updateProgress();
-                        });
-                        // When someone seeks the video update the progress to the intended seek time
-                        player.on('seekToBegin', function (seekTime) { return updateProgress(seekTime.newTime); });
-                        // Update the progress every time there state changes
-                        player.on('onStateChange', updateProgress);
-                        var playStatus = null;
-                        _this.scope.onSliderDown = function () {
-                            // Save the status of the player at the begining of the dragndrop
-                            playStatus = player.getPlayerState();
-                            player.pause();
-                        };
-                        _this.scope.onSliderMove = function (percentage) {
-                            // See what second it corresponds to
-                            var sec = Math.round(duration * percentage);
-                            // player.eventSeekTo(sec, false);
-                            updateProgress(sec);
-                        };
-                        _this.scope.onSliderUp = function (percentage) {
-                            // See what second it corresponds to
-                            var sec = Math.round(duration * percentage);
-                            if (playStatus === YT.PlayerState.PLAYING || playStatus === YT.PlayerState.PAUSED) {
-                                // Load it in the player
-                                player.eventSeekTo(sec, true);
-                            }
-                            else {
-                                player.startLoading(sec);
-                            }
-                            // If it was playin before, play now as well
-                            if (playStatus === YT.PlayerState.PLAYING) {
-                                player.play();
-                            }
-                        };
-                        _this.scope.markers = player.getMarkers();
-                        player.on('markerListChanged', function () { return _this.scope.markers = player.getMarkers(); });
+                    })
+                        .subscribe(function (_a) {
+                        var time = _a.time, duration = _a.duration, loaded = _a.loaded;
+                        console.log('loaded', loaded);
+                        updateProgress(time, duration, loaded);
+                        // const duration = player.getDuration();
+                        // // Update the progress on an interval when playing
+                        // player.onProgress(function (){
+                        //     // The interval calls updateProgress with a number, so we need to add this inner fn
+                        //     updateProgress();
+                        // });
                     });
                 };
                 return PlayerProgressBar;
             }());
             PlayerProgressBar.$inject = ['$element', '$scope'];
             PlayerProgressBar = __decorate([
-                facade_12.Component({
+                facade_13.Component({
                     selector: 'playerProgressBar',
                     templateUrl: '/template/overlay/player-progress-bar.component.html',
-                    link: facade_12.bindToCtrlCallOnInit(['rxPlayer']),
+                    link: facade_13.bindToCtrlCallOnInit(['rxPlayer']),
                     require: ['^rxPlayer']
                 }),
                 __metadata("design:paramtypes", [Object, Object])
@@ -2114,11 +2151,11 @@ System.register("src/overlay/player-progress-bar.component", ["src/ng-helper/fac
 System.register("src/overlay/player-repeat-available-quality.directive", ["src/ng-helper/facade", "src/players/youtube/youtube-quality-map.service"], function (exports_34, context_34) {
     "use strict";
     var __moduleName = context_34 && context_34.id;
-    var facade_13, youtube_quality_map_service_2, PlayerRepeatAvailableSpeedDirective;
+    var facade_14, youtube_quality_map_service_2, PlayerRepeatAvailableSpeedDirective;
     return {
         setters: [
-            function (facade_13_1) {
-                facade_13 = facade_13_1;
+            function (facade_14_1) {
+                facade_14 = facade_14_1;
             },
             function (youtube_quality_map_service_2_1) {
                 youtube_quality_map_service_2 = youtube_quality_map_service_2_1;
@@ -2153,9 +2190,9 @@ System.register("src/overlay/player-repeat-available-quality.directive", ["src/n
             }());
             PlayerRepeatAvailableSpeedDirective.$inject = ['$scope', '$attrs'];
             PlayerRepeatAvailableSpeedDirective = __decorate([
-                facade_13.Directive({
+                facade_14.Directive({
                     selector: 'playerRepeatAvailableQuality',
-                    link: facade_13.bindToCtrlCallOnInit(['rxPlayer']),
+                    link: facade_14.bindToCtrlCallOnInit(['rxPlayer']),
                     require: ['^rxPlayer'],
                     replace: true,
                     priority: 1000,
@@ -2175,11 +2212,11 @@ System.register("src/overlay/player-repeat-available-quality.directive", ["src/n
 System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-helper/facade"], function (exports_35, context_35) {
     "use strict";
     var __moduleName = context_35 && context_35.id;
-    var facade_14, PlayerRepeatAvailableSpeedDirective;
+    var facade_15, PlayerRepeatAvailableSpeedDirective;
     return {
         setters: [
-            function (facade_14_1) {
-                facade_14 = facade_14_1;
+            function (facade_15_1) {
+                facade_15 = facade_15_1;
             }
         ],
         execute: function () {
@@ -2203,9 +2240,9 @@ System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-
             }());
             PlayerRepeatAvailableSpeedDirective.$inject = ['$scope', '$attrs'];
             PlayerRepeatAvailableSpeedDirective = __decorate([
-                facade_14.Directive({
+                facade_15.Directive({
                     selector: 'playerRepeatAvailableSpeed',
-                    link: facade_14.bindToCtrlCallOnInit(['rxPlayer']),
+                    link: facade_15.bindToCtrlCallOnInit(['rxPlayer']),
                     require: ['^rxPlayer'],
                     replace: true,
                     priority: 1000,
@@ -2225,11 +2262,11 @@ System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-
 System.register("src/overlay/player-set-quality.directive", ["src/ng-helper/facade"], function (exports_36, context_36) {
     "use strict";
     var __moduleName = context_36 && context_36.id;
-    var facade_15, PlayerCurrentTimeComponent;
+    var facade_16, PlayerCurrentTimeComponent;
     return {
         setters: [
-            function (facade_15_1) {
-                facade_15 = facade_15_1;
+            function (facade_16_1) {
+                facade_16 = facade_16_1;
             }
         ],
         execute: function () {
@@ -2257,9 +2294,9 @@ System.register("src/overlay/player-set-quality.directive", ["src/ng-helper/faca
             }());
             PlayerCurrentTimeComponent.$inject = ['$element', '$parse', '$attrs', '$scope'];
             PlayerCurrentTimeComponent = __decorate([
-                facade_15.Directive({
+                facade_16.Directive({
                     selector: 'playerSetQuality',
-                    link: facade_15.bindToCtrlCallOnInit(['rxPlayer']),
+                    link: facade_16.bindToCtrlCallOnInit(['rxPlayer']),
                     require: ['^rxPlayer']
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
@@ -2271,11 +2308,11 @@ System.register("src/overlay/player-set-quality.directive", ["src/ng-helper/faca
 System.register("src/overlay/player-set-speed.directive", ["src/ng-helper/facade"], function (exports_37, context_37) {
     "use strict";
     var __moduleName = context_37 && context_37.id;
-    var facade_16, PlayerSetSpeedDirective;
+    var facade_17, PlayerSetSpeedDirective;
     return {
         setters: [
-            function (facade_16_1) {
-                facade_16 = facade_16_1;
+            function (facade_17_1) {
+                facade_17 = facade_17_1;
             }
         ],
         execute: function () {
@@ -2304,9 +2341,9 @@ System.register("src/overlay/player-set-speed.directive", ["src/ng-helper/facade
             }());
             PlayerSetSpeedDirective.$inject = ['$element', '$attrs', '$parse', '$scope'];
             PlayerSetSpeedDirective = __decorate([
-                facade_16.Directive({
+                facade_17.Directive({
                     selector: 'playerSetSpeed',
-                    link: facade_16.bindToCtrlCallOnInit(['rxPlayer']),
+                    link: facade_17.bindToCtrlCallOnInit(['rxPlayer']),
                     require: ['^rxPlayer']
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
@@ -2318,11 +2355,11 @@ System.register("src/overlay/player-set-speed.directive", ["src/ng-helper/facade
 System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facade", "src/service/readable-time.service"], function (exports_38, context_38) {
     "use strict";
     var __moduleName = context_38 && context_38.id;
-    var facade_17, readable_time_service_3, PlayerTotalTimeDirective;
+    var facade_18, readable_time_service_3, PlayerTotalTimeDirective;
     return {
         setters: [
-            function (facade_17_1) {
-                facade_17 = facade_17_1;
+            function (facade_18_1) {
+                facade_18 = facade_18_1;
             },
             function (readable_time_service_3_1) {
                 readable_time_service_3 = readable_time_service_3_1;
@@ -2348,9 +2385,9 @@ System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facad
             }());
             PlayerTotalTimeDirective.$inject = ['$scope', '$element', '$attrs', '$parse'];
             PlayerTotalTimeDirective = __decorate([
-                facade_17.Directive({
+                facade_18.Directive({
                     selector: 'playerTotalTime',
-                    link: facade_17.mockNgOnInitFromAttr('playerTotalTime'),
+                    link: facade_18.mockNgOnInitFromAttr('playerTotalTime'),
                     require: ['^rxPlayer']
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
@@ -2362,14 +2399,14 @@ System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facad
 System.register("src/overlay/player-volume-horizontal.component", ["angular", "src/ng-helper/facade"], function (exports_39, context_39) {
     "use strict";
     var __moduleName = context_39 && context_39.id;
-    var angular, facade_18, PlayerVolumeHorizontalComponent;
+    var angular, facade_19, PlayerVolumeHorizontalComponent;
     return {
         setters: [
             function (angular_11) {
                 angular = angular_11;
             },
-            function (facade_18_1) {
-                facade_18 = facade_18_1;
+            function (facade_19_1) {
+                facade_19 = facade_19_1;
             }
         ],
         execute: function () {
@@ -2419,12 +2456,12 @@ System.register("src/overlay/player-volume-horizontal.component", ["angular", "s
             }());
             PlayerVolumeHorizontalComponent.$inject = ['$element'];
             PlayerVolumeHorizontalComponent = __decorate([
-                facade_18.Component({
+                facade_19.Component({
                     selector: 'playerVolumeHorizontal',
                     templateUrl: '/template/overlay/player-volume-horizontal.component.html',
-                    link: facade_18.composeLinkFn([
-                        facade_18.mockNgOnInitLink(['player']),
-                        facade_18.localTemplateVariableLink
+                    link: facade_19.composeLinkFn([
+                        facade_19.mockNgOnInitLink(['player']),
+                        facade_19.localTemplateVariableLink
                     ]),
                     scope: {
                         player: '='
@@ -2670,7 +2707,7 @@ System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/
             angular.extend(newOptions.playerVars, angular.copy(defaultOptions.playerVars), options.playerVars);
             // TODO: Replace with observable
             // Get the angular 1 injector
-            return facade_19.getInjector()
+            return facade_20.getInjector()
                 .then(function (injector) { return injector.get('YoutubePlayer'); })
                 .then(function (YoutubePlayer) { return new YoutubePlayer(elmOrId, newOptions); })
                 .then(function (player) { return new Promise(function (resolve) { return player.on('onReady', function () { return resolve(player); }); }); });
@@ -2678,7 +2715,7 @@ System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/
     }
     exports_42("loadPlayer", loadPlayer);
     function createVideoPlayer(options, $videoDiv) {
-        return facade_20.Observable.create(function (observer) {
+        return facade_21.Observable.create(function (observer) {
             options.height = options.height || '390';
             options.width = options.width || '640';
             // TODO: Need to see where to put this after refactor
@@ -2698,20 +2735,20 @@ System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/
         });
     }
     exports_42("createVideoPlayer", createVideoPlayer);
-    var angular, facade_20, rx_video_service_2, facade_19, Factory, defaultOptions, autoload, apiLoadedPromise, Provider;
+    var angular, facade_21, rx_video_service_2, facade_20, Factory, defaultOptions, autoload, apiLoadedPromise, Provider;
     return {
         setters: [
             function (angular_14) {
                 angular = angular_14;
             },
-            function (facade_20_1) {
-                facade_20 = facade_20_1;
+            function (facade_21_1) {
+                facade_21 = facade_21_1;
             },
             function (rx_video_service_2_1) {
                 rx_video_service_2 = rx_video_service_2_1;
             },
-            function (facade_19_1) {
-                facade_19 = facade_19_1;
+            function (facade_20_1) {
+                facade_20 = facade_20_1;
             }
         ],
         execute: function () {
@@ -3042,14 +3079,14 @@ System.register("src/ng-helper/async.filter", ["angular"], function (exports_45,
 System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx/facade", "src/ng-helper/plain-model"], function (exports_46, context_46) {
     "use strict";
     var __moduleName = context_46 && context_46.id;
-    var angular, facade_21, plain_model_2, HTML5Player;
+    var angular, facade_22, plain_model_2, HTML5Player;
     return {
         setters: [
             function (angular_17) {
                 angular = angular_17;
             },
-            function (facade_21_1) {
-                facade_21 = facade_21_1;
+            function (facade_22_1) {
+                facade_22 = facade_22_1;
             },
             function (plain_model_2_1) {
                 plain_model_2 = plain_model_2_1;
@@ -3060,12 +3097,12 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                 function HTML5Player(elm, options) {
                     var _this = this;
                     this.video = document.createElement('video');
-                    this.ready$ = facade_21.Observable
+                    this.ready$ = facade_22.Observable
                         .fromEvent(this.video, 'loadstart')
                         .mapTo(this);
                     // TODO: Map to the correct event
-                    this.playState$ = facade_21.Observable.merge(facade_21.Observable.fromEvent(this.video, 'play'), facade_21.Observable.fromEvent(this.video, 'pause'));
-                    this.progress$ = facade_21.Observable
+                    this.playState$ = facade_22.Observable.merge(facade_22.Observable.fromEvent(this.video, 'play'), facade_22.Observable.fromEvent(this.video, 'pause'));
+                    this.progress$ = facade_22.Observable
                         .fromEvent(this.video, 'timeupdate')
                         .map(function (_) {
                         var event = {
@@ -3075,10 +3112,20 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                         };
                         return event;
                     });
+                    this.loaded$ = facade_22.Observable
+                        .fromEvent(this.video, 'progress')
+                        .map(function (_) {
+                        var event = {
+                            player: _this,
+                            type: 'loaded',
+                            loaded: _this.getLoadedPercent()
+                        };
+                        return event;
+                    });
                     // -------------------
                     // -     Rate     -
                     // -------------------
-                    this.playbackRate$ = facade_21.Observable
+                    this.playbackRate$ = facade_22.Observable
                         .fromEvent(this.video, 'ratechange')
                         .map(function (_) {
                         var event = {
@@ -3088,7 +3135,7 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                         };
                         return event;
                     });
-                    this.volumeState$ = facade_21.Observable
+                    this.volumeState$ = facade_22.Observable
                         .fromEvent(this.video, 'volumechange')
                         .map(function (_) {
                         var event = {
@@ -3113,7 +3160,7 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                     // debugger;
                     // this.video.load();
                     // this.video.preload = 'metadata';
-                    return facade_21.Observable
+                    return facade_22.Observable
                         .fromEvent(this.video, 'loadedmetadata')
                         .mapTo(this);
                 };
@@ -3135,6 +3182,21 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                 HTML5Player.prototype.getCurrentTime = function () {
                     return this.video.currentTime;
                 };
+                HTML5Player.prototype.getLoadedPercent = function () {
+                    // Get the loaded ranges
+                    var timeRange = this.video.buffered;
+                    var end = Number.NEGATIVE_INFINITY;
+                    for (var i = 0; i < timeRange.length; i++) {
+                        var rangeEnd = timeRange.end(i);
+                        end = Math.max(end, rangeEnd);
+                    }
+                    // const end = this.video.buffered.end(0);
+                    return end / this.getDuration() * 100;
+                    // console.log();
+                    // return 92;
+                    // return this.video.buffered;
+                };
+                ;
                 HTML5Player.prototype.getPlaybackRate = function () {
                     return this.video.playbackRate;
                 };
@@ -3187,7 +3249,7 @@ System.register("src/players/html5/html5-player.service", ["src/util/rx/facade",
     function loadPlayer(elm, options) {
         // TODO: Refactor into rxjs
         // Get the angular 1 injector
-        return facade_22.getInjector()
+        return facade_23.getInjector()
             .then(function (injector) { return injector.get('HTML5Player'); })
             .then(function (HTML5Player) { return new HTML5Player(elm, options); })
             .then(function (player) { return player.ready$.take(1).toPromise(); });
@@ -3195,7 +3257,7 @@ System.register("src/players/html5/html5-player.service", ["src/util/rx/facade",
     exports_47("loadPlayer", loadPlayer);
     // TODO: This is so far equal to the YoutubePlayer fn
     function createVideoPlayer(options, $videoDiv) {
-        return facade_23.Observable.create(function (observer) {
+        return facade_24.Observable.create(function (observer) {
             options.height = options.height || '390';
             options.width = options.width || '640';
             // TODO: Need to see where to put this after refactor
@@ -3215,11 +3277,11 @@ System.register("src/players/html5/html5-player.service", ["src/util/rx/facade",
         });
     }
     exports_47("createVideoPlayer", createVideoPlayer);
-    var facade_23, html5_player_model_1, rx_video_service_3, facade_22, Factory;
+    var facade_24, html5_player_model_1, rx_video_service_3, facade_23, Factory;
     return {
         setters: [
-            function (facade_23_1) {
-                facade_23 = facade_23_1;
+            function (facade_24_1) {
+                facade_24 = facade_24_1;
             },
             function (html5_player_model_1_1) {
                 html5_player_model_1 = html5_player_model_1_1;
@@ -3227,8 +3289,8 @@ System.register("src/players/html5/html5-player.service", ["src/util/rx/facade",
             function (rx_video_service_3_1) {
                 rx_video_service_3 = rx_video_service_3_1;
             },
-            function (facade_22_1) {
-                facade_22 = facade_22_1;
+            function (facade_23_1) {
+                facade_23 = facade_23_1;
             }
         ],
         execute: function () {

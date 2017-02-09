@@ -46,9 +46,10 @@ export class HoverIndicatorComponent {
             this.elm.parent().append(indicatorElm);
         });
 
+        // TODO: Refactor to rxjs
         this.rxPlayer
             .player$
-            .subscribe((player: YoutubePlayer) => {
+            .subscribe(player => {
                 const duration = player.getDuration();
 
                 const barMove = (event) => {

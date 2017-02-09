@@ -7,7 +7,8 @@ import {
     IVideoPlayer,
     IVolumeStateEvent,
     IProgressStateEvent,
-    IRateChangeEvent
+    IRateChangeEvent,
+    ILoadedStateEvent
 } from 'src/service/video-player.model';
 import 'src/service/youtube-marker-list.model'; // TODO: Refactor markers
 
@@ -130,18 +131,31 @@ export class YoutubePlayer
                         } as IProgressStateEvent;
                         return event;
                     });
-    getDuration () {
+
+    // TODO: There is no specific event from youtube to indicate that the video is
+    // being loaded, for now this recipe is disabled. Eventually we can combine onStateChange with
+    // an interval to poll when the event happens
+    loaded$ = Observable.empty<ILoadedStateEvent>();
+        // .fromEvent('progress')
+        // .map(_ => {
+        //     const event = {
+        //         player: this,
+        //         type: 'loaded',
+        //         loaded: this.getLoadedPercent()
+        //     } as ILoadedStateEvent;
+        //     return event;
+        // });
+    getDuration (): number {
         return this.player.getDuration();
     }
 
-    getCurrentTime () {
+    getCurrentTime (): number {
         return this.player.getCurrentTime();
     }
 
-    getPlayerState () {
-        return this.player.getPlayerState();
+    getLoadedPercent (): number {
+        return this.player.getVideoLoadedFraction() * 100;
     }
-
 
     // -------------------
     // -     Rate     -
@@ -281,7 +295,6 @@ export class YoutubePlayer
         }
         return cancel;
     }
-
 
     /**
      * Its like seekTo, but fires an event when the seek is complete
@@ -470,11 +483,9 @@ export class YoutubePlayer
         return this.markerList.getMarker(id);
     };
 
-
     getHumanPlaybackQuality () {
         return convertToYoutube(this.player.getPlaybackQuality());
     };
-
 
     getHumanIntendedPlaybackQuality (showRealAuto) {
         let ans = convertToYoutube(this._intendedQuality);
@@ -495,16 +506,11 @@ export class YoutubePlayer
         this.player.setPlaybackQuality(q);
     };
 
-    getVideoLoadedFraction () {
-        return this.player.getVideoLoadedFraction();
-    }
-
-
-
     destroy () {
         return this.player.destroy();
     }
 
+    // TODO: Deprecated in favour of load?
     loadVideoById (videoId: string, startSeconds?: number, suggestedQuality?: string) {
         this.player.loadVideoById(videoId, startSeconds, suggestedQuality);
         return this;
@@ -519,6 +525,11 @@ export class YoutubePlayer
     getAvailableQualityLevels () {
         return this.player.getAvailableQualityLevels();
     }
+
+    getPlayerState () {
+        return this.player.getPlayerState();
+    }
+
 
 }
 

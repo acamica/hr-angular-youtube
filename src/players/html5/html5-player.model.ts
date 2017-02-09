@@ -9,7 +9,8 @@ import {
     IVideoPlayer,
     IVolumeStateEvent,
     IProgressStateEvent,
-    IRateChangeEvent
+    IRateChangeEvent,
+    ILoadedStateEvent
 } from 'src/service/video-player.model';
 
 export interface IHTML5Source {
@@ -87,6 +88,17 @@ export class HTML5Player
             return event;
         });
 
+    loaded$ = Observable
+        .fromEvent(this.video, 'progress')
+        .map(_ => {
+            const event = {
+                player: this,
+                type: 'loaded',
+                loaded: this.getLoadedPercent()
+            } as ILoadedStateEvent;
+            return event;
+        });
+
     getDuration () {
         return this.video.duration;
     }
@@ -94,6 +106,21 @@ export class HTML5Player
     getCurrentTime () {
         return this.video.currentTime;
     }
+
+    getLoadedPercent (): number {
+        // Get the loaded ranges
+        const timeRange = this.video.buffered;
+        let end = Number.NEGATIVE_INFINITY;
+        for (let i = 0; i < timeRange.length; i++) {
+            const rangeEnd = timeRange.end(i);
+            end = Math.max(end, rangeEnd);
+        }
+        // const end = this.video.buffered.end(0);
+        return end / this.getDuration() * 100;
+        // console.log();
+        // return 92;
+        // return this.video.buffered;
+    };
 
     // -------------------
     // -     Rate     -
