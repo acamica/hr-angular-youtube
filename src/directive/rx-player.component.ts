@@ -1,5 +1,4 @@
 // TODO: Move this into players folder
-import * as angular from 'angular';
 import {Observable, fromAngularWatch, takeUntilScopeDestroy} from 'src/util/rx/facade';
 // import {ReplaySubject} from 'rxjs/ReplaySubject';
 
@@ -39,9 +38,9 @@ export class RxPlayerComponent {
     player$: Observable<IVideoPlayer>;
     video: RxVideoInterface;
 
-    static $inject = ['$element', '$attrs', '$scope', 'youtube'];
+    static $inject = ['$element', '$attrs', '$scope'];
 
-    constructor (private elm, private attrs, private scope, private youtube) {
+    constructor (private elm, private attrs, private scope) {
         // TODO: See why this was set. I remember something in the lines of not
         // providing css if not needed but this being some of the basics
         elm.css('position', 'relative');
@@ -67,7 +66,7 @@ export class RxPlayerComponent {
     ngOnInit () {
         // TODO: Type this
         const $videoDiv: HTMLElement = this.elm[0].querySelector('.hr-yt-video-place-holder');
-        const $overlayElm = angular.element(this.elm[0].querySelector('.hr-yt-overlay'));
+        // const $overlayElm = angular.element(this.elm[0].querySelector('.hr-yt-overlay'));
 
         const options: any = {
             playerVars: {}
@@ -115,10 +114,13 @@ export class RxPlayerComponent {
                 () => {},
                 error => console.error(`There was a problem loading the video player: ${error}`));
 
+        // TODO: I think I want to deprecate this in favour of having local controllers
+        // with their own adaptors
         this.video = new RxVideoInterface(this.player$);
 
     }
 }
+/*
 function convertToUnits (u: number|string): string {
     // If its numbers, interpret pixels
     if (typeof u === 'number' || /^\d+$/.test(u)) {
@@ -126,3 +128,4 @@ function convertToUnits (u: number|string): string {
     }
     return u;
 }
+*/

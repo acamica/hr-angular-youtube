@@ -1,4 +1,4 @@
-import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
+import {Directive} from 'src/ng-helper/facade';
 import * as angular from 'angular';
 
 @Directive({

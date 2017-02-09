@@ -849,22 +849,12 @@ System.register("src/service/rx-video.service", ["src/util/rx/facade", "src/util
         }
     };
 });
-System.register("src/directive/rx-player.component", ["angular", "src/util/rx/facade", "src/ng-helper/facade", "src/service/rx-video-interface.model", "src/service/rx-video.service"], function (exports_19, context_19) {
+System.register("src/directive/rx-player.component", ["src/util/rx/facade", "src/ng-helper/facade", "src/service/rx-video-interface.model", "src/service/rx-video.service"], function (exports_19, context_19) {
     "use strict";
     var __moduleName = context_19 && context_19.id;
-    function convertToUnits(u) {
-        // If its numbers, interpret pixels
-        if (typeof u === 'number' || /^\d+$/.test(u)) {
-            return u + 'px';
-        }
-        return u;
-    }
-    var angular, facade_2, facade_3, rx_video_interface_model_1, rx_video_service_1, playerAttrs, playerVarAttrs, RxPlayerComponent;
+    var facade_2, facade_3, rx_video_interface_model_1, rx_video_service_1, playerAttrs, playerVarAttrs, RxPlayerComponent;
     return {
         setters: [
-            function (angular_5) {
-                angular = angular_5;
-            },
             function (facade_2_1) {
                 facade_2 = facade_2_1;
             },
@@ -886,11 +876,10 @@ System.register("src/directive/rx-player.component", ["angular", "src/util/rx/fa
                 'list', 'listType', 'loop', 'modestbranding', 'origin', 'playerapiid',
                 'playlist', 'playsinline', 'rel', 'showinfo', 'start', 'theme'];
             RxPlayerComponent = (function () {
-                function RxPlayerComponent(elm, attrs, scope, youtube) {
+                function RxPlayerComponent(elm, attrs, scope) {
                     this.elm = elm;
                     this.attrs = attrs;
                     this.scope = scope;
-                    this.youtube = youtube;
                     // TODO: See why this was set. I remember something in the lines of not
                     // providing css if not needed but this being some of the basics
                     elm.css('position', 'relative');
@@ -910,7 +899,7 @@ System.register("src/directive/rx-player.component", ["angular", "src/util/rx/fa
                     var _this = this;
                     // TODO: Type this
                     var $videoDiv = this.elm[0].querySelector('.hr-yt-video-place-holder');
-                    var $overlayElm = angular.element(this.elm[0].querySelector('.hr-yt-overlay'));
+                    // const $overlayElm = angular.element(this.elm[0].querySelector('.hr-yt-overlay'));
                     var options = {
                         playerVars: {}
                     };
@@ -950,11 +939,13 @@ System.register("src/directive/rx-player.component", ["angular", "src/util/rx/fa
                     // the shared instance (TODO: Revisit this)
                     facade_2.takeUntilScopeDestroy(this.player$, this.scope)
                         .subscribe(function () { }, function (error) { return console.error("There was a problem loading the video player: " + error); });
+                    // TODO: I think I want to deprecate this in favour of having local controllers
+                    // with their own adaptors
                     this.video = new rx_video_interface_model_1.RxVideoInterface(this.player$);
                 };
                 return RxPlayerComponent;
             }());
-            RxPlayerComponent.$inject = ['$element', '$attrs', '$scope', 'youtube'];
+            RxPlayerComponent.$inject = ['$element', '$attrs', '$scope'];
             RxPlayerComponent = __decorate([
                 facade_3.Component({
                     selector: 'rxPlayer',
@@ -965,9 +956,18 @@ System.register("src/directive/rx-player.component", ["angular", "src/util/rx/fa
                         videoSource: '='
                     },
                 }),
-                __metadata("design:paramtypes", [Object, Object, Object, Object])
+                __metadata("design:paramtypes", [Object, Object, Object])
             ], RxPlayerComponent);
             exports_19("RxPlayerComponent", RxPlayerComponent);
+            /*
+            function convertToUnits (u: number|string): string {
+                // If its numbers, interpret pixels
+                if (typeof u === 'number' || /^\d+$/.test(u)) {
+                    return u + 'px';
+                }
+                return u;
+            }
+            */
         }
     };
 });
@@ -980,8 +980,8 @@ System.register("src/directive/yt-slider.directive", ["src/ng-helper/facade", "a
             function (facade_4_1) {
                 facade_4 = facade_4_1;
             },
-            function (angular_6) {
-                angular = angular_6;
+            function (angular_5) {
+                angular = angular_5;
             }
         ],
         execute: function () {
@@ -1085,8 +1085,8 @@ System.register("src/ng-helper/plain-model", ["angular"], function (exports_21, 
     var angular;
     return {
         setters: [
-            function (angular_7) {
-                angular = angular_7;
+            function (angular_6) {
+                angular = angular_6;
             }
         ],
         execute: function () {
@@ -1151,8 +1151,8 @@ System.register("src/service/youtube-marker-list.model", ["angular"], function (
     var angular;
     return {
         setters: [
-            function (angular_8) {
-                angular = angular_8;
+            function (angular_7) {
+                angular = angular_7;
             }
         ],
         execute: function () {
@@ -1197,8 +1197,8 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
     var angular, facade_5, plain_model_1, youtube_quality_map_service_1, uuid_service_1, imports, YoutubePlayer;
     return {
         setters: [
-            function (angular_9) {
-                angular = angular_9;
+            function (angular_8) {
+                angular = angular_8;
             },
             function (facade_5_1) {
                 facade_5 = facade_5_1;
@@ -1271,9 +1271,18 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                         };
                         return event;
                     });
+                    this.playbackRate$ = this.fromEvent('onPlaybackRateChange')
+                        .map(function (_) {
+                        var event = {
+                            player: _this,
+                            type: 'ratechange',
+                            rate: _this.getPlaybackRate()
+                        };
+                        return event;
+                    });
                     // TODO: need to map this event to a common interface once defined
                     this.playState$ = this.fromEvent('onStateChange');
-                    var op = angular.copy(options);
+                    var op = angular.copy(this.options);
                     // TODO: Add a fit to parent or something like that
                     op.width = '100%';
                     op.height = '100%';
@@ -1677,8 +1686,8 @@ System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper
     var angular, facade_6, YoutubeMarker;
     return {
         setters: [
-            function (angular_10) {
-                angular = angular_10;
+            function (angular_9) {
+                angular = angular_9;
             },
             function (facade_6_1) {
                 facade_6 = facade_6_1;
@@ -1805,29 +1814,31 @@ System.register("src/overlay/player-current-speed.directive", ["src/ng-helper/fa
         ],
         execute: function () {
             PlayerCurrentSpeedDirective = (function () {
-                function PlayerCurrentSpeedDirective(elm) {
+                function PlayerCurrentSpeedDirective($scope, elm, attr, $parse) {
+                    this.$scope = $scope;
                     this.elm = elm;
+                    this.attr = attr;
+                    this.$parse = $parse;
                 }
                 PlayerCurrentSpeedDirective.prototype.ngOnInit = function () {
                     var _this = this;
-                    this.rxPlayer
-                        .player$
-                        .subscribe(function (player) {
-                        var setPlaybackRate = function () { return _this.elm.html(player.getPlaybackRate()); };
-                        player.on('onPlaybackRateChange', setPlaybackRate);
-                        setPlaybackRate();
+                    var player$ = this.$parse(this.attr.playerCurrentSpeed)(this.$scope);
+                    player$
+                        .switchMap(function (player) { return player.playbackRate$; })
+                        .map(function (event) { return event.rate; })
+                        .subscribe(function (rate) {
+                        _this.elm.html(rate);
                     });
                 };
                 return PlayerCurrentSpeedDirective;
             }());
-            PlayerCurrentSpeedDirective.$inject = ['$element'];
+            PlayerCurrentSpeedDirective.$inject = ['$scope', '$element', '$attrs', '$parse'];
             PlayerCurrentSpeedDirective = __decorate([
                 facade_8.Directive({
                     selector: 'playerCurrentSpeed',
-                    link: facade_8.bindToCtrlCallOnInit(['rxPlayer']),
-                    require: ['^rxPlayer']
+                    link: facade_8.mockNgOnInitFromAttr('playerCurrentSpeed'),
                 }),
-                __metadata("design:paramtypes", [Object])
+                __metadata("design:paramtypes", [Object, Object, Object, Object])
             ], PlayerCurrentSpeedDirective);
             exports_28("PlayerCurrentSpeedDirective", PlayerCurrentSpeedDirective);
         }
@@ -1913,9 +1924,8 @@ System.register("src/overlay/player-panel.component", ["src/ng-helper/facade"], 
         ],
         execute: function () {
             PlayerPanelComponent = (function () {
-                function PlayerPanelComponent(elm, scope, attrs, $animate, $timeout) {
+                function PlayerPanelComponent(elm, attrs, $animate, $timeout) {
                     this.elm = elm;
-                    this.scope = scope;
                     this.attrs = attrs;
                     this.$animate = $animate;
                     this.$timeout = $timeout;
@@ -1974,7 +1984,7 @@ System.register("src/overlay/player-panel.component", ["src/ng-helper/facade"], 
                 };
                 return PlayerPanelComponent;
             }());
-            PlayerPanelComponent.$inject = ['$element', '$scope', '$attrs', '$animate', '$timeout'];
+            PlayerPanelComponent.$inject = ['$element', '$attrs', '$animate', '$timeout'];
             PlayerPanelComponent = __decorate([
                 facade_10.Component({
                     selector: 'playerPanel',
@@ -1983,7 +1993,7 @@ System.register("src/overlay/player-panel.component", ["src/ng-helper/facade"], 
                     transclude: true,
                     templateUrl: '/template/overlay/player-panel.component.html',
                 }),
-                __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
+                __metadata("design:paramtypes", [Object, Object, Object, Object])
             ], PlayerPanelComponent);
             exports_31("PlayerPanelComponent", PlayerPanelComponent);
         }
@@ -2081,8 +2091,8 @@ System.register("src/overlay/player-progress-bar.component", ["src/ng-helper/fac
             function (facade_12_1) {
                 facade_12 = facade_12_1;
             },
-            function (angular_11) {
-                angular = angular_11;
+            function (angular_10) {
+                angular = angular_10;
             }
         ],
         execute: function () {
@@ -2194,8 +2204,7 @@ System.register("src/overlay/player-repeat-available-quality.directive", ["src/n
         ],
         execute: function () {
             PlayerRepeatAvailableSpeedDirective = (function () {
-                function PlayerRepeatAvailableSpeedDirective(elm, scope, attrs) {
-                    this.elm = elm;
+                function PlayerRepeatAvailableSpeedDirective(scope, attrs) {
                     this.scope = scope;
                     this.attrs = attrs;
                 }
@@ -2220,7 +2229,7 @@ System.register("src/overlay/player-repeat-available-quality.directive", ["src/n
                 };
                 return PlayerRepeatAvailableSpeedDirective;
             }());
-            PlayerRepeatAvailableSpeedDirective.$inject = ['$element', '$scope', '$attrs'];
+            PlayerRepeatAvailableSpeedDirective.$inject = ['$scope', '$attrs'];
             PlayerRepeatAvailableSpeedDirective = __decorate([
                 facade_13.Directive({
                     selector: 'playerRepeatAvailableQuality',
@@ -2235,7 +2244,7 @@ System.register("src/overlay/player-repeat-available-quality.directive", ["src/n
                         return tElm[0].outerHTML;
                     }
                 }),
-                __metadata("design:paramtypes", [Object, Object, Object])
+                __metadata("design:paramtypes", [Object, Object])
             ], PlayerRepeatAvailableSpeedDirective);
             exports_34("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
         }
@@ -2253,8 +2262,7 @@ System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-
         ],
         execute: function () {
             PlayerRepeatAvailableSpeedDirective = (function () {
-                function PlayerRepeatAvailableSpeedDirective(elm, scope, attrs) {
-                    this.elm = elm;
+                function PlayerRepeatAvailableSpeedDirective(scope, attrs) {
                     this.scope = scope;
                     this.attrs = attrs;
                 }
@@ -2271,7 +2279,7 @@ System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-
                 };
                 return PlayerRepeatAvailableSpeedDirective;
             }());
-            PlayerRepeatAvailableSpeedDirective.$inject = ['$element', '$scope', '$attrs'];
+            PlayerRepeatAvailableSpeedDirective.$inject = ['$scope', '$attrs'];
             PlayerRepeatAvailableSpeedDirective = __decorate([
                 facade_14.Directive({
                     selector: 'playerRepeatAvailableSpeed',
@@ -2286,7 +2294,7 @@ System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-
                         return tElm[0].outerHTML;
                     }
                 }),
-                __metadata("design:paramtypes", [Object, Object, Object])
+                __metadata("design:paramtypes", [Object, Object])
             ], PlayerRepeatAvailableSpeedDirective);
             exports_35("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
         }
@@ -2435,8 +2443,8 @@ System.register("src/overlay/player-volume-horizontal.component", ["angular", "s
     var angular, facade_18, PlayerVolumeHorizontalComponent;
     return {
         setters: [
-            function (angular_12) {
-                angular = angular_12;
+            function (angular_11) {
+                angular = angular_11;
             },
             function (facade_18_1) {
                 facade_18 = facade_18_1;
@@ -2444,9 +2452,8 @@ System.register("src/overlay/player-volume-horizontal.component", ["angular", "s
         ],
         execute: function () {
             PlayerVolumeHorizontalComponent = (function () {
-                function PlayerVolumeHorizontalComponent(elm, scope) {
+                function PlayerVolumeHorizontalComponent(elm) {
                     this.elm = elm;
-                    this.scope = scope;
                     this.$volumeBar = angular.element(this.elm[0].querySelector('.hr-yt-volume-hr-bar'));
                     this.$settedBar = angular.element(this.elm[0].querySelector('.hr-yt-setted'));
                     this.$handle = angular.element(this.elm[0].querySelector('.hr-yt-handle'));
@@ -2488,7 +2495,7 @@ System.register("src/overlay/player-volume-horizontal.component", ["angular", "s
                 };
                 return PlayerVolumeHorizontalComponent;
             }());
-            PlayerVolumeHorizontalComponent.$inject = ['$element', '$scope'];
+            PlayerVolumeHorizontalComponent.$inject = ['$element'];
             PlayerVolumeHorizontalComponent = __decorate([
                 facade_18.Component({
                     selector: 'playerVolumeHorizontal',
@@ -2502,7 +2509,7 @@ System.register("src/overlay/player-volume-horizontal.component", ["angular", "s
                     },
                     transclude: true,
                 }),
-                __metadata("design:paramtypes", [Object, Object])
+                __metadata("design:paramtypes", [Object])
             ], PlayerVolumeHorizontalComponent);
             exports_39("PlayerVolumeHorizontalComponent", PlayerVolumeHorizontalComponent);
         }
@@ -2514,8 +2521,8 @@ System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.s
     var angular, uuid_service_2;
     return {
         setters: [
-            function (angular_13) {
-                angular = angular_13;
+            function (angular_12) {
+                angular = angular_12;
             },
             function (uuid_service_2_1) {
                 uuid_service_2 = uuid_service_2_1;
@@ -2648,8 +2655,8 @@ System.register("src/service/youtube-template-marker.model", ["angular"], functi
     var angular;
     return {
         setters: [
-            function (angular_14) {
-                angular = angular_14;
+            function (angular_13) {
+                angular = angular_13;
             }
         ],
         execute: function () {
@@ -2772,8 +2779,8 @@ System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/
     var angular, facade_20, rx_video_service_2, facade_19, Factory, defaultOptions, autoload, apiLoadedPromise, Provider;
     return {
         setters: [
-            function (angular_15) {
-                angular = angular_15;
+            function (angular_14) {
+                angular = angular_14;
             },
             function (facade_20_1) {
                 facade_20 = facade_20_1;
@@ -2942,8 +2949,8 @@ System.register("src/main", ["src/directive/rx-player.component", "src/directive
             },
             function (_48) {
             },
-            function (angular_16) {
-                angular = angular_16;
+            function (angular_15) {
+                angular = angular_15;
             }
         ],
         execute: function () {
@@ -3099,8 +3106,8 @@ System.register("src/ng-helper/async.filter", ["angular"], function (exports_45,
     var angular;
     return {
         setters: [
-            function (angular_17) {
-                angular = angular_17;
+            function (angular_16) {
+                angular = angular_16;
             }
         ],
         execute: function () {
@@ -3116,8 +3123,8 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
     var angular, facade_21, plain_model_2, HTML5Player;
     return {
         setters: [
-            function (angular_18) {
-                angular = angular_18;
+            function (angular_17) {
+                angular = angular_17;
             },
             function (facade_21_1) {
                 facade_21 = facade_21_1;
@@ -3146,6 +3153,16 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                         };
                         return event;
                     });
+                    this.playbackRate$ = facade_21.Observable
+                        .fromEvent(this.video, 'ratechange')
+                        .map(function (_) {
+                        var event = {
+                            player: _this,
+                            type: 'ratechange',
+                            rate: _this.getPlaybackRate()
+                        };
+                        return event;
+                    });
                     this.volumeState$ = facade_21.Observable
                         .fromEvent(this.video, 'volumechange')
                         .map(function (_) {
@@ -3168,7 +3185,6 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                 // -------------------
                 HTML5Player.prototype.load = function (_a) {
                     var sources = _a.sources;
-                    var pepe;
                     // debugger;
                     // this.video.load();
                     // this.video.preload = 'metadata';
@@ -3199,6 +3215,18 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                 };
                 HTML5Player.prototype.getDuration = function () {
                     return this.video.duration;
+                };
+                // -------------------
+                // -     Rate     -
+                // -------------------
+                HTML5Player.prototype.getPlaybackRate = function () {
+                    return this.video.playbackRate;
+                };
+                HTML5Player.prototype.setPlaybackRate = function (rate) {
+                    this.video.playbackRate = rate;
+                };
+                HTML5Player.prototype.getAvailablePlaybackRates = function () {
+                    return [1, 1.25, 1.5, 1.75, 2];
                 };
                 // -------------------
                 // -      Volume     -

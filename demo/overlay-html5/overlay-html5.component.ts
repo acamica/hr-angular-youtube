@@ -28,7 +28,7 @@ function configureYoutubeProvider (youtubeProvider) {
     templateUrl: '/demo/overlay-html5/overlay-html5.component.html',
     directives: [RxPlayerComponent],
 })
-class ControlsDemoHTML5Component {
+export class ControlsDemoHTML5Component {
     videoSource = {
         player: 'HTML5Player',
         sources: [{

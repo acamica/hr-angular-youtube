@@ -12,8 +12,8 @@ import {RxPlayerComponent} from 'src/directive/rx-player.component';
 export class PlayerPanelComponent {
     private rxPlayer: RxPlayerComponent;
 
-    static $inject = ['$element', '$scope', '$attrs', '$animate', '$timeout'];
-    constructor (private elm, private scope, private attrs, private $animate, private $timeout) {
+    static $inject = ['$element', '$attrs', '$animate', '$timeout'];
+    constructor (private elm, private attrs, private $animate, private $timeout) {
     }
 
     ngOnInit () {

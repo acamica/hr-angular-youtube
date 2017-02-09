@@ -22,8 +22,8 @@ import {RxPlayerComponent} from 'src/directive/rx-player.component';
 export class PlayerRepeatAvailableSpeedDirective {
     private rxPlayer: RxPlayerComponent;
 
-    static $inject = ['$element', '$scope', '$attrs'];
-    constructor (private elm, private scope, private attrs) {
+    static $inject = ['$scope', '$attrs'];
+    constructor (private scope, private attrs) {
     }
 
     ngOnInit () {
