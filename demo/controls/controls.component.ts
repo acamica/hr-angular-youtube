@@ -26,7 +26,7 @@ function configureYoutubeProvider (youtubeProvider) {
     templateUrl: '/demo/controls/controls.component.html',
     directives: [RxPlayerComponent],
 })
-class ControlsDemoComponent {
+export class ControlsDemoComponent {
     videoId = 'QjX9Wu-MJ-s';
     videoSource: any;
 

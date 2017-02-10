@@ -14,7 +14,7 @@ angular.module('demoHtml5Controls', ['rxPlayer', 'rxPlayerTpls']);
     templateUrl: '/demo/html5-controls/html5-controls.component.html',
     directives: [RxPlayerComponent]
 })
-class Html5ControlsDemoComponent {
+export class Html5ControlsDemoComponent {
     videoSource = {
         player: 'HTML5Player',
         sources: [{
@@ -22,8 +22,5 @@ class Html5ControlsDemoComponent {
             type: 'video/ogg'
         }]
     };
-
-    static $inject = [];
-    constructor() {
-    }
 }
+
