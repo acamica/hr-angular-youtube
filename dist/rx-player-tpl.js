@@ -1975,8 +1975,10 @@ System.register("src/overlay/player-current-time.directive", ["src/util/rx/facad
                     var player$ = this.$parse(this.attr.playerCurrentTime)(this.$scope);
                     var scopeDestroy$ = facade_10.observeScopeDestroy(this.$scope);
                     player$
-                        .switchMap(function (player) { return player.progress$; })
-                        .map(function (event) { return event.time; })
+                        .switchMap(function (player) {
+                        return facade_10.Observable.merge(player.progress$, player.seeked$).mapTo(player);
+                    })
+                        .map(function (player) { return player.getCurrentTime(); })
                         .map(function (time) { return readable_time_service_1.readableTime(time); })
                         .takeUntil(scopeDestroy$)
                         .subscribe(function (readableTime) { return _this.elm.html(readableTime); });

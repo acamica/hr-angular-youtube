@@ -17,10 +17,15 @@ export class PlayerCurrentTimeComponent {
         const player$ = this.$parse(this.attr.playerCurrentTime)(this.$scope) as Observable<IVideoPlayer>;
         const scopeDestroy$ = observeScopeDestroy(this.$scope);
         player$
-            // Whenever the player updates its progress
-            .switchMap(player => player.progress$)
+            // Whenever the player updates its progress or a seek is completed
+            .switchMap(player =>
+                Observable.merge(
+                    player.progress$,
+                    player.seeked$
+                ).mapTo(player))
             // Get the current time in readable form
-            .map(event => event.time)
+            // .map(event => event.time)
+            .map(player => player.getCurrentTime())
             .map(time => readableTime(time))
             .takeUntil(scopeDestroy$)
             // And assing it to the HTML
