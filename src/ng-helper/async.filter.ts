@@ -1,46 +1,6 @@
 import * as angular from 'angular';
-// import {takeUntilScopeDestroy} from 'src/util/rx/take-until-scope-destroy.util';
 
 angular.module('rxPlayer').filter('async', asyncFilter);
-
-// export function asyncFilter2 () {
-//     var promiseValues = new WeakMap()
-//     return function (promise) {
-//         if (!promiseValues.has(promise)) {
-//             promiseValues.set(promise, undefined);
-//             promise.then(function (value) {
-//                 promiseValues.set(promise, value);
-//             });
-//         } else {
-//             return promiseValues.get(promise)
-//         }
-//     }
-// }
-
-// export function asyncFilter2 () {
-//     const unfolded = new WeakMap();
-//     return function (promiseOrObs, $scope) {
-//         if (!unfolded.has(promiseOrObs)) {
-//             unfolded.set(promiseOrObs, undefined);
-
-//             if ('then' in promiseOrObs) {
-//                 promiseOrObs.then(function (value) {
-//                     unfolded.set(promiseOrObs, value);
-//                 });
-//             }
-//             else if ('subscribe' in promiseOrObs) {
-//                 takeUntilScopeDestroy(promiseOrObs, $scope)
-//                     .subscribe(function (value) {
-//                         console.log('the value is', value);
-//                         unfolded.set(promiseOrObs, value);
-//                     });
-//             }
-//         } else {
-//             return unfolded.get(promiseOrObs);
-//         }
-//     };
-// }
-
 
 function asyncFilter () {
     const values = {};

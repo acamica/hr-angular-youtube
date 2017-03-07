@@ -1,5 +1,5 @@
 import * as angular from 'angular';
-import {Observable} from 'src/util/rx/facade';
+import {Observable, observeScopeDestroy} from 'src/util/rx/facade';
 import {Component, mockNgOnInitLink, composeLinkFn, localTemplateVariableLink} from 'src/ng-helper/facade';
 import {IVideoPlayer} from 'src/service/video-player.model';
 
@@ -20,8 +20,8 @@ export class PlayerVolumeHorizontalComponent {
     private player: Observable<IVideoPlayer>;
     isMuted: Observable<boolean>;
 
-    static $inject = ['$element'];
-    constructor (private elm) {
+    static $inject = ['$element', '$scope'];
+    constructor (private elm, private $scope) {
     }
 
     private $volumeBar = angular.element(this.elm[0].querySelector('.hr-yt-volume-hr-bar'));
@@ -36,23 +36,24 @@ export class PlayerVolumeHorizontalComponent {
     }
 
     ngOnInit () {
+        const scopeDestroy$ = observeScopeDestroy(this.$scope);
         // Update the volume bar whenever we change volume
         this.player
-            // TODO: ADD takeUntilScopeDestroy as switchMap doesn't care if the source completed
             // For every volume event
             .switchMap(player => player.volumeState$)
             .map(event => event.volume)
             .startWith(100)
+            .takeUntil(scopeDestroy$)
             // Update the volume bar
             .subscribe(volume => {
                 this.updateVolumeBar(volume / 100);
             });
 
         this.isMuted = this.player
-                            // TODO: ADD takeUntilScopeDestroy as switchMap doesn't care if the source completed
                             .switchMap(player => player.volumeState$)
                             .map(event => event.isMuted)
-                            .startWith(false);
+                            .startWith(false)
+                            .takeUntil(scopeDestroy$);
     }
 
     updateVolume (volume) {

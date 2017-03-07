@@ -1,5 +1,5 @@
 // TODO: Move this into players folder
-import {Observable, fromAngularWatch, takeUntilScopeDestroy} from 'src/util/rx/facade';
+import {Observable, fromAngularWatch, observeScopeDestroy} from 'src/util/rx/facade';
 // import {ReplaySubject} from 'rxjs/ReplaySubject';
 
 import {Component, localTemplateVariableLink} from 'src/ng-helper/facade';
@@ -90,9 +90,10 @@ export class RxPlayerComponent {
                                     .publishReplay(1)
                                     .refCount();
 
+        const scopeDestroy$ = observeScopeDestroy(this.scope);
         // Recipe to create a video player
         // Whenever we have a video source
-        const player$ = watchVideoSource$
+        this.player$ = watchVideoSource$
                         .map(source => ({
                             playerClass: source.player,
                             // TODO: Hardcoded to HTML5 sources :/
@@ -105,9 +106,8 @@ export class RxPlayerComponent {
                         // Put in the stream both the player and the source
                         .withLatestFrom(watchVideoSource$, (player, source) => ({player, source}))
                         // Load the source and wait until the video is ready to play
-                        .switchMap(({player, source}) => player.load(source));
-
-        this.player$ = takeUntilScopeDestroy(this.scope, player$)
+                        .switchMap(({player, source}) => player.load(source))
+                        .takeUntil(scopeDestroy$)
                         .publishReplay(1)
                         // .multicast(() => new ReplaySubject(1))
                         .refCount();

@@ -1,4 +1,4 @@
-import {Observable} from 'src/util/rx/facade';
+import {Observable, observeScopeDestroy} from 'src/util/rx/facade';
 import {IVideoPlayer} from 'src/service/video-player.model';
 import {Directive, mockNgOnInitFromAttr} from 'src/ng-helper/facade';
 
@@ -14,10 +14,11 @@ export class PlayerCurrentSpeedDirective {
 
     ngOnInit () {
         const player$ = this.$parse(this.attr.playerCurrentSpeed)(this.$scope) as Observable<IVideoPlayer>;
+        const scopeDestroy$ = observeScopeDestroy(this.$scope);
         player$
-            // TODO: ADD takeUntilScopeDestroy as switchMap doesn't care if the source completed
             .switchMap(player => player.playbackRate$)
             .map(event => event.rate)
+            .takeUntil(scopeDestroy$)
             .subscribe(rate => {
                 this.elm.html(rate);
             });
