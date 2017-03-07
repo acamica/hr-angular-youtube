@@ -8,7 +8,10 @@ import {
     IVolumeStateEvent,
     IProgressStateEvent,
     IRateChangeEvent,
-    ILoadedStateEvent
+    ILoadedStateEvent,
+    ISeekingEvent,
+    ISeekedEvent,
+    IPlayStateEvent
 } from 'src/service/video-player.model';
 import 'src/service/youtube-marker-list.model'; // TODO: Refactor markers
 
@@ -113,7 +116,14 @@ export class YoutubePlayer
     }
 
     // TODO: need to map this event to a common interface once defined
-    playState$ = this.fromEvent('onStateChange');
+    playState$ = this
+        .fromEvent('onStateChange')
+        .filter(ev => [YT.PlayerState.PLAYING, YT.PlayerState.ENDED, YT.PlayerState.PAUSED].indexOf(ev.data) !== -1)
+        .map(ev => ({
+            player: this,
+            type: 'playstate',
+            isPlaying: ev.data === YT.PlayerState.PLAYING
+        } as IPlayStateEvent));
 
     progress$ = this.fromEvent('onStateChange')
                     .switchMap(event => {
@@ -155,6 +165,57 @@ export class YoutubePlayer
 
     getLoadedPercent (): number {
         return this.player.getVideoLoadedFraction() * 100;
+    }
+
+    seeking$ = new Subject<ISeekingEvent>();
+    seeked$ = new Subject<ISeekedEvent>();
+
+    seekTo (sec): Promise<any> {
+        const initialTime = this.getCurrentTime();
+
+        // Seek to sec
+        this.player.seekTo(sec, true);
+
+        // Inform of the intent to seek
+        // this.emit('seekToBegin', {newTime: sec, oldTime: initialTime});
+        this.seeking$.next({
+            player: this,
+            type: 'seeking'
+        } as ISeekingEvent);
+
+        // Inform when seek is ready
+        Observable
+            // Check every 50ms
+            .interval(200)
+            // If the current time (not pure)
+            .map(_ => this.getCurrentTime())
+            // Means that the player has finished seeking
+            .filter(currentTime => {
+                // If we intent to go backwards:
+                if (sec < initialTime ) {
+                    // We complete when current time is lower
+                    // than the initial one
+                    if (currentTime < initialTime) {
+                        return true;
+                    }
+
+                }
+                // If we intent to go forward:
+                else {
+                    // We complete once we pass the intended mark
+                    if (currentTime > sec || sec - currentTime < 0.1) {
+                        return true;
+                    }
+                }
+                return false;
+                // There may be a third scenario where the player is paused, you pushed
+                // forward and it complete but just next to sec.
+            })
+            .take(1)
+            .mapTo({player: this, type: 'seeked'} as ISeekedEvent)
+            .subscribe(nextValue => this.seeked$.next(nextValue));
+
+        return this.seeked$.take(1).toPromise();
     }
 
     // -------------------
@@ -298,7 +359,7 @@ export class YoutubePlayer
 
     /**
      * Its like seekTo, but fires an event when the seek is complete
-     */
+     *//*
     eventSeekTo (sec, allowSeekAhead) {
         const initialTime = this.player.getCurrentTime();
 
@@ -352,14 +413,14 @@ export class YoutubePlayer
             }
         }, 50);
         return seekPromise.promise;
-    }
+    }*/
 
     startLoading (sec) {
         let unregister;
         const pauseAfterStart =  event => {
             if (event.data === YT.PlayerState.PLAYING) {
                 if (typeof sec === 'number') {
-                    this.eventSeekTo(sec, true);
+                    this.seekTo(sec);
                 }
                 unregister();
                 this.player.pauseVideo();

@@ -38,6 +38,7 @@ export class PlayerVolumeHorizontalComponent {
     ngOnInit () {
         // Update the volume bar whenever we change volume
         this.player
+            // TODO: ADD takeUntilScopeDestroy as switchMap doesn't care if the source completed
             // For every volume event
             .switchMap(player => player.volumeState$)
             .map(event => event.volume)
@@ -48,6 +49,7 @@ export class PlayerVolumeHorizontalComponent {
             });
 
         this.isMuted = this.player
+                            // TODO: ADD takeUntilScopeDestroy as switchMap doesn't care if the source completed
                             .switchMap(player => player.volumeState$)
                             .map(event => event.isMuted)
                             .startWith(false);

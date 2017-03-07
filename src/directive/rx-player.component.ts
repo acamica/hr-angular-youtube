@@ -107,7 +107,7 @@ export class RxPlayerComponent {
                         // Load the source and wait until the video is ready to play
                         .switchMap(({player, source}) => player.load(source));
 
-        this.player$ = takeUntilScopeDestroy(player$, this.scope)
+        this.player$ = takeUntilScopeDestroy(this.scope, player$)
                         .publishReplay(1)
                         // .multicast(() => new ReplaySubject(1))
                         .refCount();

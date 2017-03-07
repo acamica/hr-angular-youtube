@@ -23,6 +23,9 @@ export interface IVideoPlayer {
     getDuration (): number;
     getCurrentTime (): number;
     getLoadedPercent (): number;
+    seeking$: Observable<ISeekingEvent>;
+    seeked$: Observable<ISeekedEvent>;
+    seekTo (sec: number): Promise<boolean>;
 
     // -------------------
     // -     Rate     -
@@ -50,8 +53,13 @@ export interface IVideoPlayer {
     destroy (): void;
 }
 
-type IPlayStateEvent = any; // TODO: Minify to selected events
+// type IPlayStateEvent = any; // TODO: Minify to selected events
     // StartEvent | PauseEvent | StopEvent
+export interface IPlayStateEvent {
+    player: IVideoPlayer;
+    type: 'playstate';
+    isPlaying: boolean;
+}
 
 export interface IVolumeStateEvent {
     player: IVideoPlayer;
@@ -76,6 +84,20 @@ export interface ILoadedStateEvent {
     player: IVideoPlayer;
     type: 'loaded';
     loaded: number;
+}
+
+export interface ISeekingEvent {
+    player: IVideoPlayer;
+    type: 'seeking';
+    // from: number;
+    // to: number;
+}
+
+export interface ISeekedEvent {
+    player: IVideoPlayer;
+    type: 'seeked';
+    // from: number;
+    // to: number;
 }
 
 

@@ -34,7 +34,8 @@ gulp.task('process-templates', function() {
     return gulp.src('./src/**/*.html')
         .pipe(html2js({
             moduleName: 'rxPlayerTpls',
-            prefix :'/template/'
+            prefix :'/template/',
+            export: 'commonjs'
         }))
         .pipe(concat('templates.js'))
         .pipe(gulp.dest('./dist/'));

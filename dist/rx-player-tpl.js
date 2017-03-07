@@ -50,10 +50,10 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/template/overlay/player-progress-bar.component.html',
-    '<div yt-slider="onSliderUp($percentage)"\n' +
-    '     yt-slider-down="onSliderDown()"\n' +
-    '     yt-slider-move="onSliderMove($percentage)"\n' +
-    '     style="width:100%;height:100%;">\n' +
+    '<div yt-slider="ctrl.sliderUp$.next($percentage)"\n' +
+    '     yt-slider-down="ctrl.sliderDown$.next()"\n' +
+    '     yt-slider-move="ctrl.sliderMove$.next($percentage)"\n' +
+    '     class="hr-yt-bar" style="width:100%;height:100%;">\n' +
     '        <div class="hr-yt-played"></div>\n' +
     '        <div class="hr-yt-loaded"></div>\n' +
     '        <div class="hr-yt-handle"></div>\n' +
@@ -137,7 +137,7 @@ System.register("src/util/rx/from-angular-watch.util", ["rxjs/Observable"], func
 System.register("src/util/rx/take-until-scope-destroy.util", ["rxjs/Observable", "rxjs/Operator/takeUntil"], function (exports_2, context_2) {
     "use strict";
     var __moduleName = context_2 && context_2.id;
-    function takeUntilScopeDestroy(that, scope, thisArg) {
+    function takeUntilScopeDestroy(scope, that) {
         var notifier$ = Observable_2.Observable.create(function (observer) {
             scope.$on('$destroy', function () {
                 observer.next();
@@ -161,20 +161,43 @@ System.register("src/util/rx/take-until-scope-destroy.util", ["rxjs/Observable",
         }
     };
 });
-System.register("src/util/rx/facade", ["rxjs/Observable", "rxjs/Subject", "src/util/rx/from-angular-watch.util", "src/util/rx/take-until-scope-destroy.util"], function (exports_3, context_3) {
+System.register("src/util/rx/scope-destroy.util", ["rxjs/Observable"], function (exports_3, context_3) {
     "use strict";
     var __moduleName = context_3 && context_3.id;
+    function observeScopeDestroy(scope) {
+        return Observable_3.Observable.create(function (observer) {
+            return scope.$on('$destroy', function () {
+                observer.next();
+                observer.complete();
+            });
+        });
+    }
+    exports_3("observeScopeDestroy", observeScopeDestroy);
+    var Observable_3;
+    return {
+        setters: [
+            function (Observable_3_1) {
+                Observable_3 = Observable_3_1;
+            }
+        ],
+        execute: function () {
+        }
+    };
+});
+System.register("src/util/rx/facade", ["rxjs/Observable", "rxjs/Subject", "src/util/rx/from-angular-watch.util", "src/util/rx/take-until-scope-destroy.util", "src/util/rx/scope-destroy.util"], function (exports_4, context_4) {
+    "use strict";
+    var __moduleName = context_4 && context_4.id;
     function exportStar_1(m) {
         var exports = {};
         for (var n in m) {
             if (n !== "default") exports[n] = m[n];
         }
-        exports_3(exports);
+        exports_4(exports);
     }
     return {
         setters: [
-            function (Observable_3_1) {
-                exportStar_1(Observable_3_1);
+            function (Observable_4_1) {
+                exportStar_1(Observable_4_1);
             },
             function (Subject_1_1) {
                 exportStar_1(Subject_1_1);
@@ -184,15 +207,18 @@ System.register("src/util/rx/facade", ["rxjs/Observable", "rxjs/Subject", "src/u
             },
             function (take_until_scope_destroy_util_1_1) {
                 exportStar_1(take_until_scope_destroy_util_1_1);
+            },
+            function (scope_destroy_util_1_1) {
+                exportStar_1(scope_destroy_util_1_1);
             }
         ],
         execute: function () {
         }
     };
 });
-System.register("src/ng-helper/module", ["angular"], function (exports_4, context_4) {
+System.register("src/ng-helper/module", ["angular"], function (exports_5, context_5) {
     "use strict";
-    var __moduleName = context_4 && context_4.id;
+    var __moduleName = context_5 && context_5.id;
     var angular;
     return {
         setters: [
@@ -206,9 +232,9 @@ System.register("src/ng-helper/module", ["angular"], function (exports_4, contex
         }
     };
 });
-System.register("src/ng-helper/component", ["angular", "src/ng-helper/module"], function (exports_5, context_5) {
+System.register("src/ng-helper/component", ["angular", "src/ng-helper/module"], function (exports_6, context_6) {
     "use strict";
-    var __moduleName = context_5 && context_5.id;
+    var __moduleName = context_6 && context_6.id;
     function Component(definition) {
         return function (target) {
             angular
@@ -235,7 +261,7 @@ System.register("src/ng-helper/component", ["angular", "src/ng-helper/module"], 
             });
         };
     }
-    exports_5("Component", Component);
+    exports_6("Component", Component);
     var angular;
     return {
         setters: [
@@ -249,9 +275,9 @@ System.register("src/ng-helper/component", ["angular", "src/ng-helper/module"], 
         }
     };
 });
-System.register("src/ng-helper/compose-link", [], function (exports_6, context_6) {
+System.register("src/ng-helper/compose-link", [], function (exports_7, context_7) {
     "use strict";
-    var __moduleName = context_6 && context_6.id;
+    var __moduleName = context_7 && context_7.id;
     /**
      * Calls multiple link functions
      */
@@ -261,16 +287,16 @@ System.register("src/ng-helper/compose-link", [], function (exports_6, context_6
             links.forEach(function (link) { return link.call(_this, scope, elm, attr, ctrl, trans); });
         };
     }
-    exports_6("composeLinkFn", composeLinkFn);
+    exports_7("composeLinkFn", composeLinkFn);
     return {
         setters: [],
         execute: function () {
         }
     };
 });
-System.register("src/ng-helper/directive", ["angular", "src/ng-helper/module"], function (exports_7, context_7) {
+System.register("src/ng-helper/directive", ["angular", "src/ng-helper/module"], function (exports_8, context_8) {
     "use strict";
-    var __moduleName = context_7 && context_7.id;
+    var __moduleName = context_8 && context_8.id;
     function Directive(definition) {
         return function (target) {
             angular
@@ -297,7 +323,7 @@ System.register("src/ng-helper/directive", ["angular", "src/ng-helper/module"], 
             });
         };
     }
-    exports_7("Directive", Directive);
+    exports_8("Directive", Directive);
     var angular;
     return {
         setters: [
@@ -311,9 +337,9 @@ System.register("src/ng-helper/directive", ["angular", "src/ng-helper/module"], 
         }
     };
 });
-System.register("src/ng-helper/lifecycle", [], function (exports_8, context_8) {
+System.register("src/ng-helper/lifecycle", [], function (exports_9, context_9) {
     "use strict";
-    var __moduleName = context_8 && context_8.id;
+    var __moduleName = context_9 && context_9.id;
     function getter(accesor) {
         var parts = accesor.split('.');
         function doGet(obj, p) {
@@ -352,7 +378,7 @@ System.register("src/ng-helper/lifecycle", [], function (exports_8, context_8) {
     function mockNgOnInitLink(watchers) {
         return watchAndCall(watchers, 'ngOnInit');
     }
-    exports_8("mockNgOnInitLink", mockNgOnInitLink);
+    exports_9("mockNgOnInitLink", mockNgOnInitLink);
     /**
      * Waits until all watchers are not falsy and calls ngAfterViewInit on the
      * the controller.
@@ -364,7 +390,7 @@ System.register("src/ng-helper/lifecycle", [], function (exports_8, context_8) {
     function mockNgAfterViewInit(watchers) {
         return watchAndCall(watchers, 'ngAfterViewInit');
     }
-    exports_8("mockNgAfterViewInit", mockNgAfterViewInit);
+    exports_9("mockNgAfterViewInit", mockNgAfterViewInit);
     /**
      * Waits until all watchers are not falsy and calls ngAfterViewInit on the
      * the controller.
@@ -376,7 +402,7 @@ System.register("src/ng-helper/lifecycle", [], function (exports_8, context_8) {
     function mockNgAfterContentInit(watchers) {
         return watchAndCall(watchers, 'ngAfterContentInit');
     }
-    exports_8("mockNgAfterContentInit", mockNgAfterContentInit);
+    exports_9("mockNgAfterContentInit", mockNgAfterContentInit);
     function mockNgOnInitFromAttr(attribute) {
         return function (scope, elm, attr, ctrls) {
             var u = scope.$watch(attr[attribute], function (attributeWatched) {
@@ -387,16 +413,16 @@ System.register("src/ng-helper/lifecycle", [], function (exports_8, context_8) {
             });
         };
     }
-    exports_8("mockNgOnInitFromAttr", mockNgOnInitFromAttr);
+    exports_9("mockNgOnInitFromAttr", mockNgOnInitFromAttr);
     return {
         setters: [],
         execute: function () {
         }
     };
 });
-System.register("src/ng-helper/require", ["src/ng-helper/compose-link", "src/ng-helper/lifecycle"], function (exports_9, context_9) {
+System.register("src/ng-helper/require", ["src/ng-helper/compose-link", "src/ng-helper/lifecycle"], function (exports_10, context_10) {
     "use strict";
-    var __moduleName = context_9 && context_9.id;
+    var __moduleName = context_10 && context_10.id;
     /**
      * Used as directive link function
      * when you use a require to get controllers, this function saves the controllers inside
@@ -419,14 +445,14 @@ System.register("src/ng-helper/require", ["src/ng-helper/compose-link", "src/ng-
             });
         };
     }
-    exports_9("bindRequireToCtrl", bindRequireToCtrl);
+    exports_10("bindRequireToCtrl", bindRequireToCtrl);
     function bindToCtrlCallOnInit(ctrls) {
         return compose_link_1.composeLinkFn([
             bindRequireToCtrl(ctrls),
             lifecycle_1.mockNgOnInitLink(ctrls)
         ]);
     }
-    exports_9("bindToCtrlCallOnInit", bindToCtrlCallOnInit);
+    exports_10("bindToCtrlCallOnInit", bindToCtrlCallOnInit);
     var compose_link_1, lifecycle_1;
     return {
         setters: [
@@ -441,9 +467,9 @@ System.register("src/ng-helper/require", ["src/ng-helper/compose-link", "src/ng-
         }
     };
 });
-System.register("src/ng-helper/local-template-variable", [], function (exports_10, context_10) {
+System.register("src/ng-helper/local-template-variable", [], function (exports_11, context_11) {
     "use strict";
-    var __moduleName = context_10 && context_10.id;
+    var __moduleName = context_11 && context_11.id;
     /**
      * It finds the element attributes and tries to find one that starts with #,
      * when it does, it ties the controller to the parent scope.
@@ -469,7 +495,7 @@ System.register("src/ng-helper/local-template-variable", [], function (exports_1
         getLocalTemplateVariables(attr)
             .forEach(function (a) { return applyToScopeAndCtrl(a, scope.$parent, ctrl[0]); });
     }
-    exports_10("localTemplateVariableLink", localTemplateVariableLink);
+    exports_11("localTemplateVariableLink", localTemplateVariableLink);
     /**
      * This helper function is equal to 'localTemplateVariableLink' but thinked for directives
      * instead of components
@@ -479,7 +505,7 @@ System.register("src/ng-helper/local-template-variable", [], function (exports_1
         getLocalTemplateVariables(attr)
             .forEach(function (a) { return applyToScopeAndCtrl(a, scope, ctrl[0]); });
     }
-    exports_10("directiveLocalTemplateVariableLink", directiveLocalTemplateVariableLink);
+    exports_11("directiveLocalTemplateVariableLink", directiveLocalTemplateVariableLink);
     function applyToScopeAndCtrl(attr, scope, ctrl) {
         // Add it to scope
         scope[attr] = ctrl;
@@ -500,13 +526,13 @@ System.register("src/ng-helper/local-template-variable", [], function (exports_1
         }
     };
 });
-System.register("src/ng-helper/injector", ["angular", "src/ng-helper/module"], function (exports_11, context_11) {
+System.register("src/ng-helper/injector", ["angular", "src/ng-helper/module"], function (exports_12, context_12) {
     "use strict";
-    var __moduleName = context_11 && context_11.id;
+    var __moduleName = context_12 && context_12.id;
     function getInjector() {
         return injectorPromise;
     }
-    exports_11("getInjector", getInjector);
+    exports_12("getInjector", getInjector);
     var angular, injectorPromise;
     return {
         setters: [
@@ -548,15 +574,15 @@ System.register("src/ng-helper/injector", ["angular", "src/ng-helper/module"], f
         }
     };
 });
-System.register("src/ng-helper/facade", ["src/ng-helper/component", "src/ng-helper/compose-link", "src/ng-helper/directive", "src/ng-helper/lifecycle", "src/ng-helper/require", "src/ng-helper/local-template-variable", "src/ng-helper/injector"], function (exports_12, context_12) {
+System.register("src/ng-helper/facade", ["src/ng-helper/component", "src/ng-helper/compose-link", "src/ng-helper/directive", "src/ng-helper/lifecycle", "src/ng-helper/require", "src/ng-helper/local-template-variable", "src/ng-helper/injector"], function (exports_13, context_13) {
     "use strict";
-    var __moduleName = context_12 && context_12.id;
+    var __moduleName = context_13 && context_13.id;
     function exportStar_2(m) {
         var exports = {};
         for (var n in m) {
             if (n !== "default") exports[n] = m[n];
         }
-        exports_12(exports);
+        exports_13(exports);
     }
     return {
         setters: [
@@ -586,18 +612,18 @@ System.register("src/ng-helper/facade", ["src/ng-helper/component", "src/ng-help
         }
     };
 });
-System.register("src/service/video-player.model", [], function (exports_13, context_13) {
+System.register("src/service/video-player.model", [], function (exports_14, context_14) {
     "use strict";
-    var __moduleName = context_13 && context_13.id;
+    var __moduleName = context_14 && context_14.id;
     return {
         setters: [],
         execute: function () {
         }
     };
 });
-System.register("src/service/rx-video-interface.model", [], function (exports_14, context_14) {
+System.register("src/service/rx-video-interface.model", [], function (exports_15, context_15) {
     "use strict";
-    var __moduleName = context_14 && context_14.id;
+    var __moduleName = context_15 && context_15.id;
     var RxVideoInterface;
     return {
         setters: [],
@@ -625,30 +651,30 @@ System.register("src/service/rx-video-interface.model", [], function (exports_14
                 };
                 return RxVideoInterface;
             }());
-            exports_14("RxVideoInterface", RxVideoInterface);
+            exports_15("RxVideoInterface", RxVideoInterface);
         }
     };
 });
-System.register("src/util/algebras/curry", [], function (exports_15, context_15) {
+System.register("src/util/algebras/curry", [], function (exports_16, context_16) {
     "use strict";
-    var __moduleName = context_15 && context_15.id;
+    var __moduleName = context_16 && context_16.id;
     return {
         setters: [],
         execute: function () {
         }
     };
 });
-System.register("src/util/algebras/maybe", [], function (exports_16, context_16) {
+System.register("src/util/algebras/maybe", [], function (exports_17, context_17) {
     "use strict";
-    var __moduleName = context_16 && context_16.id;
+    var __moduleName = context_17 && context_17.id;
     function nothing() {
         return new Nothing();
     }
-    exports_16("nothing", nothing);
+    exports_17("nothing", nothing);
     function just(x) {
         return new Just(x);
     }
-    exports_16("just", just);
+    exports_17("just", just);
     // export type Maybe<T> =  Nothing<T> | Just<T>;
     function maybe(c) {
         return function (m) {
@@ -660,7 +686,7 @@ System.register("src/util/algebras/maybe", [], function (exports_16, context_16)
             }
         };
     }
-    exports_16("maybe", maybe);
+    exports_17("maybe", maybe);
     var Maybe, Nothing, none, Just;
     return {
         setters: [],
@@ -695,7 +721,7 @@ System.register("src/util/algebras/maybe", [], function (exports_16, context_16)
                 };
                 return Maybe;
             }());
-            exports_16("Maybe", Maybe);
+            exports_17("Maybe", Maybe);
             Nothing = (function (_super) {
                 __extends(Nothing, _super);
                 function Nothing() {
@@ -740,8 +766,8 @@ System.register("src/util/algebras/maybe", [], function (exports_16, context_16)
                 };
                 return Nothing;
             }(Maybe));
-            exports_16("Nothing", Nothing);
-            exports_16("none", none = new Nothing());
+            exports_17("Nothing", Nothing);
+            exports_17("none", none = new Nothing());
             Just = (function (_super) {
                 __extends(Just, _super);
                 function Just(x) {
@@ -787,13 +813,13 @@ System.register("src/util/algebras/maybe", [], function (exports_16, context_16)
                 };
                 return Just;
             }(Maybe));
-            exports_16("Just", Just);
+            exports_17("Just", Just);
         }
     };
 });
-System.register("src/util/algebras/maybe-rx", ["src/util/algebras/maybe", "rxjs/observable/of", "rxjs/observable/throw"], function (exports_17, context_17) {
+System.register("src/util/algebras/maybe-rx", ["src/util/algebras/maybe", "rxjs/observable/of", "rxjs/observable/throw"], function (exports_18, context_18) {
     "use strict";
-    var __moduleName = context_17 && context_17.id;
+    var __moduleName = context_18 && context_18.id;
     var maybe_1, of_1, throw_1;
     return {
         setters: [
@@ -817,13 +843,13 @@ System.register("src/util/algebras/maybe-rx", ["src/util/algebras/maybe", "rxjs/
         }
     };
 });
-System.register("src/service/rx-video.service", ["src/util/rx/facade", "src/util/algebras/maybe", "src/util/algebras/maybe-rx"], function (exports_18, context_18) {
+System.register("src/service/rx-video.service", ["src/util/rx/facade", "src/util/algebras/maybe", "src/util/algebras/maybe-rx"], function (exports_19, context_19) {
     "use strict";
-    var __moduleName = context_18 && context_18.id;
+    var __moduleName = context_19 && context_19.id;
     function registerVideoPlayer(name, player) {
         Registry[name] = player;
     }
-    exports_18("registerVideoPlayer", registerVideoPlayer);
+    exports_19("registerVideoPlayer", registerVideoPlayer);
     function createVideoPlayer(name, options, videoDiv$) {
         console.log('creating video player');
         return maybe_2.Maybe
@@ -832,7 +858,7 @@ System.register("src/service/rx-video.service", ["src/util/rx/facade", "src/util
             .switchMap(function (factory) { return factory.createVideoPlayer(options, videoDiv$); })
             .catch(function (_) { return facade_1.Observable.throw("Video player \"" + name + "\" not found"); });
     }
-    exports_18("createVideoPlayer", createVideoPlayer);
+    exports_19("createVideoPlayer", createVideoPlayer);
     var facade_1, maybe_2, Registry;
     return {
         setters: [
@@ -850,9 +876,9 @@ System.register("src/service/rx-video.service", ["src/util/rx/facade", "src/util
         }
     };
 });
-System.register("src/directive/rx-player.component", ["src/util/rx/facade", "src/ng-helper/facade", "src/service/rx-video-interface.model", "src/service/rx-video.service"], function (exports_19, context_19) {
+System.register("src/directive/rx-player.component", ["src/util/rx/facade", "src/ng-helper/facade", "src/service/rx-video-interface.model", "src/service/rx-video.service"], function (exports_20, context_20) {
     "use strict";
-    var __moduleName = context_19 && context_19.id;
+    var __moduleName = context_20 && context_20.id;
     var facade_2, facade_3, rx_video_interface_model_1, rx_video_service_1, playerAttrs, playerVarAttrs, RxPlayerComponent;
     return {
         setters: [
@@ -936,7 +962,7 @@ System.register("src/directive/rx-player.component", ["src/util/rx/facade", "src
                         var player = _a.player, source = _a.source;
                         return player.load(source);
                     });
-                    this.player$ = facade_2.takeUntilScopeDestroy(player$, this.scope)
+                    this.player$ = facade_2.takeUntilScopeDestroy(this.scope, player$)
                         .publishReplay(1)
                         .refCount();
                     // Suscribe to the observable to trigger the creation of the player
@@ -960,7 +986,7 @@ System.register("src/directive/rx-player.component", ["src/util/rx/facade", "src
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object])
             ], RxPlayerComponent);
-            exports_19("RxPlayerComponent", RxPlayerComponent);
+            exports_20("RxPlayerComponent", RxPlayerComponent);
             /*
             function convertToUnits (u: number|string): string {
                 // If its numbers, interpret pixels
@@ -973,9 +999,9 @@ System.register("src/directive/rx-player.component", ["src/util/rx/facade", "src
         }
     };
 });
-System.register("src/directive/yt-slider.directive", ["src/ng-helper/facade", "angular"], function (exports_20, context_20) {
+System.register("src/directive/yt-slider.directive", ["src/ng-helper/facade", "angular"], function (exports_21, context_21) {
     "use strict";
-    var __moduleName = context_20 && context_20.id;
+    var __moduleName = context_21 && context_21.id;
     var facade_4, angular, YoutubeSliderDirective;
     return {
         setters: [
@@ -1054,13 +1080,13 @@ System.register("src/directive/yt-slider.directive", ["src/ng-helper/facade", "a
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
             ], YoutubeSliderDirective);
-            exports_20("YoutubeSliderDirective", YoutubeSliderDirective);
+            exports_21("YoutubeSliderDirective", YoutubeSliderDirective);
         }
     };
 });
-System.register("src/ng-helper/plain-model", ["angular"], function (exports_21, context_21) {
+System.register("src/ng-helper/plain-model", ["angular"], function (exports_22, context_22) {
     "use strict";
-    var __moduleName = context_21 && context_21.id;
+    var __moduleName = context_22 && context_22.id;
     function PlainModel(options) {
         return function (target) {
             var ng1Injects = Object.keys(options.$inject || {});
@@ -1083,7 +1109,7 @@ System.register("src/ng-helper/plain-model", ["angular"], function (exports_21, 
             }
         };
     }
-    exports_21("PlainModel", PlainModel);
+    exports_22("PlainModel", PlainModel);
     var angular;
     return {
         setters: [
@@ -1095,9 +1121,9 @@ System.register("src/ng-helper/plain-model", ["angular"], function (exports_21, 
         }
     };
 });
-System.register("src/players/youtube/youtube-quality-map.service", [], function (exports_22, context_22) {
+System.register("src/players/youtube/youtube-quality-map.service", [], function (exports_23, context_23) {
     "use strict";
-    var __moduleName = context_22 && context_22.id;
+    var __moduleName = context_23 && context_23.id;
     function invertKeyValues(map) {
         var inverseMap = {};
         var value;
@@ -1122,15 +1148,15 @@ System.register("src/players/youtube/youtube-quality-map.service", [], function 
                 'auto': 'Auto'
             };
             inverseMap = invertKeyValues(map);
-            exports_22("convertToYoutube", convertToYoutube = function (q) { return map[q] ? map[q] : 'Auto'; });
-            exports_22("convertFromYoutube", convertFromYoutube = function (q) { return inverseMap[q] ? inverseMap[q] : 'default'; });
-            exports_22("convertToYoutubeArray", convertToYoutubeArray = function (qArr) { return qArr.map(convertToYoutube); });
+            exports_23("convertToYoutube", convertToYoutube = function (q) { return map[q] ? map[q] : 'Auto'; });
+            exports_23("convertFromYoutube", convertFromYoutube = function (q) { return inverseMap[q] ? inverseMap[q] : 'default'; });
+            exports_23("convertToYoutubeArray", convertToYoutubeArray = function (qArr) { return qArr.map(convertToYoutube); });
         }
     };
 });
-System.register("src/util/uuid.service", [], function (exports_23, context_23) {
+System.register("src/util/uuid.service", [], function (exports_24, context_24) {
     "use strict";
-    var __moduleName = context_23 && context_23.id;
+    var __moduleName = context_24 && context_24.id;
     /**
      * @description
      * Creates a hash string that follows the UUID standard
@@ -1140,16 +1166,16 @@ System.register("src/util/uuid.service", [], function (exports_23, context_23) {
             .toString(16)
             .substring(1);
     }
-    exports_23("uuid", uuid);
+    exports_24("uuid", uuid);
     return {
         setters: [],
         execute: function () {
         }
     };
 });
-System.register("src/service/youtube-marker-list.model", ["angular"], function (exports_24, context_24) {
+System.register("src/service/youtube-marker-list.model", ["angular"], function (exports_25, context_25) {
     "use strict";
-    var __moduleName = context_24 && context_24.id;
+    var __moduleName = context_25 && context_25.id;
     var angular;
     return {
         setters: [
@@ -1193,9 +1219,9 @@ System.register("src/service/youtube-marker-list.model", ["angular"], function (
         }
     };
 });
-System.register("src/players/youtube/youtube-player.model", ["angular", "src/util/rx/facade", "src/ng-helper/plain-model", "src/players/youtube/youtube-quality-map.service", "src/util/uuid.service", "src/service/youtube-marker-list.model"], function (exports_25, context_25) {
+System.register("src/players/youtube/youtube-player.model", ["angular", "src/util/rx/facade", "src/ng-helper/plain-model", "src/players/youtube/youtube-quality-map.service", "src/util/uuid.service", "src/service/youtube-marker-list.model"], function (exports_26, context_26) {
     "use strict";
-    var __moduleName = context_25 && context_25.id;
+    var __moduleName = context_26 && context_26.id;
     var angular, facade_5, plain_model_1, youtube_quality_map_service_1, uuid_service_1, imports, YoutubePlayer;
     return {
         setters: [
@@ -1238,7 +1264,14 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     // TODO: Improve, maybe add a store
                     this.eventEmmiter = new facade_5.Subject();
                     // TODO: need to map this event to a common interface once defined
-                    this.playState$ = this.fromEvent('onStateChange');
+                    this.playState$ = this
+                        .fromEvent('onStateChange')
+                        .filter(function (ev) { return [YT.PlayerState.PLAYING, YT.PlayerState.ENDED, YT.PlayerState.PAUSED].indexOf(ev.data) !== -1; })
+                        .map(function (ev) { return ({
+                        player: _this,
+                        type: 'playstate',
+                        isPlaying: ev.data === YT.PlayerState.PLAYING
+                    }); });
                     this.progress$ = this.fromEvent('onStateChange')
                         .switchMap(function (event) {
                         if (event.data !== YT.PlayerState.PLAYING) {
@@ -1260,6 +1293,8 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                     // being loaded, for now this recipe is disabled. Eventually we can combine onStateChange with
                     // an interval to poll when the event happens
                     this.loaded$ = facade_5.Observable.empty();
+                    this.seeking$ = new facade_5.Subject();
+                    this.seeked$ = new facade_5.Subject();
                     // -------------------
                     // -     Rate     -
                     // -------------------
@@ -1353,6 +1388,45 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                 };
                 YoutubePlayer.prototype.getLoadedPercent = function () {
                     return this.player.getVideoLoadedFraction() * 100;
+                };
+                YoutubePlayer.prototype.seekTo = function (sec) {
+                    var _this = this;
+                    var initialTime = this.getCurrentTime();
+                    // Seek to sec
+                    this.player.seekTo(sec, true);
+                    // Inform of the intent to seek
+                    // this.emit('seekToBegin', {newTime: sec, oldTime: initialTime});
+                    this.seeking$.next({
+                        player: this,
+                        type: 'seeking'
+                    });
+                    // Inform when seek is ready
+                    facade_5.Observable
+                        .interval(200)
+                        .map(function (_) { return _this.getCurrentTime(); })
+                        .filter(function (currentTime) {
+                        // If we intent to go backwards:
+                        if (sec < initialTime) {
+                            // We complete when current time is lower
+                            // than the initial one
+                            if (currentTime < initialTime) {
+                                return true;
+                            }
+                        }
+                        else {
+                            // We complete once we pass the intended mark
+                            if (currentTime > sec || sec - currentTime < 0.1) {
+                                return true;
+                            }
+                        }
+                        return false;
+                        // There may be a third scenario where the player is paused, you pushed
+                        // forward and it complete but just next to sec.
+                    })
+                        .take(1)
+                        .mapTo({ player: this, type: 'seeked' })
+                        .subscribe(function (nextValue) { return _this.seeked$.next(nextValue); });
+                    return this.seeked$.take(1).toPromise();
                 };
                 YoutubePlayer.prototype.getPlaybackRate = function () {
                     return this.player.getPlaybackRate();
@@ -1459,62 +1533,68 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                 };
                 /**
                  * Its like seekTo, but fires an event when the seek is complete
-                 */
-                YoutubePlayer.prototype.eventSeekTo = function (sec, allowSeekAhead) {
-                    var _this = this;
-                    var initialTime = this.player.getCurrentTime();
-                    // If there is a blocking marker, don't allow to seek further than it
-                    angular.forEach(this.markerList.getMarkers(), function (marker) {
-                        // If its not blocking, we dont care
-                        if (!marker.getBlockOnFF()) {
-                            return;
-                        }
-                        // If the marker is in the seek time, force the sec to be at the marker time
-                        if (marker.startedIn(initialTime, sec)) {
-                            sec = marker.startTime;
-                        }
-                    });
-                    // Seek to sec
-                    this.player.seekTo(sec, allowSeekAhead);
-                    // Inform of the intent to seek
-                    this.emit('seekToBegin', { newTime: sec, oldTime: initialTime });
-                    var seekPromise = imports.$q.defer();
-                    // Check on a time interval that the seek has been completed
-                    var promise = imports.$interval(function () {
-                        var currentTime = _this.player.getCurrentTime();
-                        var seekCompleted = false;
-                        if (sec < initialTime) {
-                            // If we intent to go backwards, we complete when current time is lower
-                            // than the initial one
-                            if (currentTime < initialTime) {
-                                seekCompleted = true;
-                            }
-                        }
-                        else {
-                            // If we intent to go forward, we complete once we pass the intended mark
-                            if (currentTime >= sec) {
-                                seekCompleted = true;
-                            }
-                        }
-                        // There may be a third scenario where the player is paused, you pushed
-                        // forward and it complete but just next to sec.
-                        // Once its complete, for whatever reason, fire the event and cancel this interval
-                        if (seekCompleted) {
-                            imports.$interval.cancel(promise);
-                            var ans = { newTime: sec, oldTime: initialTime };
-                            _this.emit('seekToCompleted', ans);
-                            seekPromise.resolve(ans);
-                        }
-                    }, 50);
-                    return seekPromise.promise;
-                };
+                 */ /*
+               eventSeekTo (sec, allowSeekAhead) {
+                   const initialTime = this.player.getCurrentTime();
+           
+                   // If there is a blocking marker, don't allow to seek further than it
+                   angular.forEach(this.markerList.getMarkers(), (marker) => {
+                       // If its not blocking, we dont care
+                       if (!marker.getBlockOnFF()) {
+                           return;
+                       }
+           
+                       // If the marker is in the seek time, force the sec to be at the marker time
+                       if (marker.startedIn(initialTime, sec)) {
+                           sec = marker.startTime;
+                       }
+                   });
+           
+                   // Seek to sec
+                   this.player.seekTo(sec, allowSeekAhead);
+                   // Inform of the intent to seek
+                   this.emit('seekToBegin', {newTime: sec, oldTime: initialTime});
+           
+                   const seekPromise = imports.$q.defer();
+                   // Check on a time interval that the seek has been completed
+                   const promise = imports.$interval(() => {
+                       const currentTime = this.player.getCurrentTime();
+                       let seekCompleted = false;
+           
+           
+                       if (sec < initialTime ) {
+                           // If we intent to go backwards, we complete when current time is lower
+                           // than the initial one
+                           if (currentTime < initialTime) {
+                               seekCompleted = true;
+                           }
+           
+                       } else {
+                           // If we intent to go forward, we complete once we pass the intended mark
+                           if ( currentTime >= sec ) {
+                               seekCompleted = true;
+                           }
+                       }
+                       // There may be a third scenario where the player is paused, you pushed
+                       // forward and it complete but just next to sec.
+           
+                       // Once its complete, for whatever reason, fire the event and cancel this interval
+                       if (seekCompleted) {
+                           imports.$interval.cancel(promise);
+                           const ans = {newTime: sec, oldTime: initialTime};
+                           this.emit('seekToCompleted', ans);
+                           seekPromise.resolve(ans);
+                       }
+                   }, 50);
+                   return seekPromise.promise;
+               }*/
                 YoutubePlayer.prototype.startLoading = function (sec) {
                     var _this = this;
                     var unregister;
                     var pauseAfterStart = function (event) {
                         if (event.data === YT.PlayerState.PLAYING) {
                             if (typeof sec === 'number') {
-                                _this.eventSeekTo(sec, true);
+                                _this.seekTo(sec);
                             }
                             unregister();
                             _this.player.pauseVideo();
@@ -1683,7 +1763,7 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], YoutubePlayer);
-            exports_25("YoutubePlayer", YoutubePlayer);
+            exports_26("YoutubePlayer", YoutubePlayer);
             // // TODO: Inherit better than these :S once i know if this is the way I want to access the object
             // angular.forEach([
             //     'getOptions', 'loadModule', 'loadVideoById', 'loadVideoByUrl', 'cueVideoById', 'cueVideoByUrl', 'cuePlaylist',
@@ -1702,9 +1782,9 @@ System.register("src/players/youtube/youtube-player.model", ["angular", "src/uti
         }
     };
 });
-System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper/facade"], function (exports_26, context_26) {
+System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper/facade"], function (exports_27, context_27) {
     "use strict";
-    var __moduleName = context_26 && context_26.id;
+    var __moduleName = context_27 && context_27.id;
     var angular, facade_6, YoutubeMarker;
     return {
         setters: [
@@ -1752,7 +1832,7 @@ System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper
                 return YoutubeMarker;
             }());
             YoutubeMarker.$inject = ['$element', '$scope'];
-            exports_26("YoutubeMarker", YoutubeMarker);
+            exports_27("YoutubeMarker", YoutubeMarker);
             angular
                 .module('rxPlayer')
                 .directive('hrYtMarker', function () {
@@ -1769,9 +1849,9 @@ System.register("src/overlay/hr-yt-marker.directive", ["angular", "src/ng-helper
         }
     };
 });
-System.register("src/overlay/player-current-quality.directive", ["src/ng-helper/facade"], function (exports_27, context_27) {
+System.register("src/overlay/player-current-quality.directive", ["src/ng-helper/facade"], function (exports_28, context_28) {
     "use strict";
-    var __moduleName = context_27 && context_27.id;
+    var __moduleName = context_28 && context_28.id;
     var facade_7, PlayerCurrentQualityComponent;
     return {
         setters: [
@@ -1820,13 +1900,13 @@ System.register("src/overlay/player-current-quality.directive", ["src/ng-helper/
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], PlayerCurrentQualityComponent);
-            exports_27("PlayerCurrentQualityComponent", PlayerCurrentQualityComponent);
+            exports_28("PlayerCurrentQualityComponent", PlayerCurrentQualityComponent);
         }
     };
 });
-System.register("src/overlay/player-current-speed.directive", ["src/ng-helper/facade"], function (exports_28, context_28) {
+System.register("src/overlay/player-current-speed.directive", ["src/ng-helper/facade"], function (exports_29, context_29) {
     "use strict";
-    var __moduleName = context_28 && context_28.id;
+    var __moduleName = context_29 && context_29.id;
     var facade_8, PlayerCurrentSpeedDirective;
     return {
         setters: [
@@ -1862,13 +1942,13 @@ System.register("src/overlay/player-current-speed.directive", ["src/ng-helper/fa
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
             ], PlayerCurrentSpeedDirective);
-            exports_28("PlayerCurrentSpeedDirective", PlayerCurrentSpeedDirective);
+            exports_29("PlayerCurrentSpeedDirective", PlayerCurrentSpeedDirective);
         }
     };
 });
-System.register("src/service/readable-time.service", [], function (exports_29, context_29) {
+System.register("src/service/readable-time.service", [], function (exports_30, context_30) {
     "use strict";
-    var __moduleName = context_29 && context_29.id;
+    var __moduleName = context_30 && context_30.id;
     // TODO: Change to util
     function readableTime(seconds) {
         seconds = Math.floor(seconds);
@@ -1883,16 +1963,16 @@ System.register("src/service/readable-time.service", [], function (exports_29, c
             return mins + ':' + String('00' + secs).slice(-2);
         }
     }
-    exports_29("readableTime", readableTime);
+    exports_30("readableTime", readableTime);
     return {
         setters: [],
         execute: function () {
         }
     };
 });
-System.register("src/overlay/player-current-time.directive", ["src/ng-helper/facade", "src/service/readable-time.service"], function (exports_30, context_30) {
+System.register("src/overlay/player-current-time.directive", ["src/ng-helper/facade", "src/service/readable-time.service"], function (exports_31, context_31) {
     "use strict";
-    var __moduleName = context_30 && context_30.id;
+    var __moduleName = context_31 && context_31.id;
     var facade_9, readable_time_service_1, PlayerCurrentTimeComponent;
     return {
         setters: [
@@ -1930,13 +2010,13 @@ System.register("src/overlay/player-current-time.directive", ["src/ng-helper/fac
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
             ], PlayerCurrentTimeComponent);
-            exports_30("PlayerCurrentTimeComponent", PlayerCurrentTimeComponent);
+            exports_31("PlayerCurrentTimeComponent", PlayerCurrentTimeComponent);
         }
     };
 });
-System.register("src/overlay/player-panel.component", ["src/ng-helper/facade"], function (exports_31, context_31) {
+System.register("src/overlay/player-panel.component", ["src/ng-helper/facade"], function (exports_32, context_32) {
     "use strict";
-    var __moduleName = context_31 && context_31.id;
+    var __moduleName = context_32 && context_32.id;
     var facade_10, PlayerPanelComponent;
     return {
         setters: [
@@ -2017,13 +2097,13 @@ System.register("src/overlay/player-panel.component", ["src/ng-helper/facade"], 
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
             ], PlayerPanelComponent);
-            exports_31("PlayerPanelComponent", PlayerPanelComponent);
+            exports_32("PlayerPanelComponent", PlayerPanelComponent);
         }
     };
 });
-System.register("src/overlay/player-progress-bar-hover-indicator.component", ["src/ng-helper/facade", "src/service/readable-time.service"], function (exports_32, context_32) {
+System.register("src/overlay/player-progress-bar-hover-indicator.component", ["src/ng-helper/facade", "src/service/readable-time.service"], function (exports_33, context_33) {
     "use strict";
-    var __moduleName = context_32 && context_32.id;
+    var __moduleName = context_33 && context_33.id;
     var facade_11, readable_time_service_2, HoverIndicatorComponent;
     return {
         setters: [
@@ -2101,14 +2181,58 @@ System.register("src/overlay/player-progress-bar-hover-indicator.component", ["s
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object])
             ], HoverIndicatorComponent);
-            exports_32("HoverIndicatorComponent", HoverIndicatorComponent);
+            exports_33("HoverIndicatorComponent", HoverIndicatorComponent);
         }
     };
 });
-System.register("src/overlay/player-progress-bar.component", ["src/util/rx/facade", "src/ng-helper/facade", "angular"], function (exports_33, context_33) {
+System.register("src/util/store.util", ["rxjs/Subject"], function (exports_34, context_34) {
     "use strict";
-    var __moduleName = context_33 && context_33.id;
-    var facade_12, facade_13, angular, PlayerProgressBar;
+    var __moduleName = context_34 && context_34.id;
+    var Subject_2, Store;
+    return {
+        setters: [
+            function (Subject_2_1) {
+                Subject_2 = Subject_2_1;
+            }
+        ],
+        execute: function () {
+            Store = (function () {
+                function Store(reducer) {
+                    this._dispacher = new Subject_2.Subject();
+                    this._state = this._dispacher
+                        .startWith({ type: 'INITIAL_ACTION' })
+                        .scan(reducer, undefined) // Pass undefined as accu/state so it can use the default
+                        .publishReplay(1).refCount();
+                }
+                Store.prototype.dispatch = function (action) {
+                    this._dispacher.next(action);
+                };
+                Store.prototype.select = function () {
+                    return this._state;
+                };
+                return Store;
+            }());
+            exports_34("Store", Store);
+        }
+    };
+});
+System.register("src/overlay/player-progress-bar.component", ["src/util/rx/facade", "src/ng-helper/facade", "src/util/store.util", "angular"], function (exports_35, context_35) {
+    "use strict";
+    var __moduleName = context_35 && context_35.id;
+    function progressBarStateReducer(state, action) {
+        if (state === void 0) { state = initialState; }
+        switch (action.type) {
+            case 'SET_WAS_PLAYING':
+                return __assign({}, state, { wasPlaying: action.payload });
+            case 'START_SEEKING':
+                return __assign({}, state, { isSeeking: true });
+            case 'STOP_SEEKING':
+                return __assign({}, state, { isSeeking: false, seekPercentage: action.payload });
+            default:
+                return state;
+        }
+    }
+    var facade_12, facade_13, store_util_1, angular, initialState, PlayerProgressBar;
     return {
         setters: [
             function (facade_12_1) {
@@ -2117,32 +2241,34 @@ System.register("src/overlay/player-progress-bar.component", ["src/util/rx/facad
             function (facade_13_1) {
                 facade_13 = facade_13_1;
             },
+            function (store_util_1_1) {
+                store_util_1 = store_util_1_1;
+            },
             function (angular_10) {
                 angular = angular_10;
             }
         ],
         execute: function () {
+            initialState = {
+                wasPlaying: false,
+                isSeeking: false,
+                seekPercentage: 0
+            };
             PlayerProgressBar = (function () {
                 function PlayerProgressBar(elm, scope) {
                     this.elm = elm;
                     this.scope = scope;
+                    this.sliderDown$ = new facade_12.Subject();
+                    this.sliderMove$ = new facade_12.Subject();
+                    this.sliderUp$ = new facade_12.Subject();
                 }
                 PlayerProgressBar.prototype.ngOnInit = function () {
                     var _this = this;
                     var $played = angular.element(this.elm[0].querySelector('.hr-yt-played'));
                     var $loaded = angular.element(this.elm[0].querySelector('.hr-yt-loaded'));
                     var $handle = angular.element(this.elm[0].querySelector('.hr-yt-handle'));
-                    // TODO: See what happens when it ends
-                    // if (player.getPlayerState() === YT.PlayerState.ENDED ) {
-                    //     played = 100;
-                    //     loaded = 100;
-                    // } else {
-                    //     played = 100 * player.getCurrentTime() / duration;
-                    //     loaded = player.getVideoLoadedFraction() * 100;
-                    // }
-                    // Need to pass this
-                    // loaded = player.getVideoLoadedFraction() * 100;
-                    var updateProgress = function (sec, duration, loaded) {
+                    // const $bar = angular.element(this.elm[0].querySelector('.hr-yt-bar'));
+                    var updateProgressBar = function (sec, duration, loaded) {
                         var played = 100 * sec / duration;
                         // This was calculated manually, but cant have
                         // outerwidth without adding jquery
@@ -2153,69 +2279,99 @@ System.register("src/overlay/player-progress-bar.component", ["src/util/rx/facad
                         $played.css('width', played + '%');
                         $handle.css('left', handleX + 'px');
                     };
-                    // TODO: see if needed Update the progress every time there state changes
-                    // player.on('onStateChange', updateProgress);
                     // When someone seeks the video update the progress to the intended seek time
                     // player.on('seekToBegin', (seekTime) => updateProgress(seekTime.newTime));
-                    /* SEEK
-                    let playStatus = null;
-                    this.scope.onSliderDown = function () {
-                        // Save the status of the player at the begining of the dragndrop
-                        playStatus = player.getPlayerState();
-                        player.pause();
-                    };
-            
-                    this.scope.onSliderMove = function (percentage) {
-                        // See what second it corresponds to
-                        const sec = Math.round(duration * percentage);
-                        // player.eventSeekTo(sec, false);
-                        updateProgress(sec);
-                    };
-            
-                    this.scope.onSliderUp = function (percentage) {
-                        // See what second it corresponds to
-                        const sec = Math.round(duration * percentage);
-                        if (playStatus === YT.PlayerState.PLAYING || playStatus === YT.PlayerState.PAUSED) {
-                            // Load it in the player
-                            player.eventSeekTo(sec, true);
-                        } else {
-                            player.startLoading(sec);
-                        }
-            
-                        // If it was playin before, play now as well
-                        if (playStatus === YT.PlayerState.PLAYING) {
-                            player.play();
-                        }
-                    };
-                    */
                     // TODO: Reenable once the markers are refactored
                     // this.scope.markers = player.getMarkers();
                     // player.on('markerListChanged', () =>  this.scope.markers = player.getMarkers());
-                    this.rxPlayer
-                        .player$
+                    var stateStore = new store_util_1.Store(progressBarStateReducer);
+                    var scopeDestroy$ = facade_12.observeScopeDestroy(this.scope);
+                    var stateWhenSeekingChange$ = stateStore
+                        .select()
+                        .distinctUntilChanged(function (s1, s2) { return s1.isSeeking === s2.isSeeking; });
+                    // Recipy for updating the progress bar when the player is playing
+                    var updateWhenPlayer$ = this.rxPlayer.player$
                         .switchMap(function (player) {
                         return facade_12.Observable
-                            .merge(player.progress$, player.loaded$)
-                            .mapTo(player);
+                            .merge(
+                        // Whenever the player updates its play progress
+                        player.progress$, 
+                        // When the player loads more data
+                        player.loaded$, 
+                        // Whenever the player completes a seek
+                        player.seeked$)
+                            .map(function (_) { return player.getCurrentTime() / player.getDuration(); });
+                    });
+                    // Recipy for updating the progress bar
+                    stateWhenSeekingChange$
+                        .switchMap(function (state) {
+                        if (state.isSeeking) {
+                            // If seeking update every mouse move
+                            return _this.sliderMove$;
+                        }
+                        else {
+                            // If not, update when the video player does
+                            return updateWhenPlayer$;
+                        }
                     })
-                        .map(function (player) {
-                        return {
-                            time: player.getCurrentTime(),
-                            duration: player.getDuration(),
-                            loaded: player.getLoadedPercent()
-                        };
-                    })
+                        .withLatestFrom(this.rxPlayer.player$, function (percentage, player) { return ({
+                        time: Math.round(player.getDuration() * percentage),
+                        duration: player.getDuration(),
+                        loaded: player.getLoadedPercent()
+                    }); })
+                        .takeUntil(scopeDestroy$)
                         .subscribe(function (_a) {
                         var time = _a.time, duration = _a.duration, loaded = _a.loaded;
-                        console.log('loaded', loaded);
-                        updateProgress(time, duration, loaded);
-                        // const duration = player.getDuration();
-                        // // Update the progress on an interval when playing
-                        // player.onProgress(function (){
-                        //     // The interval calls updateProgress with a number, so we need to add this inner fn
-                        //     updateProgress();
-                        // });
+                        return updateProgressBar(time, duration, loaded);
                     });
+                    // Update the state that says if the video player was playing before seeking start
+                    stateStore.select()
+                        .switchMap(function (state) {
+                        if (state.isSeeking) {
+                            // If it's seeking we don't update this state
+                            return facade_12.Observable.empty();
+                        }
+                        else {
+                            // If it's not seeking, then every time the play state changes, see if its playing
+                            return _this.rxPlayer.player$
+                                .switchMap(function (player) { return player.playState$; })
+                                .map(function (ev) { return ev.isPlaying; });
+                        }
+                    })
+                        .takeUntil(scopeDestroy$)
+                        .subscribe(function (wasPlaying) {
+                        return stateStore.dispatch({
+                            type: 'SET_WAS_PLAYING',
+                            payload: wasPlaying
+                        });
+                    });
+                    // Update the video player:
+                    // When seeking starts pause the video player
+                    // When seeking ends go to the selected percentage and start playing if it was playing before
+                    stateWhenSeekingChange$
+                        .withLatestFrom(this.rxPlayer.player$, function (state, player) { return ({ state: state, player: player }); })
+                        .takeUntil(scopeDestroy$)
+                        .subscribe(function (_a) {
+                        var state = _a.state, player = _a.player;
+                        // If it starts seeking, pause the feed
+                        if (state.isSeeking) {
+                            player.pause();
+                        }
+                        else {
+                            // When we know where to seek, do it and check if we need to play again
+                            player
+                                .seekTo(state.seekPercentage * player.getDuration())
+                                .then(function (_) {
+                                if (state.wasPlaying) {
+                                    player.play();
+                                }
+                            });
+                        }
+                    });
+                    facade_12.Observable
+                        .merge(this.sliderDown$.mapTo({ type: 'START_SEEKING' }), this.sliderUp$.map(function (percentage) { return ({ type: 'STOP_SEEKING', payload: percentage }); }))
+                        .takeUntil(scopeDestroy$)
+                        .subscribe(function (action) { return stateStore.dispatch(action); });
                 };
                 return PlayerProgressBar;
             }());
@@ -2229,13 +2385,13 @@ System.register("src/overlay/player-progress-bar.component", ["src/util/rx/facad
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], PlayerProgressBar);
-            exports_33("PlayerProgressBar", PlayerProgressBar);
+            exports_35("PlayerProgressBar", PlayerProgressBar);
         }
     };
 });
-System.register("src/overlay/player-repeat-available-quality.directive", ["src/ng-helper/facade", "src/players/youtube/youtube-quality-map.service"], function (exports_34, context_34) {
+System.register("src/overlay/player-repeat-available-quality.directive", ["src/ng-helper/facade", "src/players/youtube/youtube-quality-map.service"], function (exports_36, context_36) {
     "use strict";
-    var __moduleName = context_34 && context_34.id;
+    var __moduleName = context_36 && context_36.id;
     var facade_14, youtube_quality_map_service_2, PlayerRepeatAvailableSpeedDirective;
     return {
         setters: [
@@ -2290,13 +2446,13 @@ System.register("src/overlay/player-repeat-available-quality.directive", ["src/n
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], PlayerRepeatAvailableSpeedDirective);
-            exports_34("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
+            exports_36("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
         }
     };
 });
-System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-helper/facade"], function (exports_35, context_35) {
+System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-helper/facade"], function (exports_37, context_37) {
     "use strict";
-    var __moduleName = context_35 && context_35.id;
+    var __moduleName = context_37 && context_37.id;
     var facade_15, PlayerRepeatAvailableSpeedDirective;
     return {
         setters: [
@@ -2340,13 +2496,13 @@ System.register("src/overlay/player-repeat-available-speed.directive", ["src/ng-
                 }),
                 __metadata("design:paramtypes", [Object, Object])
             ], PlayerRepeatAvailableSpeedDirective);
-            exports_35("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
+            exports_37("PlayerRepeatAvailableSpeedDirective", PlayerRepeatAvailableSpeedDirective);
         }
     };
 });
-System.register("src/overlay/player-set-quality.directive", ["src/ng-helper/facade"], function (exports_36, context_36) {
+System.register("src/overlay/player-set-quality.directive", ["src/ng-helper/facade"], function (exports_38, context_38) {
     "use strict";
-    var __moduleName = context_36 && context_36.id;
+    var __moduleName = context_38 && context_38.id;
     var facade_16, PlayerCurrentTimeComponent;
     return {
         setters: [
@@ -2386,13 +2542,13 @@ System.register("src/overlay/player-set-quality.directive", ["src/ng-helper/faca
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
             ], PlayerCurrentTimeComponent);
-            exports_36("PlayerCurrentTimeComponent", PlayerCurrentTimeComponent);
+            exports_38("PlayerCurrentTimeComponent", PlayerCurrentTimeComponent);
         }
     };
 });
-System.register("src/overlay/player-set-speed.directive", ["src/ng-helper/facade"], function (exports_37, context_37) {
+System.register("src/overlay/player-set-speed.directive", ["src/ng-helper/facade"], function (exports_39, context_39) {
     "use strict";
-    var __moduleName = context_37 && context_37.id;
+    var __moduleName = context_39 && context_39.id;
     var facade_17, PlayerSetSpeedDirective;
     return {
         setters: [
@@ -2433,13 +2589,13 @@ System.register("src/overlay/player-set-speed.directive", ["src/ng-helper/facade
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
             ], PlayerSetSpeedDirective);
-            exports_37("PlayerSetSpeedDirective", PlayerSetSpeedDirective);
+            exports_39("PlayerSetSpeedDirective", PlayerSetSpeedDirective);
         }
     };
 });
-System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facade", "src/service/readable-time.service"], function (exports_38, context_38) {
+System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facade", "src/service/readable-time.service"], function (exports_40, context_40) {
     "use strict";
-    var __moduleName = context_38 && context_38.id;
+    var __moduleName = context_40 && context_40.id;
     var facade_18, readable_time_service_3, PlayerTotalTimeDirective;
     return {
         setters: [
@@ -2477,13 +2633,13 @@ System.register("src/overlay/player-total-time.directive", ["src/ng-helper/facad
                 }),
                 __metadata("design:paramtypes", [Object, Object, Object, Object])
             ], PlayerTotalTimeDirective);
-            exports_38("PlayerTotalTimeDirective", PlayerTotalTimeDirective);
+            exports_40("PlayerTotalTimeDirective", PlayerTotalTimeDirective);
         }
     };
 });
-System.register("src/overlay/player-volume-horizontal.component", ["angular", "src/ng-helper/facade"], function (exports_39, context_39) {
+System.register("src/overlay/player-volume-horizontal.component", ["angular", "src/ng-helper/facade"], function (exports_41, context_41) {
     "use strict";
-    var __moduleName = context_39 && context_39.id;
+    var __moduleName = context_41 && context_41.id;
     var angular, facade_19, PlayerVolumeHorizontalComponent;
     return {
         setters: [
@@ -2555,13 +2711,13 @@ System.register("src/overlay/player-volume-horizontal.component", ["angular", "s
                 }),
                 __metadata("design:paramtypes", [Object])
             ], PlayerVolumeHorizontalComponent);
-            exports_39("PlayerVolumeHorizontalComponent", PlayerVolumeHorizontalComponent);
+            exports_41("PlayerVolumeHorizontalComponent", PlayerVolumeHorizontalComponent);
         }
     };
 });
-System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.service"], function (exports_40, context_40) {
+System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.service"], function (exports_42, context_42) {
     "use strict";
-    var __moduleName = context_40 && context_40.id;
+    var __moduleName = context_42 && context_42.id;
     var angular, uuid_service_2;
     return {
         setters: [
@@ -2693,9 +2849,9 @@ System.register("src/service/youtube-marker.model", ["angular", "src/util/uuid.s
         }
     };
 });
-System.register("src/service/youtube-template-marker.model", ["angular"], function (exports_41, context_41) {
+System.register("src/service/youtube-template-marker.model", ["angular"], function (exports_43, context_43) {
     "use strict";
-    var __moduleName = context_41 && context_41.id;
+    var __moduleName = context_43 && context_43.id;
     var angular;
     return {
         setters: [
@@ -2779,9 +2935,9 @@ System.register("src/service/youtube-template-marker.model", ["angular"], functi
         }
     };
 });
-System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/facade", "src/service/rx-video.service", "src/ng-helper/facade"], function (exports_42, context_42) {
+System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/facade", "src/service/rx-video.service", "src/ng-helper/facade"], function (exports_44, context_44) {
     "use strict";
-    var __moduleName = context_42 && context_42.id;
+    var __moduleName = context_44 && context_44.id;
     function loadPlayer(elmOrId, options) {
         return apiLoadedPromise.then(function () {
             var newOptions = {};
@@ -2798,7 +2954,7 @@ System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/
                 .then(function (player) { return new Promise(function (resolve) { return player.on('onReady', function () { return resolve(player); }); }); });
         });
     }
-    exports_42("loadPlayer", loadPlayer);
+    exports_44("loadPlayer", loadPlayer);
     function createVideoPlayer(options, $videoDiv) {
         return facade_21.Observable.create(function (observer) {
             options.height = options.height || '390';
@@ -2819,7 +2975,7 @@ System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/
             };
         });
     }
-    exports_42("createVideoPlayer", createVideoPlayer);
+    exports_44("createVideoPlayer", createVideoPlayer);
     var angular, facade_21, rx_video_service_2, facade_20, Factory, defaultOptions, autoload, apiLoadedPromise, Provider;
     return {
         setters: [
@@ -2849,7 +3005,7 @@ System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/
             };
             autoload = true;
             // TODO: Replace with observable
-            exports_42("apiLoadedPromise", apiLoadedPromise = new Promise(function (resolve) {
+            exports_44("apiLoadedPromise", apiLoadedPromise = new Promise(function (resolve) {
                 // Youtube callback when API is ready
                 window['onYouTubeIframeAPIReady'] = resolve;
             }));
@@ -2886,14 +3042,14 @@ System.register("src/players/youtube/youtube.service", ["angular", "src/util/rx/
                 ;
                 return Provider;
             }());
-            exports_42("Provider", Provider);
+            exports_44("Provider", Provider);
             angular.module('rxPlayer').provider('youtube', new Provider());
         }
     };
 });
-System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPromise", "rxjs/add/observable/fromEventPattern", "rxjs/add/observable/fromEvent", "rxjs/add/observable/of", "rxjs/add/observable/merge", "rxjs/add/observable/throw", "rxjs/add/observable/empty", "rxjs/add/observable/interval", "rxjs/add/operator/map", "rxjs/add/operator/mapTo", "rxjs/add/operator/merge", "rxjs/add/operator/scan", "rxjs/add/operator/withLatestFrom", "rxjs/add/operator/filter", "rxjs/add/operator/switchMap", "rxjs/add/operator/catch", "rxjs/add/operator/startWith", "rxjs/add/operator/toPromise", "rxjs/add/operator/take", "rxjs/add/operator/do", "rxjs/add/operator/publishReplay", "rxjs/add/operator/multicast"], function (exports_43, context_43) {
+System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPromise", "rxjs/add/observable/fromEventPattern", "rxjs/add/observable/fromEvent", "rxjs/add/observable/of", "rxjs/add/observable/merge", "rxjs/add/observable/throw", "rxjs/add/observable/empty", "rxjs/add/observable/interval", "rxjs/add/operator/map", "rxjs/add/operator/mapTo", "rxjs/add/operator/merge", "rxjs/add/operator/scan", "rxjs/add/operator/withLatestFrom", "rxjs/add/operator/filter", "rxjs/add/operator/switchMap", "rxjs/add/operator/catch", "rxjs/add/operator/startWith", "rxjs/add/operator/toPromise", "rxjs/add/operator/distinctUntilChanged", "rxjs/add/operator/delay", "rxjs/add/operator/take", "rxjs/add/operator/takeUntil", "rxjs/add/operator/last", "rxjs/add/operator/do", "rxjs/add/operator/publishReplay", "rxjs/add/operator/multicast"], function (exports_45, context_45) {
     "use strict";
-    var __moduleName = context_43 && context_43.id;
+    var __moduleName = context_45 && context_45.id;
     return {
         setters: [
             function (_6) {
@@ -2939,18 +3095,7 @@ System.register("src/util/rx/rx-operators-import", ["rxjs/add/observable/fromPro
             function (_26) {
             },
             function (_27) {
-            }
-        ],
-        execute: function () {
-        }
-    };
-});
-System.register("src/main", ["src/directive/rx-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/players/youtube/youtube-player.model", "src/service/youtube-template-marker.model", "src/players/youtube/youtube.service", "src/util/rx/rx-operators-import", "angular"], function (exports_44, context_44) {
-    "use strict";
-    var __moduleName = context_44 && context_44.id;
-    var angular;
-    return {
-        setters: [
+            },
             function (_28) {
             },
             function (_29) {
@@ -2958,7 +3103,18 @@ System.register("src/main", ["src/directive/rx-player.component", "src/directive
             function (_30) {
             },
             function (_31) {
-            },
+            }
+        ],
+        execute: function () {
+        }
+    };
+});
+System.register("src/main", ["src/directive/rx-player.component", "src/directive/yt-slider.directive", "src/overlay/hr-yt-marker.directive", "src/overlay/player-current-quality.directive", "src/overlay/player-current-speed.directive", "src/overlay/player-current-time.directive", "src/overlay/player-panel.component", "src/overlay/player-progress-bar-hover-indicator.component", "src/overlay/player-progress-bar.component", "src/overlay/player-repeat-available-quality.directive", "src/overlay/player-repeat-available-speed.directive", "src/overlay/player-set-quality.directive", "src/overlay/player-set-speed.directive", "src/overlay/player-total-time.directive", "src/overlay/player-volume-horizontal.component", "src/service/youtube-marker-list.model", "src/service/youtube-marker.model", "src/players/youtube/youtube-player.model", "src/service/youtube-template-marker.model", "src/players/youtube/youtube.service", "src/util/rx/rx-operators-import", "angular"], function (exports_46, context_46) {
+    "use strict";
+    var __moduleName = context_46 && context_46.id;
+    var angular;
+    return {
+        setters: [
             function (_32) {
             },
             function (_33) {
@@ -2992,6 +3148,14 @@ System.register("src/main", ["src/directive/rx-player.component", "src/directive
             function (_47) {
             },
             function (_48) {
+            },
+            function (_49) {
+            },
+            function (_50) {
+            },
+            function (_51) {
+            },
+            function (_52) {
             },
             function (angular_15) {
                 angular = angular_15;
@@ -3064,9 +3228,9 @@ TODO: Removed keep-aspect-ratio from rx-player, make it work later
 
         }
         */
-System.register("src/ng-helper/async.filter", ["angular"], function (exports_45, context_45) {
+System.register("src/ng-helper/async.filter", ["angular"], function (exports_47, context_47) {
     "use strict";
-    var __moduleName = context_45 && context_45.id;
+    var __moduleName = context_47 && context_47.id;
     // export function asyncFilter2 () {
     //     var promiseValues = new WeakMap()
     //     return function (promise) {
@@ -3161,9 +3325,9 @@ System.register("src/ng-helper/async.filter", ["angular"], function (exports_45,
         }
     };
 });
-System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx/facade", "src/ng-helper/plain-model"], function (exports_46, context_46) {
+System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx/facade", "src/ng-helper/plain-model"], function (exports_48, context_48) {
     "use strict";
-    var __moduleName = context_46 && context_46.id;
+    var __moduleName = context_48 && context_48.id;
     var angular, facade_22, plain_model_2, HTML5Player;
     return {
         setters: [
@@ -3185,8 +3349,19 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                     this.ready$ = facade_22.Observable
                         .fromEvent(this.video, 'loadstart')
                         .mapTo(this);
-                    // TODO: Map to the correct event
-                    this.playState$ = facade_22.Observable.merge(facade_22.Observable.fromEvent(this.video, 'play'), facade_22.Observable.fromEvent(this.video, 'pause'));
+                    this.playState$ = facade_22.Observable.merge(facade_22.Observable
+                        .fromEvent(this.video, 'play')
+                        .mapTo({
+                        player: this,
+                        type: 'playstate',
+                        isPlaying: true
+                    }), facade_22.Observable
+                        .fromEvent(this.video, 'pause')
+                        .mapTo({
+                        player: this,
+                        type: 'playstate',
+                        isPlaying: false
+                    }));
                     this.progress$ = facade_22.Observable
                         .fromEvent(this.video, 'timeupdate')
                         .map(function (_) {
@@ -3204,6 +3379,24 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                             player: _this,
                             type: 'loaded',
                             loaded: _this.getLoadedPercent()
+                        };
+                        return event;
+                    });
+                    this.seeking$ = facade_22.Observable
+                        .fromEvent(this.video, 'seeking')
+                        .map(function (_) {
+                        var event = {
+                            player: _this,
+                            type: 'seeking'
+                        };
+                        return event;
+                    });
+                    this.seeked$ = facade_22.Observable
+                        .fromEvent(this.video, 'seeked')
+                        .map(function (_) {
+                        var event = {
+                            player: _this,
+                            type: 'seeked'
                         };
                         return event;
                     });
@@ -3267,6 +3460,8 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                 HTML5Player.prototype.getCurrentTime = function () {
                     return this.video.currentTime;
                 };
+                // TODO: Aparently there is a bug when the video is already cached, and the buffered
+                // returns empty or something (check progress bar)
                 HTML5Player.prototype.getLoadedPercent = function () {
                     // Get the loaded ranges
                     var timeRange = this.video.buffered;
@@ -3275,13 +3470,13 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                         var rangeEnd = timeRange.end(i);
                         end = Math.max(end, rangeEnd);
                     }
-                    // const end = this.video.buffered.end(0);
                     return end / this.getDuration() * 100;
-                    // console.log();
-                    // return 92;
-                    // return this.video.buffered;
                 };
                 ;
+                HTML5Player.prototype.seekTo = function (sec) {
+                    this.video.currentTime = sec;
+                    return this.seeked$.take(1).toPromise();
+                };
                 HTML5Player.prototype.getPlaybackRate = function () {
                     return this.video.playbackRate;
                 };
@@ -3324,22 +3519,22 @@ System.register("src/players/html5/html5-player.model", ["angular", "src/util/rx
                 }),
                 __metadata("design:paramtypes", [HTML5Player, Object])
             ], HTML5Player);
-            exports_46("HTML5Player", HTML5Player);
+            exports_48("HTML5Player", HTML5Player);
         }
     };
 });
-System.register("src/players/html5/html5-player.service", ["src/util/rx/facade", "src/players/html5/html5-player.model", "src/service/rx-video.service", "src/ng-helper/facade"], function (exports_47, context_47) {
+System.register("src/players/html5/html5-player.service", ["src/util/rx/facade", "src/players/html5/html5-player.model", "src/service/rx-video.service", "src/ng-helper/facade"], function (exports_49, context_49) {
     "use strict";
-    var __moduleName = context_47 && context_47.id;
+    var __moduleName = context_49 && context_49.id;
     function loadPlayer(elm, options) {
-        // TODO: Refactor into rxjs
+        // TODO: Refactor to observables
         // Get the angular 1 injector
         return facade_23.getInjector()
             .then(function (injector) { return injector.get('HTML5Player'); })
             .then(function (HTML5Player) { return new HTML5Player(elm, options); })
             .then(function (player) { return player.ready$.take(1).toPromise(); });
     }
-    exports_47("loadPlayer", loadPlayer);
+    exports_49("loadPlayer", loadPlayer);
     // TODO: This is so far equal to the YoutubePlayer fn
     function createVideoPlayer(options, $videoDiv) {
         return facade_24.Observable.create(function (observer) {
@@ -3361,7 +3556,7 @@ System.register("src/players/html5/html5-player.service", ["src/util/rx/facade",
             };
         });
     }
-    exports_47("createVideoPlayer", createVideoPlayer);
+    exports_49("createVideoPlayer", createVideoPlayer);
     var facade_24, html5_player_model_1, rx_video_service_3, facade_23, Factory;
     return {
         setters: [

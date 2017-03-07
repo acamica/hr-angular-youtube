@@ -15,6 +15,7 @@ export class PlayerCurrentSpeedDirective {
     ngOnInit () {
         const player$ = this.$parse(this.attr.playerCurrentSpeed)(this.$scope) as Observable<IVideoPlayer>;
         player$
+            // TODO: ADD takeUntilScopeDestroy as switchMap doesn't care if the source completed
             .switchMap(player => player.playbackRate$)
             .map(event => event.rate)
             .subscribe(rate => {

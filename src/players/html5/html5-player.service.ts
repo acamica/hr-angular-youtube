@@ -12,7 +12,7 @@ registerVideoPlayer('HTML5Player', Factory);
 
 
 export function loadPlayer (elm, options: IHTML5PlayerOptions): Promise<HTML5Player> {
-        // TODO: Refactor into rxjs
+        // TODO: Refactor to observables
         // Get the angular 1 injector
         return getInjector()
             // Get the YoutubePlayer constructor

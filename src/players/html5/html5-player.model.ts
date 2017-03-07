@@ -10,7 +10,10 @@ import {
     IVolumeStateEvent,
     IProgressStateEvent,
     IRateChangeEvent,
-    ILoadedStateEvent
+    ILoadedStateEvent,
+    ISeekingEvent,
+    ISeekedEvent,
+    IPlayStateEvent
 } from 'src/service/video-player.model';
 
 export interface IHTML5Source {
@@ -71,10 +74,22 @@ export class HTML5Player
         return !this.video.paused;
     }
 
-    // TODO: Map to the correct event
     playState$ = Observable.merge(
-        Observable.fromEvent(this.video, 'play'),
-        Observable.fromEvent(this.video, 'pause'),
+        Observable
+            .fromEvent(this.video, 'play')
+            .mapTo({
+                player: this,
+                type: 'playstate',
+                isPlaying: true
+            } as IPlayStateEvent),
+        Observable
+            .fromEvent(this.video, 'pause')
+            .mapTo({
+                player: this,
+                type: 'playstate',
+                isPlaying: false
+            } as IPlayStateEvent),
+
     );
 
     progress$ = Observable
@@ -107,6 +122,8 @@ export class HTML5Player
         return this.video.currentTime;
     }
 
+    // TODO: Aparently there is a bug when the video is already cached, and the buffered
+    // returns empty or something (check progress bar)
     getLoadedPercent (): number {
         // Get the loaded ranges
         const timeRange = this.video.buffered;
@@ -115,12 +132,33 @@ export class HTML5Player
             const rangeEnd = timeRange.end(i);
             end = Math.max(end, rangeEnd);
         }
-        // const end = this.video.buffered.end(0);
         return end / this.getDuration() * 100;
-        // console.log();
-        // return 92;
-        // return this.video.buffered;
     };
+
+    seeking$ = Observable
+        .fromEvent(this.video, 'seeking')
+        .map(_ => {
+            const event = {
+                player: this,
+                type: 'seeking'
+            } as ISeekingEvent;
+            return event;
+        });
+
+    seeked$ = Observable
+        .fromEvent(this.video, 'seeked')
+        .map(_ => {
+            const event = {
+                player: this,
+                type: 'seeked'
+            } as ISeekedEvent;
+            return event;
+        });
+
+    seekTo (sec: number): Promise<boolean> {
+        this.video.currentTime = sec;
+        return this.seeked$.take(1).toPromise();
+    }
 
     // -------------------
     // -     Rate     -

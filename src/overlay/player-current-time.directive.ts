@@ -17,6 +17,7 @@ export class PlayerCurrentTimeComponent {
         const player$ = this.$parse(this.attr.playerCurrentTime)(this.$scope) as Observable<IVideoPlayer>;
 
         player$
+            // TODO: ADD takeUntilScopeDestroy as switchMap doesn't care if the source completed
             // Whenever the player updates its progress
             .switchMap(player => player.progress$)
             // Get the current time in readable form
