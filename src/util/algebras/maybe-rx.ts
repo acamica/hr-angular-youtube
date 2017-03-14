@@ -15,5 +15,5 @@ Just.prototype.toObservable = function () {
 };
 
 Nothing.prototype.toObservable = function<T> () {
-    return _throw<T>(null);
+    return _throw(null) as Observable<T>;
 };
