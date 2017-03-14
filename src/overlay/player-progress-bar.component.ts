@@ -1,7 +1,7 @@
-import {Observable, observeScopeDestroy, Subject} from 'src/util/rx/facade';
-import {Component, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
-import {RxPlayerComponent} from 'src/directive/rx-player.component';
-import {Store} from 'src/util/store.util';
+import {Observable, observeScopeDestroy, Subject} from '../util/rx/facade';
+import {Component, bindToCtrlCallOnInit} from '../ng-helper/facade';
+import {RxPlayerComponent} from '../directive/rx-player.component';
+import {Store} from '../util/store.util';
 import * as angular from 'angular';
 
 interface IProgressBarState {

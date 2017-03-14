@@ -1,11 +1,11 @@
 import * as angular from 'angular';
-import {uuid} from 'src/util/uuid.service';
+import {uuid} from '../util/uuid.service';
 
 angular.module('rxPlayer')
-    .factory('YoutubeMarker', function() {
+    .factory('YoutubeMarker', function () {
 
         /*jshint maxcomplexity:false */
-        const YoutubeMarker = function(options) {
+        const YoutubeMarker = function (options) {
             // Set default values
             this.startTime = options.startTime || null;
             this.endTime =  options.endTime || null;

@@ -1,7 +1,7 @@
 import * as angular from 'angular';
-import {Observable, observeScopeDestroy} from 'src/util/rx/facade';
-import {Component, mockNgOnInitLink, composeLinkFn, localTemplateVariableLink} from 'src/ng-helper/facade';
-import {IVideoPlayer} from 'src/service/video-player.model';
+import {Observable, observeScopeDestroy} from '../util/rx/facade';
+import {Component, mockNgOnInitLink, composeLinkFn, localTemplateVariableLink} from '../ng-helper/facade';
+import {IVideoPlayer} from '../service/video-player.model';
 
 
 @Component({

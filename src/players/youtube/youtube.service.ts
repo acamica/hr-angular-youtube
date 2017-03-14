@@ -1,10 +1,10 @@
 // TODO: Delete this?
 import * as angular from 'angular';
-import {Observable} from 'src/util/rx/facade';
-import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
-import {IVideoPlayer} from 'src/service/video-player.model';
-import {registerVideoPlayer} from 'src/service/rx-video.service';
-import {getInjector} from 'src/ng-helper/facade';
+import {Observable} from '../../util/rx/facade';
+import {YoutubePlayer} from '../../players/youtube/youtube-player.model';
+import {IVideoPlayer} from '../../service/video-player.model';
+import {registerVideoPlayer} from '../../service/rx-video.service';
+import {getInjector} from '../../ng-helper/facade';
 
 const Factory = {
     createVideoPlayer

@@ -1,6 +1,6 @@
-import {Directive, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
-import {readableTime} from 'src/service/readable-time.service';
-import {RxPlayerComponent} from 'src/directive/rx-player.component';
+import {Directive, bindToCtrlCallOnInit} from '../ng-helper/facade';
+import {readableTime} from '../service/readable-time.service';
+import {RxPlayerComponent} from '../directive/rx-player.component';
 
 // TODO: This had restrict A so its a directive, but it also has an html template soooo its a
 // component? Refactor :D

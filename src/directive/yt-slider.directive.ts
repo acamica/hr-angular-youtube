@@ -1,4 +1,4 @@
-import {Directive} from 'src/ng-helper/facade';
+import {Directive} from '../ng-helper/facade';
 import * as angular from 'angular';
 
 @Directive({

@@ -1,8 +1,8 @@
 import * as angular from 'angular';
-import {Observable, Subject} from 'src/util/rx/facade';
-import {PlainModel} from 'src/ng-helper/plain-model';
-import {convertToYoutube, convertFromYoutube} from 'src/players/youtube/youtube-quality-map.service';
-import {uuid} from 'src/util/uuid.service';
+import {Observable, Subject} from '../../util/rx/facade';
+import {PlainModel} from '../../ng-helper/plain-model';
+import {convertToYoutube, convertFromYoutube} from '../../players/youtube/youtube-quality-map.service';
+import {uuid} from '../../util/uuid.service';
 import {
     IVideoPlayer,
     IVolumeStateEvent,
@@ -12,8 +12,8 @@ import {
     ISeekingEvent,
     ISeekedEvent,
     IPlayStateEvent
-} from 'src/service/video-player.model';
-import 'src/service/youtube-marker-list.model'; // TODO: Refactor markers
+} from '../../service/video-player.model';
+import '../../service/youtube-marker-list.model'; // TODO: Refactor markers
 
 export interface IPlayerEvent {
     type: string;

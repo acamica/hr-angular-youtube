@@ -1,7 +1,7 @@
-import {Observable} from 'src/util/rx/facade';
-import {IVideoPlayer} from 'src/service/video-player.model';
-import {Maybe} from 'src/util/algebras/maybe';
-import 'src/util/algebras/maybe-rx';
+import {Observable} from '../util/rx/facade';
+import {IVideoPlayer} from '../service/video-player.model';
+import {Maybe} from '../util/algebras/maybe';
+import '../util/algebras/maybe-rx';
 export interface IPlayerFactory<T extends IVideoPlayer> {
     createVideoPlayer (options, elm): Observable<T>;
 }

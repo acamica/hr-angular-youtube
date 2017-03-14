@@ -1,4 +1,4 @@
-import {Observable} from 'src/util/rx/facade';
+import {Observable} from '../util/rx/facade';
 
 export interface IVideoPlayer {
     // TODO: For each one of this sections, maybe separate as adaptors, diferent interfaces

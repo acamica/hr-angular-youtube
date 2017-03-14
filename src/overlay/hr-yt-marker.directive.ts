@@ -1,7 +1,7 @@
 import * as angular from 'angular';
-import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
-import {bindToCtrlCallOnInit} from 'src/ng-helper/facade';
-import {RxPlayerComponent} from 'src/directive/rx-player.component';
+import {YoutubePlayer} from '../players/youtube/youtube-player.model';
+import {bindToCtrlCallOnInit} from '../ng-helper/facade';
+import {RxPlayerComponent} from '../directive/rx-player.component';
 
 export class YoutubeMarker {
     private rxPlayer: RxPlayerComponent;

@@ -1,15 +1,15 @@
 // TODO: Move this into players folder
-import {Observable, fromAngularWatch, observeScopeDestroy} from 'src/util/rx/facade';
+import {Observable, fromAngularWatch, observeScopeDestroy} from '../util/rx/facade';
 // import {ReplaySubject} from 'rxjs/ReplaySubject';
 
-import {Component, localTemplateVariableLink} from 'src/ng-helper/facade';
+import {Component, localTemplateVariableLink} from '../ng-helper/facade';
 
 // TODO: Put all video interfaces in a facade
 // import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
-import {IVideoPlayer} from 'src/service/video-player.model';
-import {RxVideoInterface} from 'src/service/rx-video-interface.model';
+import {IVideoPlayer} from '../service/video-player.model';
+import {RxVideoInterface} from '../service/rx-video-interface.model';
 
-import {createVideoPlayer} from 'src/service/rx-video.service';
+import {createVideoPlayer} from '../service/rx-video.service';
 
 // TODO: Try to redefine as an algebraic data type, but see if that can be extended
 export interface IVideoSource {

@@ -1,6 +1,6 @@
-import {Component, bindToCtrlCallOnInit} from 'src/ng-helper/facade';
-import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
-import {RxPlayerComponent} from 'src/directive/rx-player.component';
+import {Component, bindToCtrlCallOnInit} from '../ng-helper/facade';
+import {YoutubePlayer} from '../players/youtube/youtube-player.model';
+import {RxPlayerComponent} from '../directive/rx-player.component';
 
 @Component({
     selector: 'playerPanel',

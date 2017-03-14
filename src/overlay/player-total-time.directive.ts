@@ -1,7 +1,7 @@
-import {Observable} from 'src/util/rx/facade';
-import {IVideoPlayer} from 'src/service/video-player.model';
-import {Directive, mockNgOnInitFromAttr} from 'src/ng-helper/facade';
-import {readableTime} from 'src/service/readable-time.service';
+import {Observable} from '../util/rx/facade';
+import {IVideoPlayer} from '../service/video-player.model';
+import {Directive, mockNgOnInitFromAttr} from '../ng-helper/facade';
+import {readableTime} from '../service/readable-time.service';
 
 @Directive({
     selector: 'playerTotalTime',
