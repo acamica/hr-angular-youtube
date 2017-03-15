@@ -3,7 +3,7 @@ import {Observable} from 'rxjs/Observable';
 export interface IWatchExpression<T> {
     (): T;
 }
-type IWatchProperty<T> = string | IWatchExpression<T>;
+export type IWatchProperty<T> = string | IWatchExpression<T>;
 export function fromAngularWatch<T> (property: IWatchProperty<T>, scope): Observable<T> {
     return Observable.create(function (observer) {
         let oldVal: T;

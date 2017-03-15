@@ -10,7 +10,6 @@ const cleanES6 = (config) => () => {
 }
 
 const tsProject = ts.createProject('tsconfig.json', {
-    allowJs: true,
     target: 'es6',
     module: 'es2015',
     typescript: require('typescript')

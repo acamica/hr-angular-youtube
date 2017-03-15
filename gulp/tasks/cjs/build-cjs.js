@@ -17,7 +17,6 @@ const copyPkgToCjs = (config) => () => {
 const ts = require('gulp-typescript');
 
 const tsProject = ts.createProject('tsconfig.json', {
-    allowJs: true,
     typescript: require('typescript')
 });
 

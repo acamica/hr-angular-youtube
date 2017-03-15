@@ -12,7 +12,6 @@ function cleanSystem () {
 const ts = require('gulp-typescript');
 
 const tsProject = ts.createProject('tsconfig.json', {
-    allowJs: true,
     target: 'es5',
     module: 'system',
     outFile: 'rx-player.system.js',

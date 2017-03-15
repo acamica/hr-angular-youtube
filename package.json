@@ -54,6 +54,7 @@
     "webpack": "^2.2.1"
   },
   "private": true,
+  "typings": "main.d.ts",
   "repository": {
     "type": "git",
     "url": "https://hrajchert@github.com/hrajchert/rx-player.git"
