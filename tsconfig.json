@@ -1,16 +1,13 @@
 {
     "compilerOptions": {
-        "module": "system",
+        "module": "commonjs",
         "target": "es5",
         "noImplicitAny": false,
         "sourceMap": false,
         "rootDir": ".",
-        "outFile": "main.js",
+        "outDir": "dist/cjs",
         "baseUrl": ".",
         "noUnusedLocals": true,
-        "paths": {
-            "src": ["src"]
-        },
         "moduleResolution": "node",
         "experimentalDecorators": true,
         "emitDecoratorMetadata" : true

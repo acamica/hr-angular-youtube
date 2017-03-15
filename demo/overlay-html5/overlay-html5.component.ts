@@ -1,11 +1,11 @@
 import * as angular from 'angular';
-import {Component} from 'src/ng-helper/facade';
-import {RxPlayerComponent} from 'src/directive/rx-player.component';
-import 'src/main';
-import 'src/players/html5/html5-player.service';
-import 'src/ng-helper/async.filter';
-import 'rxPlayerTpl';
+import {Component} from 'rx-player/ng-helper/facade';
+import {RxPlayerComponent} from 'rx-player/directive/rx-player.component';
+import 'rx-player/main';
+import 'rx-player/players/html5/html5-player.service';
+import 'rx-player/ng-helper/async.filter';
 import 'ui.bootstrap';
+
 
 // TODO: Refactor to @Injectable and providers
 // http://blog.rangle.io/configurable-services-in-angular-2/

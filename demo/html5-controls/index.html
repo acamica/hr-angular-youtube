@@ -1,15 +1,11 @@
 <!doctype html>
 <html>
     <head>
-        <script src="/node_modules/systemjs/dist/system.js"></script>
-        <script src="/node_modules/typescript/lib/typescript.js"></script>
-        <script src="/demo/systemjs.config.js"></script>
+        <script src="bundle.js"></script>
         <script>
-            System.import('html5-controls.component.ts').then(function (test) {
-                // // Manually bootstrap angular (same as ng-app but after the module loader kicks in)
-                angular.element(document).ready(function() {
-                    angular.bootstrap(document, ['demoHtml5Controls'], {strictDi: true, debugInfoEnabled: true});
-                });
+            // Manually bootstrap angular (same as ng-app but after the module loader kicks in)
+            angular.element(document).ready(function() {
+                angular.bootstrap(document, ['demoHtml5Controls'], {strictDi: true, debugInfoEnabled: true});
             });
         </script>
     </head>

@@ -12,7 +12,7 @@ export interface IComponentDefinition {
     directives?: any[];
     transclude?: 'element'|boolean;
 }
-export function Component(definition: IComponentDefinition) {
+export function Component (definition: IComponentDefinition) {
 
     return function (target) {
         angular
@@ -23,9 +23,9 @@ export function Component(definition: IComponentDefinition) {
                     require = require.concat(definition.require);
                 }
 
-                let scope = {...definition.scope};
+                const scope = {...definition.scope};
 
-                let component: ng.IDirective = {
+                const component: ng.IDirective = {
                     restrict: 'E',
                     templateUrl: definition.templateUrl,
                     template: definition.template,

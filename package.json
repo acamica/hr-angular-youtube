@@ -1,11 +1,8 @@
 {
   "name": "rx-player",
-  "version": "0.0.10",
+  "version": "0.1.0",
   "description": "Multiple video sources with extendable controls for Angular",
-  "main": [
-    "dist/rx-player-tpl.js",
-    "dist/rx-player.css"
-  ],
+  "main": "main.js",
   "license": "MIT",
   "directories": {
     "test": "test"
@@ -35,10 +32,10 @@
   "devDependencies": {
     "angular-ui-bootstrap": "^2.4.0",
     "gulp": "~3.9.0",
+    "gulp-angular-templatecache": "^2.0.0",
     "gulp-autoprefixer": "~1.0.0",
     "gulp-concat": "~2.2.0",
     "gulp-minify-css": "~0.3.5",
-    "gulp-ng-html2js": "^0.1.8",
     "gulp-rename": "~1.2.0",
     "gulp-replace": "^0.4.0",
     "gulp-rimraf": "^0.1.0",
@@ -46,11 +43,15 @@
     "gulp-uglify": "~0.3.1",
     "http-server": "^0.9.0",
     "husky": "^0.12.0",
+    "lint-staged": "^3.2.8",
     "systemjs": "^0.19.41",
+    "systemjs-builder": "^0.16.3",
+    "ts-loader": "^2.0.1",
+    "tslint": "^4.0.2",
     "typescript": "^2.1.5",
     "validate-commit-msg": "^2.8.2",
-    "tslint": "^4.0.2",
-    "lint-staged": "^3.2.8"
+    "vinyl-source-stream": "^1.1.0",
+    "webpack": "^2.2.1"
   },
   "private": true,
   "repository": {

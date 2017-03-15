@@ -6,9 +6,9 @@ export interface IServiceOptions {
     onDepsLoad?: () => any;
 }
 
-export function PlainModel(options: IServiceOptions) {
+export function PlainModel (options: IServiceOptions) {
     return function (target) {
-        let ng1Injects = Object.keys(options.$inject || {});
+        const ng1Injects = Object.keys(options.$inject || {});
 
         angular
             .module('rxPlayer')

@@ -5,51 +5,49 @@ const gulp      = require('gulp'),
       minifycss = require('gulp-minify-css'),
       rimraf    = require('gulp-rimraf'),
       rename    = require('gulp-rename'),
-      html2js   = require('gulp-ng-html2js'),
       replace   = require('gulp-replace');
 
 const fs = require('fs');
 
 const options = JSON.parse(fs.readFileSync ('.env'));
+const config = require('./gulp/configuration');
 
-const ts = require('gulp-typescript');
+// CJS
+var {cleanCjs, copyPkgToCjs, buildCjs} = require('./gulp/tasks/cjs/build-cjs')(config);
+gulp.task('cjs-clean', cleanCjs);
+gulp.task('cp-package-cjs', ['cjs-clean'], copyPkgToCjs);
+gulp.task('build-cjs', ['cp-package-cjs'], buildCjs);
 
-const tsProject = ts.createProject('tsconfig.json', {
-    allowJs: true,
-    typescript: require('typescript')
-});
 
-gulp.task('process-scripts', function() {
-    return gulp.src(['./src/**/*.js', './src/**/*.ts'])
-        .pipe(tsProject())
-        .pipe(concat('rx-player.js'))
-        .pipe(gulp.dest('./dist/'))
-        .pipe(uglify())
-        .pipe(rename({suffix: '.min'}))
-        .pipe(gulp.dest('./dist/'));
+// ES6
+var {cleanES6, buildES6} = require('./gulp/tasks/es6/build-es6')(config);
+gulp.task('es6-clean', cleanES6);
+gulp.task('build-es6', ['es6-clean'], buildES6);
 
-});
+var bundleroll = require('./gulp/tasks/bundle/rollup');
+gulp.task('bundle-es6', ['build-es6'], bundleroll());
 
-gulp.task('process-templates', function() {
-    return gulp.src('./src/**/*.html')
-        .pipe(html2js({
-            moduleName: 'rxPlayerTpls',
-            prefix :'/template/',
-            export: 'commonjs'
-        }))
-        .pipe(concat('templates.js'))
-        .pipe(gulp.dest('./dist/'));
-});
+// SystemJs
+var {cleanSystem, buildSystem} = require('./gulp/tasks/systemjs/build-systemjs')(config);
+gulp.task('system-clean', cleanSystem);
+gulp.task('build-system', ['system-clean'], buildSystem);
+
+
+// Angular Templates
+var {processTemplates, buildTemplatesInSystemJs} = require('./gulp/tasks/html/angular-templatecache')(config);
+gulp.task('process-templates', processTemplates);
+gulp.task('process-templates-with-system', ['process-templates'], buildTemplatesInSystemJs);
+
 //gulp.task('process-scripts-with-tpl',['process-templates'], function() {
-gulp.task('process-scripts-with-tpl', ['process-templates','process-scripts'], function() {
+gulp.task('process-scripts-with-tpl', ['process-templates-with-system', 'build-system'], function () {
     //
-    return gulp.src(['./dist/templates.js','./dist/rx-player.js'])
-        .pipe(concat('rx-player-tpl.js'))
+    return gulp.src(['./dist/cjs/bundles/rx-player.system.js', './dist/templates.system.js'])
+        .pipe(concat('rx-player-tpl.system.js'))
         .pipe(replace('/*!--TEMPLATE-DEPENDENCIES--*/',',\'rxPlayerTpls\''))
-        .pipe(gulp.dest('./dist/'))
+        .pipe(gulp.dest('./dist/cjs/bundles'))
         .pipe(uglify())
         .pipe(rename({suffix: '.min'}))
-        .pipe(gulp.dest('./dist/'));
+        .pipe(gulp.dest('./dist/cjs/bundles'));
 });
 
 
@@ -64,74 +62,11 @@ gulp.task('process-styles', function() {
 });
 
 
-const tsDemo = ts.createProject('tsconfig.json', {
-    allowJs: true,
-    typescript: require('typescript'),
-    outDir:"demo/",
-    outFile: null
-});
-
-
-gulp.task('demo-cp', function() {
-    return gulp.src('./demo/**/*')
-        .pipe(gulp.dest(options.pagesDir + '/demo'));
-
-});
-
-gulp.task('docs-dist-cp',['process-scripts-with-tpl', 'process-styles'], function() {
-    return gulp.src(['./dist/**/*'])
-        .pipe(gulp.dest(options.pagesDir + '/dist'));
-});
-
-
-gulp.task('docs-mddoc', function(cb) {
-    var mddoc  = require('mddoc'),
-        config = mddoc.config;
-
-    // Load the project settings
-    var mddocSettings = config.loadConfig(process.cwd(), {outputDir: options.pagesDir});
-
-    // Run the tool
-    mddocSettings.done(function(settings) {
-        mddoc.verbose(true);
-        mddoc.initialize(settings);
-
-        var steps = [
-            mddoc.readMarkdown,
-            mddoc.readCode,
-            mddoc.saveMetadata,
-            mddoc.replaceReferences,
-            mddoc.generateOutput
-        ];
-
-        mddoc.run(steps).then(function () {
-            cb();
-        }, function(err) {
-            console.error('There was an error running the tool ' + JSON.stringify(err));
-            cb(false);
-        });
-    });
-});
-
-gulp.task('docs-clean', function() {
-    return gulp.src(options.pagesDir + '/**/*.*', { read: false })
-        .pipe(rimraf({force:true}))
-        // For some reason I need to add a dest, or no end is triggered
-        .pipe(gulp.dest(options.pagesDir));
-});
-
-gulp.task('build-docs', ['demo-cp', 'docs-dist-cp', 'docs-mddoc']);
-
-gulp.task('docs',['docs-clean'], function(){
-    return gulp.start('build-docs');
-});
-
-gulp.task('build', ['process-scripts-with-tpl']);
+gulp.task('build', ['process-scripts-with-tpl', 'build-cjs', 'process-styles']);
 
 gulp.task('watch', function() {
     // This should be process script, but for some reason is not updating :(
-    gulp.watch('./src/**/*.js', ['process-scripts-with-tpl']);
-    gulp.watch('./src/**/*.ts', ['process-scripts-with-tpl']);
+    gulp.watch('./src/**/*.ts', ['build']);
     gulp.watch('./src/**/*.html', ['process-scripts-with-tpl']);
 
     // gulp.watch('./src/**/*.js', ['docs']);

@@ -12,7 +12,7 @@ import {mockNgOnInitLink} from './lifecycle';
  *     link: AC.bindRequireToCtrl(['anotherCtrl', 'anotherParentCtrl'])
  * }
  */
-export function bindRequireToCtrl(ctrlsAliases: string[]): IDirectiveLinkFn {
+export function bindRequireToCtrl (ctrlsAliases: string[]): IDirectiveLinkFn {
     return (scope, elm, attrs, ctrls) => {
         const mainCtrl = ctrls[0];
         ctrls.splice(1).forEach((ctrl, index) => {
@@ -23,7 +23,7 @@ export function bindRequireToCtrl(ctrlsAliases: string[]): IDirectiveLinkFn {
     };
 }
 
-export function bindToCtrlCallOnInit(ctrls: string[]): IDirectiveLinkFn {
+export function bindToCtrlCallOnInit (ctrls: string[]): IDirectiveLinkFn {
     return composeLinkFn([
         bindRequireToCtrl(ctrls),
         mockNgOnInitLink(ctrls)

@@ -14,10 +14,10 @@ export const convertToYoutube = (q: string) => map[q] ? map[q] : 'Auto';
 export const convertFromYoutube = (q: string) => inverseMap[q] ? inverseMap[q] : 'default';
 export const convertToYoutubeArray = (qArr: string[]) => qArr.map(convertToYoutube);
 
-function invertKeyValues(map) {
-    let inverseMap = {};
+function invertKeyValues (map) {
+    const inverseMap = {};
     let value;
-    for (let key in map) {
+    for (const key in map) {
         value = map[key];
         inverseMap[value] = key;
     }

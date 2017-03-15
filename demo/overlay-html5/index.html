@@ -1,15 +1,25 @@
 <!doctype html>
 <html>
     <head>
-        <script src="/node_modules/systemjs/dist/system.js"></script>
+        <!--<script src="/node_modules/systemjs/dist/system.src.js"></script>
         <script src="/node_modules/typescript/lib/typescript.js"></script>
+        <script src="/dist/cjs/bundles/rx-player-tpl.system.js"></script>
         <script src="/demo/systemjs.config.js"></script>
         <script>
-            System.import('overlay-html5.component.ts').then(function (test) {
-                // // Manually bootstrap angular (same as ng-app but after the module loader kicks in)
-                angular.element(document).ready(function() {
-                    angular.bootstrap(document, ['demoOverlayHTML5'], {strictDi: true, debugInfoEnabled: true});
-                });
+            System.import('rx-player-tpls.js')
+                .then(_ => System.import('overlay-html5.component.ts'))
+                .then(function () {
+                    // // Manually bootstrap angular (same as ng-app but after the module loader kicks in)
+                    angular.element(document).ready(function() {
+                        angular.bootstrap(document, ['demoOverlayHTML5'], {strictDi: true, debugInfoEnabled: true});
+                    });
+            });
+        </script>-->
+        <script src="bundle.js"></script>
+        <script>
+            // Manually bootstrap angular (same as ng-app but after the module loader kicks in)
+            angular.element(document).ready(function() {
+                angular.bootstrap(document, ['demoOverlayHTML5'], {strictDi: true, debugInfoEnabled: true});
             });
         </script>
 

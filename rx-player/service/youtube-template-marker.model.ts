@@ -2,7 +2,7 @@ import * as angular from 'angular';
 
 angular.module('rxPlayer')
     .factory('YoutubeTemplateMarker', ['$rootScope', '$compile', 'YoutubeMarker', '$q', '$http', '$templateCache',
-                                       function($rootScope, $compile, YoutubeMarker, $q, $http, $templateCache) {
+                                       function ($rootScope, $compile, YoutubeMarker, $q, $http, $templateCache) {
         const YoutubeTemplateMarker = function (options) {
             YoutubeMarker.call(this, options);
 
@@ -35,7 +35,7 @@ angular.module('rxPlayer')
        };
 
         YoutubeTemplateMarker.prototype.handler = function () {
-            var self = this;
+            const self = this;
 
             // Make sure we have somewhere to insert it
             if (!this._parentElm) {
@@ -45,7 +45,7 @@ angular.module('rxPlayer')
             // Create a new isolated scope
             this._scope = this._parentScope.$new(true);
             // Create the element from the template
-            this.template.then(function(template) {
+            this.template.then(function (template) {
                 // Add the element where its supposed to be
                 const elm = angular.element(template);
                 self._parentElm[self._addMethod](elm);
@@ -64,7 +64,7 @@ angular.module('rxPlayer')
             if (options.hasOwnProperty('template')) {
                 this.template = $q.when(options.template);
             } else if (options.hasOwnProperty('templateUrl')) {
-                this.template = $http.get(options.templateUrl, { cache: $templateCache }).then(function(response) {
+                this.template = $http.get(options.templateUrl, { cache: $templateCache }).then(function (response) {
                     return response.data;
                 });
             }

@@ -11,7 +11,7 @@ export interface IDirectiveLinkFn {
 /**
  * Calls multiple link functions
  */
-export function composeLinkFn(links: IDirectiveLinkFn[]): IDirectiveLinkFn {
+export function composeLinkFn (links: IDirectiveLinkFn[]): IDirectiveLinkFn {
     return function (scope, elm, attr, ctrl, trans) {
         links.forEach(link => link.call(this, scope, elm, attr, ctrl, trans));
     };

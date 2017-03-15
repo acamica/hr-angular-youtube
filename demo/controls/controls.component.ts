@@ -1,9 +1,8 @@
 import * as angular from 'angular';
-import {Component} from 'src/ng-helper/facade';
-import {RxPlayerComponent} from 'src/directive/rx-player.component';
-import {fromAngularWatch} from 'src/util/rx/facade';
-import 'src/main';
-import 'rxPlayerTpl';
+import {Component} from 'rx-player/ng-helper/facade';
+import {RxPlayerComponent} from 'rx-player/directive/rx-player.component';
+import {fromAngularWatch} from 'rx-player/util/rx/facade';
+import 'rx-player/main';
 
 // TODO: Refactor to @Injectable and providers
 // http://blog.rangle.io/configurable-services-in-angular-2/

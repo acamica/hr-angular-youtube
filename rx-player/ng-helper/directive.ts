@@ -17,7 +17,7 @@ export interface IDirectiveDefinition {
 
 }
 
-export function Directive(definition: IDirectiveDefinition) {
+export function Directive (definition: IDirectiveDefinition) {
     return function (target) {
         angular
             .module('rxPlayer')
@@ -27,7 +27,7 @@ export function Directive(definition: IDirectiveDefinition) {
                     require = require.concat(definition.require);
                 }
 
-                let directive: ng.IDirective = {
+                const directive: ng.IDirective = {
                     restrict: 'A',
                     controller: target,
                     link: definition.link,

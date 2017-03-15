@@ -1,10 +1,8 @@
-import {Component} from 'src/ng-helper/component';
+import {Component} from 'rx-player/ng-helper/component';
 import * as angular from 'angular';
-import {RxPlayerComponent} from 'src/directive/rx-player.component';
-import 'src/players/html5/html5-player.service';
-
-import 'src/main';
-import 'rxPlayerTpl';
+import {RxPlayerComponent} from 'rx-player/directive/rx-player.component';
+import 'rx-player/players/html5/html5-player.service';
+import 'rx-player/main';
 
 // Create the app module
 angular.module('demoHtml5Controls', ['rxPlayer', 'rxPlayerTpls']);
