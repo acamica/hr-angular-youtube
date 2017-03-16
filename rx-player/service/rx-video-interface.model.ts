@@ -1,7 +1,13 @@
 import {Observable} from '../util/rx/facade';
 import {IVideoPlayer} from './video-player.model';
 
+//
 // TODO: Try to deprecate this in favour of having local adaptors in each component
+// Try to deprecate Try to deprecate Try to deprecate Try to deprecate Try to deprecate
+// Try to deprecate Try to deprecate Try to deprecate Try to deprecate Try to deprecate
+// Try to deprecate Try to deprecate Try to deprecate Try to deprecate Try to deprecate
+// Try to deprecate Try to deprecate Try to deprecate Try to deprecate Try to deprecate
+// Try to deprecate Try to deprecate Try to deprecate Try to deprecate Try to deprecate
 export class RxVideoInterface {
     // implements IVideoPlayer {
 

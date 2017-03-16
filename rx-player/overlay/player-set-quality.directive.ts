@@ -7,7 +7,7 @@ import {RxPlayerComponent} from '../directive/rx-player.component';
     link: bindToCtrlCallOnInit(['rxPlayer']),
     require: ['^rxPlayer']
 })
-export class PlayerCurrentTimeComponent {
+export class PlayerSetQualityDirective {
     private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$parse', '$attrs', '$scope'];

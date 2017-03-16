@@ -1,29 +1,30 @@
 // TODO: Dirty hack to load everything, refactor later
-import './directive/rx-player.component';
-import './directive/yt-slider.directive';
-import './overlay/hr-yt-marker.directive';
-import './overlay/player-current-quality.directive';
-import './overlay/player-current-speed.directive';
-import './overlay/player-current-time.directive';
-import './overlay/player-panel.component';
-import './overlay/player-progress-bar-hover-indicator.component';
-import './overlay/player-progress-bar.component';
-import './overlay/player-repeat-available-quality.directive';
-import './overlay/player-repeat-available-speed.directive';
-import './overlay/player-set-quality.directive';
-import './overlay/player-set-speed.directive';
-import './overlay/player-total-time.directive';
-import './overlay/player-volume-horizontal.component';
-import './service/youtube-marker-list.model';
-import './service/youtube-marker.model';
-import './players/youtube/youtube-player.model';
-import './service/youtube-template-marker.model';
-import './players/youtube/youtube.service';
+export * from './directive/rx-player.component';
+export * from './directive/yt-slider.directive';
+export * from './overlay/hr-yt-marker.directive';
+export * from './overlay/player-current-quality.directive';
+export * from './overlay/player-current-speed.directive';
+export * from './overlay/player-current-time.directive';
+export * from './overlay/player-panel.component';
+export * from './overlay/player-progress-bar-hover-indicator.component';
+export * from './overlay/player-progress-bar.component';
+export * from './overlay/player-repeat-available-quality.directive';
+export * from './overlay/player-repeat-available-speed.directive';
+export * from './overlay/player-set-quality.directive';
+export * from './overlay/player-set-speed.directive';
+export * from './overlay/player-total-time.directive';
+export * from './overlay/player-volume-horizontal.component';
+export * from './service/youtube-marker-list.model';
+export * from './service/youtube-marker.model';
+export * from './players/youtube/youtube-player.model';
+export * from './service/youtube-template-marker.model';
+export * from './players/youtube/youtube.service';
 import './util/rx/rx-operators-import';
 
 import * as angular from 'angular';
 // Add a default handler to avoid missing the event. This can happen if you add the script manually,
 // which can be useful for performance
+// TODO: Move this to a more specific youtube place
 if (typeof window['onYouTubeIframeAPIReady'] === 'undefined') {
     window['onYouTubeIframeAPIReady'] = function () {
         setTimeout(function (){

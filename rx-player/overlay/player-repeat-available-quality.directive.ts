@@ -19,7 +19,7 @@ import {RxPlayerComponent} from '../directive/rx-player.component';
         return tElm[0].outerHTML;
     }
 })
-export class PlayerRepeatAvailableSpeedDirective {
+export class PlayerRepeatAvailableQualityDirective {
     private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$scope', '$attrs'];
