@@ -49,7 +49,6 @@ export class RxPlayerComponent {
         // Save the overlay element in the controller so child directives can use it
         // TODO: check this out again
         this.setOverlayElement(elm);
-        this.ngOnInit(); // TODO: Change once we migrate to ng 1.6
     }
 
     private $overlayElm;
@@ -63,7 +62,7 @@ export class RxPlayerComponent {
 
     private videoSource: IVideoSource;
 
-    ngOnInit () {
+    $onInit () {
         // TODO: Type this
         const $videoDiv: HTMLElement = this.elm[0].querySelector('.hr-yt-video-place-holder');
         // const $overlayElm = angular.element(this.elm[0].querySelector('.hr-yt-overlay'));
