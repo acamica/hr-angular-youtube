@@ -1,7 +1,7 @@
 import {Observable, observeScopeDestroy} from '../util/rx/facade';
 import {IVideoPlayer} from '../service/video-player.model';
 import {Directive, mockNgOnInitFromAttr} from '../ng-helper/facade';
-import {readableTime} from '../service/readable-time.service';
+import {readableTime} from '../util/readable-time.util';
 
 @Directive({
     selector: 'playerCurrentTime',

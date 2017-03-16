@@ -1,4 +1,3 @@
-// TODO: Change to util
 export function readableTime (seconds: number): string {
     seconds = Math.floor(seconds);
     const secs = seconds % 60;
