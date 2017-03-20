@@ -6,10 +6,11 @@ import {Component, localTemplateVariableLink} from '../ng-helper/facade';
 
 // TODO: Put all video interfaces in a facade
 // import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
-import {IVideoPlayer} from '../service/video-player.model';
+
+import {IVideoPlayer} from '../players/video-player.model';
 import {RxVideoInterface} from '../service/rx-video-interface.model';
 
-import {createVideoPlayer} from '../service/rx-video.service';
+import {createVideoPlayer} from '../players/player-factory.service';
 
 // TODO: Try to redefine as an algebraic data type, but see if that can be extended
 export interface IVideoSource {
@@ -67,6 +68,7 @@ export class RxPlayerComponent {
         const $videoDiv: HTMLElement = this.elm[0].querySelector('.hr-yt-video-place-holder');
         // const $overlayElm = angular.element(this.elm[0].querySelector('.hr-yt-overlay'));
 
+        // TODO: Fix this options
         const options: any = {
             playerVars: {}
         };
@@ -100,7 +102,13 @@ export class RxPlayerComponent {
                         }))
                         // Create a video player of the provided type
                         .switchMap(({playerClass, options}) =>
-                             createVideoPlayer(playerClass, options, $videoDiv),
+                             createVideoPlayer(playerClass, options, $videoDiv)
+                                .do(player => {
+                                    // TODO: Need to see where to put this after refactor
+                                    this.elm.css('height', convertToUnits(player.options.height));
+                                    this.elm.css('width', convertToUnits(player.options.width));
+
+                                }),
                         )
                         // Put in the stream both the player and the source
                         .withLatestFrom(watchVideoSource$, (player, source) => ({player, source}))
@@ -123,7 +131,7 @@ export class RxPlayerComponent {
 
     }
 }
-/*
+
 function convertToUnits (u: number|string): string {
     // If its numbers, interpret pixels
     if (typeof u === 'number' || /^\d+$/.test(u)) {
@@ -131,4 +139,4 @@ function convertToUnits (u: number|string): string {
     }
     return u;
 }
-*/
+

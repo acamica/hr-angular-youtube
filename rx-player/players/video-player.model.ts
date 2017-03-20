@@ -48,7 +48,7 @@ export interface IVideoPlayer {
     // -------------------------
     // -  TODO: REFACTOR THIS  -
     // -------------------------
-
+    options: any;
     setOverlayElement (elm: any): void;
     destroy (): void;
 }

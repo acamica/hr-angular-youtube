@@ -66,9 +66,9 @@ gulp.task('build', ['process-scripts-with-tpl', 'build-cjs', 'process-styles']);
 
 gulp.task('watch', function() {
     // This should be process script, but for some reason is not updating :(
-    gulp.watch('./src/**/*.ts', ['build']);
-    gulp.watch('./src/**/*.html', ['process-scripts-with-tpl']);
-
+    gulp.watch('./rx-player/**/*.ts', ['build']);
+    gulp.watch('./rx-player/**/*.html', ['build']);
+    gulp.watch('./demo/**/*.html', ['build']);
     // gulp.watch('./src/**/*.js', ['docs']);
 
     gulp.watch('./assets/**/*.css', ['process-styles']);

@@ -1,5 +1,5 @@
 import {Observable} from '../util/rx/facade';
-import {IVideoPlayer} from '../service/video-player.model';
+import {IVideoPlayer} from '../players/video-player.model';
 import {Maybe} from '../util/algebras/maybe';
 import '../util/algebras/maybe-rx';
 export interface IPlayerFactory<T extends IVideoPlayer> {
@@ -23,7 +23,6 @@ export function createVideoPlayer<T extends IVideoPlayer> (
                     options: any,
                     videoDiv$: HTMLElement
                 ): Observable<T> {
-    console.log('creating video player');
     return Maybe
                 .fromNullable(Registry[name] as IPlayerFactory<T>)
                 .toObservable()

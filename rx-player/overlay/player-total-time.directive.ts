@@ -1,5 +1,5 @@
 import {Observable} from '../util/rx/facade';
-import {IVideoPlayer} from '../service/video-player.model';
+import {IVideoPlayer} from '../players/video-player.model';
 import {Directive, mockNgOnInitFromAttr} from '../ng-helper/facade';
 import {readableTime} from '../util/readable-time.util';
 

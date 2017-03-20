@@ -1,5 +1,5 @@
 import {Observable} from '../util/rx/facade';
-import {IVideoPlayer} from './video-player.model';
+import {IVideoPlayer} from '../players/video-player.model';
 
 //
 // TODO: Try to deprecate this in favour of having local adaptors in each component

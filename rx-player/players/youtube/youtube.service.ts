@@ -1,72 +1,26 @@
-// TODO: Delete this?
-import * as angular from 'angular';
-import {Observable} from '../../util/rx/facade';
+import {Observable, ReplaySubject} from '../../util/rx/facade';
 import {YoutubePlayer} from '../../players/youtube/youtube-player.model';
-import {IVideoPlayer} from '../../service/video-player.model';
-import {registerVideoPlayer} from '../../service/rx-video.service';
+import {IVideoPlayer} from '../../players/video-player.model';
+import {registerVideoPlayer} from '../player-factory.service';
 import {getInjector} from '../../ng-helper/facade';
 
-const Factory = {
-    createVideoPlayer
-};
-registerVideoPlayer('YoutubePlayer', Factory);
+const youtubeApiLoaded$ = new ReplaySubject(1);
 
-let defaultOptions = {
-    playerVars: {
-        origin: location.origin + '/',
-        enablejsapi: 1
-    }
-};
-let autoload = true;
+function createYoutubePlayer$ (element, options): Observable<YoutubePlayer> {
+    return Observable.create(observer => {
+        console.log('creating youtube player');
+        let player: YoutubePlayer;
 
-// TODO: Replace with observable
-export const apiLoadedPromise = new Promise(resolve => {
-    // Youtube callback when API is ready
-    window['onYouTubeIframeAPIReady'] = resolve;
-});
-
-export function loadPlayer (elmOrId, options): Promise<YoutubePlayer> {
-    return apiLoadedPromise.then(function (){
-        const newOptions: any = {};
-        // Override main options
-        angular.extend(newOptions, angular.copy(defaultOptions), options);
-        // Override player var options
-        newOptions.playerVars = {}; // For some reason if I dont reset this angular.extend doesnt work as expected
-        angular.extend(newOptions.playerVars, angular.copy(defaultOptions.playerVars), options.playerVars);
-        // TODO: Replace with observable
         // Get the angular 1 injector
-        return getInjector()
+        getInjector()
             // Get the YoutubePlayer constructor
             .then(injector => injector.get('YoutubePlayer') as typeof YoutubePlayer)
             // Create an instance of the player
-            .then(YoutubePlayer => new YoutubePlayer(elmOrId, newOptions))
-            // When the player says its ready, so do we
-            .then(player => new Promise(resolve => player.on('onReady', () => resolve(player))));
-    });
-}
-
-
-
-export interface IYoutubePlayerOptions {
-    height: string;
-    width: string;
-}
-
-export function createVideoPlayer (options: IYoutubePlayerOptions, $videoDiv): Observable<IVideoPlayer> {
-    return Observable.create(observer => {
-        options.height = options.height || '390';
-        options.width = options.width || '640';
-
-        // TODO: Need to see where to put this after refactor
-        // this.elm.css('height', convertToUnits(options.height));
-        // this.elm.css('width', convertToUnits(options.width));
-        let player: IVideoPlayer | null;
-
-        loadPlayer($videoDiv, options).then(p => {
-            player = p;
-            // player.setOverlayElement($overlayElm); // TODO: do i need this?
-            observer.next(player);
-        });
+            .then(YoutubePlayer => new YoutubePlayer(element, options))
+            .then(p => {
+                player = p;
+                observer.next(player);
+            });
 
         return () => {
             if (player) {
@@ -75,39 +29,106 @@ export function createVideoPlayer (options: IYoutubePlayerOptions, $videoDiv): O
         };
     });
 }
-export class Provider {
-    setAutoLoad (auto) {
-        autoload = auto;
-    };
 
-    setOptions (options) {
-        defaultOptions = options;
-    };
+export function createVideoPlayer (options: IYoutubePlayerOptions, $videoDiv): Observable<IVideoPlayer> {
+    const newOptions = normalizeOptions(options);
+    console.log('create video player!');
+            // Wait until the youtube api is loaded
+    return youtubeApiLoaded$
+            // Then create a video player and attach it to the element
+            .switchMap(_ => createYoutubePlayer$($videoDiv, newOptions))
+            // Then wait until the player is ready to play before informing to the consumer
+            .switchMap(player => player.ready$.mapTo(player));
+}
 
-    getOptions () {
-        return defaultOptions;
-    };
+registerVideoPlayer('YoutubePlayer', {
+    createVideoPlayer
+});
 
-    setOption (name, value) {
-        defaultOptions[name] = value;
-    };
 
-    setPlayerVarOption (name, value) {
-        defaultOptions.playerVars[name] = value;
-    };
+let defaultOptions: YT.PlayerOptions = {
+    playerVars: {
+        origin: location.origin + '/',
+        enablejsapi: 1
+    },
+    height: '390',
+    width: '640'
+};
 
-    $get = function () {
-        return {
-            loadPlayer,
-            getAutoLoad: function () {
-                return autoload;
-            }
+export type IYoutubePlayerOptions = YT.PlayerOptions;
 
-        };
+// TODO: Find better names
+function normalizeOptions (options): IYoutubePlayerOptions {
+
+    // const newOptions: any = {};
+    // // Override main options
+    // angular.extend(newOptions, angular.copy(defaultOptions), options);
+    // // Override player var options
+    // newOptions.playerVars = {}; // For some reason if I dont reset this angular.extend doesnt work as expected
+    // angular.extend(newOptions.playerVars, angular.copy(defaultOptions.playerVars), options.playerVars);
+    const newOpts =  {
+        ...defaultOptions,
+        ...options,
+        playerVars: {
+            ...defaultOptions.playerVars,
+            ...options.playerVars
+        }
     };
+    return newOpts;
+}
+
+// TODO: use keyof
+export function setYoutubeDefaultOption (option: string, value: any) {
+    defaultOptions[option] = value;
+}
+
+export function setYoutubeDefaultOptions (options: IYoutubePlayerOptions) {
+    defaultOptions = options;
+}
+
+export function setPlayerVarDefaultOption (option: string, value: any) {
+    defaultOptions.playerVars[option] = value;
+}
+
+// TODO: Type this
+export function setPlayerVarDefaultOptions (playerVars: any) {
+    defaultOptions.playerVars = playerVars;
 }
 
 
-angular.module('rxPlayer').provider('youtube', new Provider());
+// When the youtube API loads it executes this function that emits a value in a
+// shared subject
+window['onYouTubeIframeAPIReady'] = () => {console.log('onYouTubeIframeAPIReady');
+    youtubeApiLoaded$.next(null);
+};
+
+// TODO: Previously this was configured during angular 1 config stage and the script loaded
+// in the run. Right now in the meantime we always load it. See how to handle this once
+// we migrate to ng2
+const autoload = true;
+
+if (autoload) {
+    // Add the iframe api to the dom
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
+
+
+// TODO: This was moved from the old code, I dont think is needed anymore. We should probably
+// add yhis to the index if we nee to use it.
+// Add a default handler to avoid missing the event. This can happen if you add the script manually,
+// which can be useful for performance
+// if (typeof window['onYouTubeIframeAPIReady'] === 'undefined') {
+//     window['onYouTubeIframeAPIReady'] = function () {
+//         setTimeout(function (){
+//             window['onYouTubeIframeAPIReady']();
+//         }, 100);
+//     };
+// }
+
+
 
 

@@ -14,37 +14,15 @@ export * from './overlay/player-set-quality.directive';
 export * from './overlay/player-set-speed.directive';
 export * from './overlay/player-total-time.directive';
 export * from './overlay/player-volume-horizontal.component';
-export * from './service/youtube-marker-list.model';
-export * from './service/youtube-marker.model';
+// Reenable once the markers are refactored
+// export * from './service/youtube-marker-list.model';
+// export * from './service/youtube-marker.model';
+// export * from './service/youtube-template-marker.model';
 export * from './players/youtube/youtube-player.model';
-export * from './service/youtube-template-marker.model';
+export * from './players/video-player.model';
 export * from './players/youtube/youtube.service';
+import './players/html5/html5-player.service';
 import './util/rx/rx-operators-import';
 
-import * as angular from 'angular';
-// Add a default handler to avoid missing the event. This can happen if you add the script manually,
-// which can be useful for performance
-// TODO: Move this to a more specific youtube place
-if (typeof window['onYouTubeIframeAPIReady'] === 'undefined') {
-    window['onYouTubeIframeAPIReady'] = function () {
-        setTimeout(function (){
-            window['onYouTubeIframeAPIReady']();
-        }, 100);
-    };
-}
-
-
-angular.module('rxPlayer')
-
-.run(['youtube', function (youtube) {
-    if (youtube.getAutoLoad()) {
-        // Add the iframe api to the dom
-        const tag = document.createElement('script');
-        tag.src = 'https://www.youtube.com/iframe_api';
-
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-    }
-}]);
 
 

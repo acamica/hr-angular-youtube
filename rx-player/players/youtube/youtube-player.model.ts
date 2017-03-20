@@ -3,6 +3,7 @@ import {Observable, Subject} from '../../util/rx/facade';
 import {PlainModel} from '../../ng-helper/plain-model';
 import {convertToYoutube, convertFromYoutube} from '../../players/youtube/youtube-quality-map.service';
 import {uuid} from '../../util/uuid.service';
+import {IYoutubePlayerOptions} from './youtube.service';
 import {
     IVideoPlayer,
     IVolumeStateEvent,
@@ -12,7 +13,7 @@ import {
     ISeekingEvent,
     ISeekedEvent,
     IPlayStateEvent
-} from '../../service/video-player.model';
+} from '../../players/video-player.model';
 import '../../service/youtube-marker-list.model'; // TODO: Refactor markers
 
 export interface IPlayerEvent {
@@ -21,8 +22,6 @@ export interface IPlayerEvent {
 }
 
 const imports = {
-    // TODO: Remove in favour of plain promises
-    '$q': undefined as ng.IQService,
     // TODO: Remove in favour of rxjs
     '$interval': undefined as ng.IIntervalService,
     // TODO: Remove at all cost (events, rxjs)
@@ -46,12 +45,15 @@ export class YoutubePlayer
     // TODO: Improve, maybe add a store
     private eventEmmiter = new Subject<IPlayerEvent>();
 
-    constructor (elmOrId, private options) {
+    constructor (elmOrId, public options: IYoutubePlayerOptions) {
         const op = angular.copy(this.options);
         // TODO: Add a fit to parent or something like that
-        op.width = '100%';
-        op.height = '100%';
 
+        // op.width = '100%';
+        // op.height = '100%';
+        op.width = options.width;
+        op.height = options.height;
+        console.log('new player ops', op);
         this.player = new YT.Player(elmOrId, op);
 
         this.markerList = new imports.YoutubeMarkerList();
@@ -308,6 +310,11 @@ export class YoutubePlayer
         this.player.unMute();
     };
 
+
+    //
+    //
+    //
+    ready$ = this.fromEvent('onReady');
 
     // -------------------
     // -  REFACTOR THIS  -

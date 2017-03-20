@@ -1,7 +1,7 @@
 import {Observable} from '../../util/rx/facade';
 import {HTML5Player, IHTML5PlayerOptions} from '../../players/html5/html5-player.model';
-import {IVideoPlayer} from '../../service/video-player.model';
-import {registerVideoPlayer} from '../../service/rx-video.service';
+import {IVideoPlayer} from '../../players/video-player.model';
+import {registerVideoPlayer} from '../player-factory.service';
 import {getInjector} from '../../ng-helper/facade';
 
 HTML5Player; // Hack to make typescript fetch that file

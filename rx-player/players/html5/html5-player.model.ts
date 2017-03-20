@@ -14,7 +14,7 @@ import {
     ISeekingEvent,
     ISeekedEvent,
     IPlayStateEvent
-} from '../../service/video-player.model';
+} from '../../players/video-player.model';
 
 export interface IHTML5Source {
     src: string;
@@ -34,7 +34,7 @@ export class HTML5Player
 
     private video = document.createElement('video') as HTMLVideoElement;
 
-    constructor (elm: HTML5Player, options: IHTML5PlayerOptions) {
+    constructor (elm: HTML5Player, public options: IHTML5PlayerOptions) {
         const $video = angular.element(this.video);
         options.sources
             .map(source => angular.element(`<source src="${source.src}" type="${source.type}">`))
@@ -47,7 +47,6 @@ export class HTML5Player
     // -     Loading     -
     // -------------------
     load ({sources}): Observable<HTML5Player> {
-        // debugger;
         // this.video.load();
         // this.video.preload = 'metadata';
         return Observable
