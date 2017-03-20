@@ -197,6 +197,14 @@ export class HTML5Player
         return this.video.muted || this.video.volume === 0;
     }
 
+    mute (): void {
+        this.video.muted = true;
+    }
+
+    unmute (): void {
+        this.video.muted = false;
+    }
+
     setVolume (volume: number) {
         this.video.volume = volume / 100;
         this.video.muted = volume === 0;

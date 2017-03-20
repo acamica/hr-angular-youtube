@@ -251,15 +251,27 @@ export class YoutubePlayer
 
     toggleMute () {
         if (this.isMuted()) {
-            this.unMute();
+            this.unmute();
         } else {
             this.mute();
         }
-    };
+    }
 
     isMuted () {
         return this._muted || this._volume === 0;
-    };
+    }
+
+    mute () {
+        this._setMuted(true);
+        this.player.mute();
+        this.eventEmmiter.next({player: this, type: 'volumechange'});
+    }
+
+    unmute () {
+        this._setMuted(false);
+        this.player.unMute();
+        this.eventEmmiter.next({player: this, type: 'volumechange'});
+    }
 
     setVolume (volume) {
         const changed = this._volume !== volume;
@@ -298,16 +310,6 @@ export class YoutubePlayer
         if (changed) {
             this.eventEmmiter.next({player: this, type: 'volumechange'});
         }
-    };
-
-    private mute () {
-        this._setMuted(true);
-        this.player.mute();
-    };
-
-    private unMute () {
-        this._setMuted(false);
-        this.player.unMute();
     };
 
 

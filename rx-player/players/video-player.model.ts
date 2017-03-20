@@ -41,6 +41,8 @@ export interface IVideoPlayer {
 
     toggleMute (): void;
     isMuted (): boolean;
+    mute (): void;
+    unmute (): void;
     setVolume (volume: number): void; // [0 to 100]
     getVolume (): number;
     volumeState$: Observable<IVolumeStateEvent>;
