@@ -262,15 +262,13 @@ export class YoutubePlayer
     }
 
     mute () {
-        this._setMuted(true);
         this.player.mute();
-        this.eventEmmiter.next({player: this, type: 'volumechange'});
+        this._setMuted(true); // This triggers event
     }
 
     unmute () {
-        this._setMuted(false);
         this.player.unMute();
-        this.eventEmmiter.next({player: this, type: 'volumechange'});
+        this._setMuted(false); // This triggers event
     }
 
     setVolume (volume) {
@@ -307,7 +305,10 @@ export class YoutubePlayer
     private _setMuted (muted) {
         const changed = this._muted !== muted;
         this._muted = muted;
-        if (changed) {
+        // If its muted and with no volume, unmuting sets to half volume
+        if (muted && this._volume === 0) {
+            this.setVolume(50);
+        } else if (changed) {
             this.eventEmmiter.next({player: this, type: 'volumechange'});
         }
     };

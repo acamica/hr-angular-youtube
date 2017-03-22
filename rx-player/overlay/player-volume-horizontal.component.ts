@@ -40,19 +40,25 @@ export class PlayerVolumeHorizontalComponent {
         // Update the volume bar whenever we change volume
         this.player
             // For every volume event
-            .switchMap(player => player.volumeState$)
-            .map(event => event.volume)
-            .startWith(100)
+            .switchMap(player => player.volumeState$.mapTo(player))
+            // And once for the initial value
+            .merge(this.player.take(1))
+            // Get the volume
+            .map(player => player.getVolume())
             .takeUntil(scopeDestroy$)
-            // Update the volume bar
+            // And update the volume bar
             .subscribe(volume => {
                 this.updateVolumeBar(volume / 100);
             });
 
+        // Recipy to see if its muted
         this.isMuted = this.player
-                            .switchMap(player => player.volumeState$)
-                            .map(event => event.isMuted)
-                            .startWith(false)
+                            // For every volume event
+                            .switchMap(player => player.volumeState$.mapTo(player))
+                            // And once for the initial value
+                            .merge(this.player.take(1))
+                            // See if we are muted
+                            .map(player => player.isMuted())
                             .takeUntil(scopeDestroy$);
     }
 

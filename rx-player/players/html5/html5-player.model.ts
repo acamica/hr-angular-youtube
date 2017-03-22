@@ -190,7 +190,11 @@ export class HTML5Player
     // -------------------
 
     toggleMute () {
-        this.video.muted = !this.video.muted;
+        if (this.isMuted()) {
+            this.unmute();
+        } else {
+            this.mute();
+        }
     }
 
     isMuted (): boolean {
@@ -203,6 +207,10 @@ export class HTML5Player
 
     unmute (): void {
         this.video.muted = false;
+        // If its muted and with no volume, unmuting sets to half volume
+        if (this.video.volume === 0) {
+            this.video.volume = 0.5;
+        }
     }
 
     setVolume (volume: number) {
