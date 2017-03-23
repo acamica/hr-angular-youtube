@@ -12,7 +12,8 @@ import {
     ILoadedStateEvent,
     ISeekingEvent,
     ISeekedEvent,
-    IPlayStateEvent
+    IPlayStateEvent,
+    IEndedEvent
 } from '../../players/video-player.model';
 import '../../service/youtube-marker-list.model'; // TODO: Refactor markers
 
@@ -219,6 +220,31 @@ export class YoutubePlayer
 
         return this.seeked$.take(1).toPromise();
     }
+
+    ended$ = this.fromEvent('onStateChange')
+        .map(ev => {
+            // If youtube says its ended, we ended
+            if (ev.data === YT.PlayerState.ENDED) {
+                return true;
+            }
+            // But sometimes it lingers, so we help a little
+            if (ev.data === YT.PlayerState.BUFFERING) {
+                const isPracticallyFinished = this.getDuration() - this.getCurrentTime() <= 1;
+                // If we are buffering we check if the video practically finished
+                return isPracticallyFinished;
+            }
+            return false;
+        })
+        .filter(hasEnded => hasEnded)
+        // Make sure we don't get two end events in one second
+        .throttleTime(1000)
+        .map(_ => {
+            const event = {
+                player: this,
+                type: 'ended'
+            } as IEndedEvent;
+            return event;
+        });
 
     // -------------------
     // -     Rate     -

@@ -26,6 +26,7 @@ export interface IVideoPlayer {
     seeking$: Observable<ISeekingEvent>;
     seeked$: Observable<ISeekedEvent>;
     seekTo (sec: number): Promise<boolean>;
+    ended$: Observable<IEndedEvent>;
 
     // -------------------
     // -     Rate     -
@@ -102,5 +103,8 @@ export interface ISeekedEvent {
     // to: number;
 }
 
-
+export interface IEndedEvent {
+    player: IVideoPlayer;
+    type: 'ended';
+}
 

@@ -13,7 +13,8 @@ import {
     ILoadedStateEvent,
     ISeekingEvent,
     ISeekedEvent,
-    IPlayStateEvent
+    IPlayStateEvent,
+    IEndedEvent
 } from '../../players/video-player.model';
 
 export interface IHTML5Source {
@@ -158,6 +159,16 @@ export class HTML5Player
         this.video.currentTime = sec;
         return this.seeked$.take(1).toPromise();
     }
+
+    ended$ = Observable
+        .fromEvent(this.video, 'ended')
+        .map(_ => {
+            const event = {
+                player: this,
+                type: 'ended'
+            } as IEndedEvent;
+            return event;
+        });
 
     // -------------------
     // -     Rate     -
