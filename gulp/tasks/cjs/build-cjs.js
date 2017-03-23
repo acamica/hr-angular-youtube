@@ -17,7 +17,8 @@ const copyPkgToCjs = (config) => () => {
 const ts = require('gulp-typescript');
 
 const tsProject = ts.createProject('tsconfig.json', {
-    typescript: require('typescript')
+    typescript: require('typescript'),
+    declaration: true,
 });
 
 // TODO: This should be the task that calls the other functions waiting on them

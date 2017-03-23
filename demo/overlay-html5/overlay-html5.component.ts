@@ -6,21 +6,9 @@ import 'rx-player/players/html5/html5-player.service';
 import 'rx-player/ng-helper/async.filter';
 import 'ui.bootstrap';
 
-
-// TODO: Refactor to @Injectable and providers
-// http://blog.rangle.io/configurable-services-in-angular-2/
 // Create the app module and configure it
 angular
-    .module('demoOverlayHTML5', ['rxPlayer', 'rxPlayerTpls', 'ui.bootstrap'])
-    .config(['youtubeProvider', configureYoutubeProvider]);
-
-function configureYoutubeProvider (youtubeProvider) {
-    // This options are the ones from here
-    // https://developers.google.com/youtube/player_parameters?playerVersion=HTML5
-    youtubeProvider.setPlayerVarOption('controls', 0);
-    youtubeProvider.setPlayerVarOption('rel', 0);
-    youtubeProvider.setPlayerVarOption('modestbranding', 1);
-}
+    .module('demoOverlayHTML5', ['rxPlayer', 'rxPlayerTpls', 'ui.bootstrap']);
 
 
 @Component({

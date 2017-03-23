@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "http-server -p 8000",
+    "build-demo": "webpack",
     "commitmsg": "validate-commit-msg",
     "precommit": "lint-staged"
   },
@@ -44,6 +45,7 @@
     "http-server": "^0.9.0",
     "husky": "^0.12.0",
     "lint-staged": "^3.2.8",
+    "ramda": "^0.23.0",
     "systemjs": "^0.19.41",
     "systemjs-builder": "^0.16.3",
     "ts-loader": "^2.0.1",
