@@ -54,7 +54,7 @@ export class YoutubePlayer
         // op.height = '100%';
         op.width = options.width;
         op.height = options.height;
-        console.log('new player ops', op);
+        // console.debug('YoutubePlayer: creating underliying youtube player with options', op);
         this.player = new YT.Player(elmOrId, op);
 
         this.markerList = new imports.YoutubeMarkerList();
@@ -125,7 +125,8 @@ export class YoutubePlayer
         .map(ev => ({
             player: this,
             type: 'playstate',
-            isPlaying: ev.data === YT.PlayerState.PLAYING
+            isPlaying: ev.data === YT.PlayerState.PLAYING,
+            hasEnded: ev.data === YT.PlayerState.ENDED // TODO: Add practically finished?
         } as IPlayStateEvent));
 
     progress$ = this.fromEvent('onStateChange')
@@ -603,8 +604,10 @@ export class YoutubePlayer
         this.player.setPlaybackQuality(q);
     };
 
-    destroy () {
-        return this.player.destroy();
+    private destroyed = false;
+    destroy (): void {
+        this.player.destroy();
+        this.destroyed = true;
     }
 
     // TODO: Deprecated in favour of load?
@@ -615,7 +618,11 @@ export class YoutubePlayer
 
     fromEvent (eventName: string): Observable<YT.EventArgs> {
         const addHandler = (h) => this.player.addEventListener(eventName, h);
-        const removeHandler = (h) => this.player.removeEventListener(eventName, h);
+        const removeHandler = (h) => {
+            if (!this.destroyed) {
+                this.player.removeEventListener(eventName, h);
+            }
+        };
         return Observable.fromEventPattern(addHandler, removeHandler);
     }
 

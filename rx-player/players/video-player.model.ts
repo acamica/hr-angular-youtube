@@ -62,6 +62,7 @@ export interface IPlayStateEvent {
     player: IVideoPlayer;
     type: 'playstate';
     isPlaying: boolean;
+    hasEnded: boolean;
 }
 
 export interface IVolumeStateEvent {

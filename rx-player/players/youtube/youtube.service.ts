@@ -8,7 +8,7 @@ const youtubeApiLoaded$ = new ReplaySubject(1);
 
 function createYoutubePlayer$ (element, options): Observable<YoutubePlayer> {
     return Observable.create(observer => {
-        console.log('creating youtube player');
+        // console.info('createYoutubePlayer: starting promise');
         let player: YoutubePlayer;
 
         // Get the angular 1 injector
@@ -24,6 +24,7 @@ function createYoutubePlayer$ (element, options): Observable<YoutubePlayer> {
 
         return () => {
             if (player) {
+                // console.info('createYoutubePlayer: destroying youtube player');
                 player.destroy();
             }
         };
@@ -32,13 +33,16 @@ function createYoutubePlayer$ (element, options): Observable<YoutubePlayer> {
 
 export function createVideoPlayer (options: IYoutubePlayerOptions, $videoDiv): Observable<IVideoPlayer> {
     const newOptions = normalizeOptions(options);
-    console.log('create video player!');
+    // console.info('createVideoPlayer: creating new recipy!');
             // Wait until the youtube api is loaded
     return youtubeApiLoaded$
+            // .info('createVideoPlayer: api loaded2')
             // Then create a video player and attach it to the element
             .switchMap(_ => createYoutubePlayer$($videoDiv, newOptions))
+            // .info('createVideoPlayer: Youtube player created')
             // Then wait until the player is ready to play before informing to the consumer
-            .switchMap(player => player.ready$.mapTo(player));
+            .switchMap(player => player.ready$.mapTo(player))
+            ;
 }
 
 registerVideoPlayer('YoutubePlayer', {
@@ -98,7 +102,7 @@ export function setPlayerVarDefaultOptions (playerVars: any) {
 
 // When the youtube API loads it executes this function that emits a value in a
 // shared subject
-window['onYouTubeIframeAPIReady'] = () => {console.log('onYouTubeIframeAPIReady');
+window['onYouTubeIframeAPIReady'] = () => {
     youtubeApiLoaded$.next(null);
 };
 

@@ -1,6 +1,6 @@
 // TODO: Move this into players folder
 import {Observable, fromAngularWatch, observeScopeDestroy} from '../util/rx/facade';
-// import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
 
 import {Component, localTemplateVariableLink} from '../ng-helper/facade';
 
@@ -95,6 +95,7 @@ export class RxPlayerComponent {
         // Recipe to create a video player
         // Whenever we have a video source
         this.player$ = watchVideoSource$
+                        // .debug('new video source')
                         .map(source => ({
                             playerClass: source.player,
                             // TODO: Hardcoded to HTML5 sources :/
@@ -103,20 +104,21 @@ export class RxPlayerComponent {
                         // Create a video player of the provided type
                         .switchMap(({playerClass, options}) =>
                              createVideoPlayer(playerClass, options, $videoDiv)
+                                // .info('setting width and height')
                                 .do(player => {
                                     // TODO: Need to see where to put this after refactor
                                     this.elm.css('height', convertToUnits(player.options.height));
                                     this.elm.css('width', convertToUnits(player.options.width));
-
                                 }),
                         )
                         // Put in the stream both the player and the source
                         .withLatestFrom(watchVideoSource$, (player, source) => ({player, source}))
                         // Load the source and wait until the video is ready to play
                         .switchMap(({player, source}) => player.load(source))
+                        // .info('Video loaded :)')
                         .takeUntil(scopeDestroy$)
-                        .publishReplay(1)
-                        // .multicast(() => new ReplaySubject(1))
+                        // .publishReplay(1)
+                        .multicast(() => new ReplaySubject(1))
                         .refCount();
 
         // Suscribe to the observable to trigger the creation of the player

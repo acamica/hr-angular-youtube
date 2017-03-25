@@ -80,14 +80,17 @@ export class HTML5Player
             .mapTo({
                 player: this,
                 type: 'playstate',
-                isPlaying: true
+                isPlaying: true,
+                hasEnded: this.video.ended
             } as IPlayStateEvent),
         Observable
             .fromEvent(this.video, 'pause')
+            // .map(ev => {console.log('pause', ev, this.video); return ev;})
             .mapTo({
                 player: this,
                 type: 'playstate',
-                isPlaying: false
+                isPlaying: false,
+                hasEnded: this.video.ended
             } as IPlayStateEvent),
 
     );
