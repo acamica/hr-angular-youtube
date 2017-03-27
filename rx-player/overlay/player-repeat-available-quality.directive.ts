@@ -1,7 +1,7 @@
 import {Directive, bindToCtrlCallOnInit} from '../ng-helper/facade';
 import {convertToYoutubeArray} from '../players/youtube/youtube-quality-map.service';
 import {YoutubePlayer} from '../players/youtube/youtube-player.model';
-import {RxPlayerComponent} from '../directive/rx-player.component';
+import {RxPlayerComponent} from '../players/rx-player.component';
 
 // TODO: this is similar to a behaviour directive, refactor so we don't
 // need to use the repeat logic

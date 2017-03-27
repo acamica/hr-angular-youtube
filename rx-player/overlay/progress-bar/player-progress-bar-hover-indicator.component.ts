@@ -1,6 +1,6 @@
-import {Directive, bindToCtrlCallOnInit} from '../ng-helper/facade';
-import {readableTime} from '../util/readable-time.util';
-import {RxPlayerComponent} from '../directive/rx-player.component';
+import {Directive, bindToCtrlCallOnInit} from '../../ng-helper/facade';
+import {readableTime} from '../../util/readable-time.util';
+import {RxPlayerComponent} from '../../players/rx-player.component';
 
 // TODO: This had restrict A so its a directive, but it also has an html template soooo its a
 // component? Refactor :D
@@ -30,7 +30,7 @@ export class HoverIndicatorComponent {
             return xpercent;
         };
 
-        const templateUrl = '/template/overlay/player-progress-bar-hover-indicator.component.html';
+        const templateUrl = '/template/overlay/progress-bar/player-progress-bar-hover-indicator.component.html';
         const template = this.$http.get(templateUrl, {cache: this.$templateCache})
                                    .then(response => response.data);
 

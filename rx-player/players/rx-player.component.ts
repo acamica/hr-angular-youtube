@@ -8,7 +8,6 @@ import {Component, localTemplateVariableLink} from '../ng-helper/facade';
 // import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
 
 import {IVideoPlayer} from '../players/video-player.model';
-import {RxVideoInterface} from '../service/rx-video-interface.model';
 
 import {createVideoPlayer} from '../players/player-factory.service';
 
@@ -28,7 +27,7 @@ const playerVarAttrs = ['autohide', 'autoplay', 'ccLoadPolicy', 'color', 'contro
 
 @Component({
     selector: 'rxPlayer',
-    templateUrl: '/template/directive/rx-player.component.html',
+    templateUrl: '/template/players/rx-player.component.html',
     transclude: true,
     link: localTemplateVariableLink,
     scope: {
@@ -37,7 +36,6 @@ const playerVarAttrs = ['autohide', 'autoplay', 'ccLoadPolicy', 'color', 'contro
 })
 export class RxPlayerComponent {
     player$: Observable<IVideoPlayer>;
-    video: RxVideoInterface;
 
     static $inject = ['$element', '$attrs', '$scope'];
 
@@ -126,11 +124,6 @@ export class RxPlayerComponent {
                 () => {},
                 error => console.error(`There was a problem loading the video player: ${error}`)
         );
-
-        // TODO: I think I want to deprecate this in favour of having local controllers
-        // with their own adaptors
-        this.video = new RxVideoInterface(this.player$);
-
     }
 }
 

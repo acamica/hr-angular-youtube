@@ -1,7 +1,7 @@
-import {Observable, observeScopeDestroy, Subject} from '../util/rx/facade';
-import {Component, bindToCtrlCallOnInit} from '../ng-helper/facade';
-import {RxPlayerComponent} from '../directive/rx-player.component';
-import {Store} from '../util/store.util';
+import {Observable, observeScopeDestroy, Subject} from '../../util/rx/facade';
+import {Component, bindToCtrlCallOnInit} from '../../ng-helper/facade';
+import {RxPlayerComponent} from '../../players/rx-player.component';
+import {Store} from '../../util/store.util';
 import * as angular from 'angular';
 
 interface IProgressBarState {
@@ -46,7 +46,7 @@ function progressBarStateReducer (state = initialState, action: IProgressBarActi
 
 @Component({
     selector: 'playerProgressBar',
-    templateUrl: '/template/overlay/player-progress-bar.component.html',
+    templateUrl: '/template/overlay/progress-bar/player-progress-bar.component.html',
     link: bindToCtrlCallOnInit(['rxPlayer']),
     require: ['^rxPlayer']
 })

@@ -1,5 +1,5 @@
 import {Directive, bindToCtrlCallOnInit} from '../ng-helper/facade';
-import {RxPlayerComponent} from '../directive/rx-player.component';
+import {RxPlayerComponent} from '../players/rx-player.component';
 // TODO: this is similar to a behaviour directive, refactor so we don't
 // need to use the repeat logic
 // We could add the whole control into a component, expose the available speeds

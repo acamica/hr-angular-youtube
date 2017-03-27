@@ -1,6 +1,6 @@
 import {Component} from 'rx-player/ng-helper/component';
 import * as angular from 'angular';
-import {RxPlayerComponent} from 'rx-player/directive/rx-player.component';
+import {RxPlayerComponent} from 'rx-player/players/rx-player.component';
 import 'rx-player/players/html5/html5-player.service';
 import 'rx-player/main';
 
@@ -20,5 +20,22 @@ export class Html5ControlsDemoComponent {
             type: 'video/ogg'
         }]
     };
+
+    static $inject = ['$scope'];
+    constructor (private $scope) {
+
+    }
+
+    play () {
+        this.$scope['playerCtrl'].player$
+            .take(1)
+            .subscribe(player => player.play());
+    }
+
+    pause () {
+        this.$scope['playerCtrl'].player$
+            .take(1)
+            .subscribe(player => player.pause());
+    }
 }
 

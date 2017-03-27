@@ -1,6 +1,6 @@
 import * as angular from 'angular';
 import {Component} from 'rx-player/ng-helper/facade';
-import {RxPlayerComponent} from 'rx-player/directive/rx-player.component';
+import {RxPlayerComponent} from 'rx-player/players/rx-player.component';
 import {fromAngularWatch} from 'rx-player/util/rx/facade';
 import {setPlayerVarDefaultOption} from 'rx-player/players/youtube/youtube.service';
 import 'rx-player/main';
@@ -44,7 +44,7 @@ export class ControlsDemoComponent {
     videoSource: any;
 
     static $inject = ['$scope'];
-    constructor ($scope) {
+    constructor (private $scope) {
         fromAngularWatch(() => this.videoId, $scope)
             .map(videoId => {
                 return {
@@ -53,6 +53,18 @@ export class ControlsDemoComponent {
                 };
             })
             .subscribe(source => this.videoSource = source);
+    }
+
+    play () {
+        this.$scope['playerCtrl'].player$
+            .take(1)
+            .subscribe(player => player.play());
+    }
+
+    pause () {
+        this.$scope['playerCtrl'].player$
+            .take(1)
+            .subscribe(player => player.pause());
     }
 
 }

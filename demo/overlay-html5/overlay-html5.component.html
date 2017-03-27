@@ -4,12 +4,12 @@
         <player-progress-bar hover-indicator></player-progress-bar>
         <div class="controls">
             <span class="control-element">
-                <div ng-click="playerCtrl.video.play()"
-                     ng-hide="playerCtrl.video.isPlaying | async:this">
+                <div ng-click="ctrl.play()"
+                     ng-hide="ctrl.isPlaying | async:this">
                     <i class="fa fa-play"></i>
                 </div>
-                <div ng-click="playerCtrl.video.pause()"
-                    ng-hide="playerCtrl.video.isNotPlaying | async:this">
+                <div ng-click="ctrl.pause()"
+                    ng-show="ctrl.isPlaying | async:this">
                     <i class="fa fa-pause"></i>
                 </div>
             </span>
