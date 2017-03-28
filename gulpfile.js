@@ -24,8 +24,8 @@ var {cleanES6, buildES6} = require('./gulp/tasks/es6/build-es6')(config);
 gulp.task('es6-clean', cleanES6);
 gulp.task('build-es6', ['es6-clean'], buildES6);
 
-var bundleroll = require('./gulp/tasks/bundle/rollup');
-gulp.task('bundle-es6', ['build-es6'], bundleroll());
+// var bundleroll = require('./gulp/tasks/bundle/rollup');
+// gulp.task('bundle-es6', ['build-es6'], bundleroll());
 
 // SystemJs
 var {cleanSystem, buildSystem} = require('./gulp/tasks/systemjs/build-systemjs')(config);
