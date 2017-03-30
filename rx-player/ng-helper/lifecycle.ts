@@ -1,6 +1,6 @@
 function getter (accesor: string) {
     const parts = accesor.split('.');
-    function doGet (obj: any, p: string[]) {
+     function doGet (obj: any, p: string[]) {
         if (obj === undefined || p.length === 0) {
             return obj;
         }
@@ -13,6 +13,13 @@ function watchAndCall (watchers: string[], hook: string) {
     return function (scope: ng.IScope, elm, attr, ctrls) {
         const ctrl = ctrls[0];
         const watcherGetter = watchers.map(w => getter(w));
+        if (typeof ctrl[hook] !== 'function') {
+            if (ctrl.constructor && ctrl.constructor.name) {
+                console.warn(`Warning: ${ctrl.constructor.name} doens't have a lifecycle method called ${hook}`);
+            } else {
+                console.warn(`Warning: component doens't have a lifecycle method called ${hook}`, ctrl);
+            }
+        }
 
         const u = scope.$watch(function () {
             // if (hook === 'ngAfterContentInit') console.log('hey', scope);

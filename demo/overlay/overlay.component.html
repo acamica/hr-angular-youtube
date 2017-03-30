@@ -1,53 +1,26 @@
  <!--ng-model="video" -->
-<!--<rx-player width="100%" keep-aspect-ratio video-source="ctrl.videoSource" #player-ctrl yt-fullscreen>-->
 <rx-player video-source="ctrl.videoSource" #player-ctrl yt-fullscreen>
     <player-panel  class="bottom-panel ng-show">
         <player-progress-bar hover-indicator></player-progress-bar>
         <div class="controls">
-            <span class="control-element">
-                <div ng-click="ctrl.play()"
-                     ng-hide="ctrl.isPlaying | async:this">
-                    <i class="fa fa-play"></i>
-                </div>
-                <div ng-click="ctrl.pause()"
-                    ng-show="ctrl.isPlaying | async:this">
-                    <i class="fa fa-pause"></i>
-                </div>
-            </span>
-            <span class="control-element">
-                <player-volume-horizontal player="playerCtrl.player$" #volume-ctrl>
-                    <i ng-show="volumeCtrl.isMuted | async:this" class="fa fa-volume-off"></i>
-                    <i ng-hide="volumeCtrl.isMuted | async:this" class="fa fa-volume-up"></i>
-                </player-volume-horizontal>
-            </span>
-            <span class="control-element">
-                <span player-current-time="playerCtrl.player$">0:00</span>
-                 /
-                 <span player-total-time="playerCtrl.player$">0:00</span>
-            </span>
-            <span class="control-element" show-if-full-screen-enabled  style="float:right">
+            <play-pause-control player="playerCtrl.player$"></play-pause-control>
+            <volume-control player="playerCtrl.player$"></volume-control>
+            <time-control player="playerCtrl.player$"></time-control>
+            <!--span class="control-element" show-if-full-screen-enabled  style="float:right">
                 <player-toggle-fullscreen>
                     <i show-if-fullscreen=true class="fa fa-expand"></i>
                     <i show-if-fullscreen=false class="fa fa-compress"></i>
                 </player-toggle-fullscreen>
-            </span>
-            <span class="control-element dropdown-control" uib-dropdown style="float:right">
-                <div class="dropdown-toggle" uib-dropdown-toggle>
-                    <span player-current-speed="playerCtrl.player$">1</span>x</div>
-                <ul class="dropdown-control-options dropdown-menu">
-                    <li player-repeat-available-speed reverse ng-class="{'active': $speed == video.getPlaybackRate()}">
-                        <a dropdown-toggle player-set-speed="$speed">{{$speed}}x</a>
-                    </li>
-                </ul>
-            </span>
-            <span class="control-element dropdown-control" uib-dropdown style="float:right">
+            </span-->
+            <speed-control player="playerCtrl.player$"></speed-control>
+            <!--span class="control-element dropdown-control" uib-dropdown style="float:right">
                 <div class="dropdown-toggle" uib-dropdown-toggle><span player-current-quality intended-quality show-real-auto >Auto</span></div>
                 <ul class="dropdown-control-options dropdown-menu">
                     <li player-repeat-available-quality ng-class="{'active': $quality == video.getHumanIntendedPlaybackQuality()}">
                         <a dropdown-toggle player-set-quality="$quality">{{$quality}}</a>
                     </li>
                 </ul>
-            </span>
+            </span-->
         </div>
     </player-panel>
 </rx-player>

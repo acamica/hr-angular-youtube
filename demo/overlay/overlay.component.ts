@@ -3,6 +3,8 @@ import {Component, mockNgOnInitLink} from 'rx-player/ng-helper/facade';
 import {RxPlayerComponent} from 'rx-player/main';
 import {Observable} from 'rx-player/util/rx/facade';
 import {setPlayerVarDefaultOption} from 'rx-player/players/youtube/youtube.service';
+import {PlayPauseComponent, TimeControlComponent} from '../common-controls/facade';
+
 import 'ui.bootstrap';
 import 'rx-player/ng-helper/async.filter';
 
@@ -23,7 +25,7 @@ setPlayerVarDefaultOption('modestbranding', 1);
     selector: 'overlayDemo',
     templateUrl: '/demo/overlay/overlay.component.html',
     link: mockNgOnInitLink(['playerCtrl']),
-    directives: [RxPlayerComponent],
+    directives: [RxPlayerComponent, PlayPauseComponent, TimeControlComponent],
 })
 export class ControlsDemoComponent {
     videoSource = {

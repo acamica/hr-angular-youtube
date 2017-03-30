@@ -1,8 +1,7 @@
 import * as angular from 'angular';
-import {Component, mockNgOnInitLink} from 'rx-player/ng-helper/facade';
-import {Observable} from 'rx-player/util/rx/facade';
-import {RxPlayerComponent} from 'rx-player/players/rx-player.component';
-import 'rx-player/main';
+import {Component} from 'rx-player/ng-helper/facade';
+import {RxPlayerComponent} from 'rx-player/main';
+import {PlayPauseComponent, TimeControlComponent} from '../common-controls/facade';
 import 'rx-player/players/html5/html5-player.service';
 import 'rx-player/ng-helper/async.filter';
 import 'ui.bootstrap';
@@ -15,8 +14,7 @@ angular
 @Component({
     selector: 'overlayDemoHtml5',
     templateUrl: '/demo/overlay-html5/overlay-html5.component.html',
-    link: mockNgOnInitLink(['playerCtrl']),
-    directives: [RxPlayerComponent],
+    directives: [RxPlayerComponent, PlayPauseComponent, TimeControlComponent],
 })
 export class ControlsDemoHTML5Component {
     videoSource = {
@@ -30,31 +28,6 @@ export class ControlsDemoHTML5Component {
     //     player: 'YoutubePlayer',
     //     youtubeId: 'QjX9Wu-MJ-s'
     // };
-    static $inject = ['$scope'];
-    constructor (private $scope) {
-
-    }
-
-
-    play () {
-        this.$scope['playerCtrl'].player$
-            .take(1)
-            .subscribe(player => player.play());
-    }
-
-    pause () {
-        this.$scope['playerCtrl'].player$
-            .take(1)
-            .subscribe(player => player.pause());
-    }
-
-    isPlaying: Observable<boolean>;
-    ngOnInit () {
-        this.isPlaying = this.$scope['playerCtrl'].player$
-                    .switchMap(player => player.playState$.mapTo(player))
-                    .map(player => player.isPlaying())
-                    .startWith(false);
-    }
 }
 
 
