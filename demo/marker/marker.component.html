@@ -1,0 +1,12 @@
+<rx-player video-source="ctrl.videoSource" #player-ctrl>
+    <player-panel  class="bottom-panel ng-show">
+        <player-progress-bar hover-indicator></player-progress-bar>
+
+        <div class="controls">
+            <play-pause-control player="playerCtrl.player$"></play-pause-control>
+            <volume-control player="playerCtrl.player$"></volume-control>
+            <time-control player="playerCtrl.player$"></time-control>
+            <speed-control player="playerCtrl.player$"></speed-control>
+        </div>
+    </player-panel>
+</rx-player>

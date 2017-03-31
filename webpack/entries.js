@@ -11,7 +11,7 @@ const demos = [
     'controls',
     // 'fullscreen',
     'html5-controls',
-    // 'marker',
+    'marker',
     'overlay',
     'overlay-html5',
 ];

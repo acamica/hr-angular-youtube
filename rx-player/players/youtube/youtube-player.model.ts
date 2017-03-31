@@ -15,7 +15,6 @@ import {
     IPlayStateEvent,
     IEndedEvent
 } from '../../players/video-player.model';
-import '../../service/youtube-marker-list.model'; // TODO: Refactor markers
 
 export interface IPlayerEvent {
     type: string;
@@ -26,9 +25,7 @@ const imports = {
     // TODO: Remove in favour of rxjs
     '$interval': undefined as ng.IIntervalService,
     // TODO: Remove at all cost (events, rxjs)
-    '$rootScope': undefined as ng.IRootScopeService,
-    // TODO: Remove in favour of separating logic
-    'YoutubeMarkerList': undefined
+    '$rootScope': undefined as ng.IRootScopeService
 };
 @PlainModel({
     name: 'YoutubePlayer',
@@ -38,7 +35,6 @@ export class YoutubePlayer
                             implements IVideoPlayer {
 
     player: YT.Player;
-    markerList: any;
     private _muted = false;
     private _volume = 100;
     private _intendedQuality: YT.SuggestedVideoQuality = 'default';
@@ -57,8 +53,6 @@ export class YoutubePlayer
         // console.debug('YoutubePlayer: creating underliying youtube player with options', op);
         this.player = new YT.Player(elmOrId, op);
 
-        this.markerList = new imports.YoutubeMarkerList();
-
         this.on('onStateChange', (event) => {
             if (event.data === YT.PlayerState.PLAYING) {
                 this.setVolume(this.player.getVolume());
@@ -66,13 +60,14 @@ export class YoutubePlayer
             }
         });
         // If a marker is added, make sure the marker listener is initialized
-        this.on('markerAdd', (marker) => {
-            this._initializeMarkerListener();
-            marker.setPlayer(this);
-        });
+        // TODO: delete
+        // this.on('markerAdd', (marker) => {
+        //     this._initializeMarkerListener();
+        //     marker.setPlayer(this);
+        // });
 
-        // If a marker is removed make sure its stoped
-        this.on('markerRemove', marker => marker.end());
+        // // If a marker is removed make sure its stoped
+        // this.on('markerRemove', marker => marker.end());
     }
 
     // -------------------
@@ -497,90 +492,6 @@ export class YoutubePlayer
         imports.$rootScope.$emit(this._eventHash + name, data);
     };
 
-    private _markerListener = false;
-    private _initializeMarkerListener () {
-        // Only initialize markers once
-        if ( this._markerListener ) {
-            return;
-        }
-        this._markerListener = true;
-
-        const runMarker = marker => {
-            if (marker.start()) {
-                // Emit an event with the marker
-                this.emit('markerRun', marker);
-            }
-        };
-        const stopMarker = marker => {
-            marker.end();
-            // Emit an event with the marker
-            this.emit('markerStop', marker);
-        };
-
-
-        let lastMarkerTime = -1;
-        this.onProgress(() => {
-            const currentTime = this.getCurrentTime();
-            let newLastTime = lastMarkerTime;
-            angular.forEach(this.markerList.getMarkers(), marker => {
-                // If the marker time has past and we haven't launched this marker yet
-                if (marker.startedIn(lastMarkerTime, currentTime) ) {
-                    runMarker(marker);
-                    newLastTime = Math.max(newLastTime, marker.startTime);
-                }
-                // If the marker has ended
-                if (marker.endedIn(lastMarkerTime, currentTime) && marker.isRunning()) {
-                    stopMarker(marker);
-                    newLastTime = Math.max(newLastTime, marker.endTime);
-                }
-            });
-            lastMarkerTime = newLastTime;
-        });
-
-        this.on('seekToCompleted', seekTime => {
-            angular.forEach(this.markerList.getMarkers(), marker => {
-                if (marker.isRunning()) {
-                    // If the marker is running and the seek throws it out of range, stop it
-                    if (!marker.inRange(seekTime.newTime)) {
-                        stopMarker(marker);
-                    }
-                }else {
-                    // If the marker is not running, see if we need to start it
-                    if (marker.shouldLaunchOnSeek(seekTime)) {
-                        runMarker(marker);
-                    }
-                }
-
-            });
-            lastMarkerTime = seekTime.newTime;
-        });
-    };
-
-    // TODO: Revisit... I think with the addond of the player factory this
-    // shouldnt be needed
-    setMarkerList (list) {
-        this._initializeMarkerListener();
-        this.markerList = list;
-        this.markerList.setPlayer(this);
-        this.emit('markerListChanged');
-    };
-
-    addMarker (marker) {
-        return this.markerList.add(marker);
-    };
-
-    removeMarker (markerId) {
-        return this.markerList.removeById(markerId);
-    };
-
-    getMarkers () {
-        return this.markerList.getMarkers();
-    };
-
-    getMarker (id) {
-        return this.markerList.getMarker(id);
-    };
-
     getHumanPlaybackQuality () {
         return convertToYoutube(this.player.getPlaybackQuality());
     };
@@ -636,21 +547,3 @@ export class YoutubePlayer
 
 
 }
-
-
-        // // TODO: Inherit better than these :S once i know if this is the way I want to access the object
-        // angular.forEach([
-        //     'getOptions', 'loadModule', 'loadVideoById', 'loadVideoByUrl', 'cueVideoById', 'cueVideoByUrl', 'cuePlaylist',
-        //     'loadPlaylist', 'playVideo', 'pauseVideo', 'stopVideo', 'seekTo', 'clearVideo',
-        //     'nextVideo', 'previousVideo', 'playVideoAt',
-        //     'setSize', 'getPlaybackRate', 'setPlaybackRate', 'getAvailablePlaybackRates',
-        //     'setLoop', 'setShuffle', 'getVideoLoadedFraction', 'getPlayerState', 'getCurrentTime',
-        //     'getPlaybackQuality', 'setPlaybackQuality', 'getAvailableQualityLevels', 'getDuration',
-        //     'getVideoUrl', 'getVideoEmbedCode', 'getPlaylist', 'getPlaylistIndex', 'getIframe', 'destroy'
-        //     // 'addEventListener', 'removeEventListener','mute',unMute,isMuted,getVolume,setVolume
-        // ], function(name) {
-        //     YoutubePlayer.prototype[name] = function() {
-        //         return this.player[name].apply(this.player, arguments);
-        //     };
-        // });
-

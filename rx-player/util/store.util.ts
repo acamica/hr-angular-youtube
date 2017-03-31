@@ -29,3 +29,19 @@ export class Store<S, A extends IAction> {
         return this._state;
     }
 }
+
+export type IReducerMap<ST, A> = {
+    [K in keyof ST]: IReducer<ST[K], A>;
+};
+
+export function combineReducers<ST, A> (reducers: IReducerMap<ST, A>): IReducer<ST, A> {
+    return (state = {} as ST, action: A) => {
+        return Object.keys(reducers).reduce(
+            (nextState, key) => {
+                nextState[key] = reducers[key](state[key], action);
+                return nextState;
+            },
+            {} as ST
+        );
+    };
+}

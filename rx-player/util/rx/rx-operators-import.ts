@@ -2,6 +2,7 @@
 import 'rxjs/add/observable/fromPromise';
 import 'rxjs/add/observable/fromEventPattern';
 import 'rxjs/add/observable/fromEvent';
+import 'rxjs/add/observable/from';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/merge';
 import 'rxjs/add/observable/throw';
@@ -29,4 +30,5 @@ import 'rxjs/add/operator/last';
 import 'rxjs/add/operator/do'; // TODO: Delete
 
 import 'rxjs/add/operator/publishReplay';
+import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/multicast';
