@@ -28,7 +28,7 @@ module.exports = {
     },
     resolve: {
         alias: {
-            'rx-player': path.join(dist, '/cjs'),
+            'rx-player': path.join(root, '/rx-player'),
             'ui.bootstrap': path.join(node_modules, '/angular-ui-bootstrap/index.js')
         },
         extensions: [".ts", ".js"]
