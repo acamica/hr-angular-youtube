@@ -1,32 +1,42 @@
-player-volume-horizontal {
-    display: inherit;
+/* component that shows the current video's volume */
+rx-player player-volume-horizontal {
+    display: block;
 }
-player-volume-horizontal .ng-transclude {
+
+/* transcluded elements as 'inline-block' to fit better inside the container */
+rx-player player-volume-horizontal .ng-transclude {
     display: inline-block;
 }
 
-.hr-yt-volume-hr-bar {
-    width: 40px;
+/* gray bar that represents the 100% of selectable volume for the video */
+rx-player player-volume-horizontal .hr-yt-volume-hr-bar {
+    background-color: rgb(143, 143, 143);
+    display: inline-block;
     height: 5px;
-    display: inline-block;
-    margin-left: 5px;
     margin-bottom: 2px;
+    margin-left: 5px;
     position: relative;
+    width: 40px;
 }
 
-.hr-yt-volume-hr-bar .hr-yt-setted {
-    position: absolute;
-    top:0;
-    z-index: 9;
-    width: 0;
-    height: 100%;
-}
-
-.hr-yt-volume-hr-bar .hr-yt-handle {
+/* small white line at the end of the red line */
+/* works as a handle to change the volume */
+rx-player player-volume-horizontal .hr-yt-volume-hr-bar .hr-yt-handle {
+    background-color: white;
+    height: 11px;
+    left: 0;
     position: absolute;
     top: -3px;
-    left: 0;
-    z-index: 11;
     width: 3px;
-    height: 11px;
+    z-index: 11;
+}
+
+/* red bar that represents the user selected amount of volume for the video */
+rx-player player-volume-horizontal .hr-yt-volume-hr-bar .hr-yt-setted {
+    background-color: red;
+    height: 100%;
+    position: absolute;
+    top:0;
+    width: 0;
+    z-index: 9;
 }

@@ -1,0 +1,26 @@
+/* wrapper of the elements at the bottom of the player */
+/* (volume control, seconds, play/pause buttons, velocity, etc.) */
+rx-player .bottom-panel {
+    background: rgba(0,0,0,1);
+    bottom: 0;
+    color: rgb(255, 255, 255);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    position: absolute;
+    transition: 0.5s ease-in transform;
+    width: 100%;
+}
+
+/* .control-element: small wrapper around each component (volume control, seconds, etc.) */
+rx-player .bottom-panel .control-element {
+    cursor: pointer;
+    float: left;
+    min-width: 35px;
+    padding: 0 10px;
+}
+
+/* wrapper of all .control-element */
+rx-player .bottom-panel .controls {
+    height: 25px;
+    line-height: 25px;
+}

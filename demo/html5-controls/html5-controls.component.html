@@ -1,8 +1,7 @@
+<rx-player video-source="ctrl.videoSource" #player-ctrl></rx-player>
+
 <div class="controls">
     <button ng-click="ctrl.play()">Play</button>
     <button ng-click="ctrl.pause()">Pause</button>
     <input type="text" ng-model="ctrl.videoId"></input>
 </div>
-
-<rx-player width="320" video-source="ctrl.videoSource" #player-ctrl>
-</rx-player>

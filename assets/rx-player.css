@@ -1,0 +1,26 @@
+/* main component */
+rx-player {
+    display: block;
+    position: relative;
+    /* this css property makes the text inside the player non-selectable */
+    user-select: none;
+}
+
+/* universal reset for elements inside the player */
+rx-player * {
+    /* uncomment for layout debugging purposes */
+    /* box-shadow: 0 0 1px gold; */
+    box-sizing: border-box;
+}
+
+/* force the youtube iframe to act as a block */
+rx-player .hr-yt-wrapper iframe {
+    display: block;
+}
+
+/* force the video element to fit its container */
+rx-player .hr-yt-wrapper video {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
