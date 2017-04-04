@@ -58,7 +58,7 @@ gulp.task('process-styles', function() {
         .pipe(gulp.dest('./dist'))
         .pipe(minifycss())
         .pipe(rename({suffix: '.min'}))
-        .pipe(gulp.dest('./dist/'));
+        .pipe(gulp.dest('./dist/cjs'));
 });
 
 

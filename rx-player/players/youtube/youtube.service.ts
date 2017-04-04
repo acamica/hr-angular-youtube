@@ -55,7 +55,7 @@ let defaultOptions: YT.PlayerOptions = {
         origin: location.origin + '/',
         enablejsapi: 1
     },
-    height: '390',
+    height: '360',
     width: '640'
 };
 

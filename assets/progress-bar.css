@@ -1,33 +1,41 @@
-player-progress-bar {
-    width: 100%;
-    position: relative;
-    height: 10px;
+/* progress bar component */
+rx-player player-progress-bar {
+    background-color: rgb(70, 70, 70);
+    cursor: pointer;
     display: block;
+    height: 10px;
+    position: relative;
+    width: 100%;
 }
 
-player-progress-bar .hr-yt-loaded {
-    position: absolute;
-    top:0;
-    z-index: 9;
-    width: 0;
-    height: 100%;
-}
-
-
-player-progress-bar .hr-yt-played {
-    position: absolute;
-    top:0;
-    z-index: 10;
-    width: 0;
-    height: 100%;
-}
-
-player-progress-bar .hr-yt-handle {
-    position: absolute;
-    top: -2px;
-    left: 0;
-    z-index: 11;
-    width: 16px;
-    height: 16px;
+/* white circle that represents the current position of the video */
+rx-player player-progress-bar .hr-yt-handle {
+    background-color: white;
     border-radius: 50%;
+    height: 16px;
+    left: 0;
+    position: absolute;
+    top: -3px;
+    width: 16px;
+    z-index: 11;
+}
+
+/* gray line that represents the loaded portion of the video */
+rx-player player-progress-bar .hr-yt-loaded {
+    background-color: rgb(143, 143, 143);
+    height: 100%;
+    position: absolute;
+    top:0;
+    width: 0;
+    z-index: 9;
+}
+
+/* red line that indicated the reproduced part of the video */
+rx-player player-progress-bar .hr-yt-played {
+    background-color: red;
+    height: 100%;
+    position: absolute;
+    top:0;
+    width: 0;
+    z-index: 10;
 }

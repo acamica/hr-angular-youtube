@@ -1,0 +1,33 @@
+/* uncomment these styles in the case we want to stop using bootstrap's styles */
+/* for dropdown elements */
+/*rx-player .dropdown-control .dropdown-menu > li > a {
+    color: white;
+    display: block;
+    line-height: 20px;
+    padding: 4px 20px;
+    text-decoration: none;
+}
+
+rx-player .dropdown-control .dropdown-menu > li > a:hover,
+rx-player .dropdown-control .dropdown-menu > li > a:focus {
+    background-color: rgb(90, 90, 90);
+}
+
+rx-player .dropdown-control-options {
+    background-color: black;
+    bottom: 25px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    display: none;
+    font-size: 14px;
+    list-style-type: none;
+    margin: 0;
+    position: absolute;
+    padding: 0;
+    right: 0;
+    top: auto;
+    z-index: 10;
+}
+
+rx-player .open > .dropdown-menu {
+    display: block;
+}*/

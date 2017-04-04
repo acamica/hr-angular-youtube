@@ -1,7 +1,9 @@
-.hr-yt-marker {
-    position: absolute;
+/* markers container */
+rx-player .hr-yt-marker {
+    background-color: white;
     height: 100%;
-    width: 2px;
+    position: absolute;
     top:  0;
+    width: 2px;
     z-index: 14;
 }

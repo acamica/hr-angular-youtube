@@ -1,6 +1,8 @@
-.hr-hover-indicator {
-    position: absolute;
+/* tooltip that shows the seconds when hovering over the timeline of the video */
+rx-player .hr-hover-indicator {
+    background-color: black;
     bottom: 35px;
+    padding: 1px 6px;
+    position: absolute;
     transform: translateX(-50%);
 }
-

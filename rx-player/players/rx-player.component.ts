@@ -40,11 +40,6 @@ export class RxPlayerComponent {
     static $inject = ['$element', '$attrs', '$scope'];
 
     constructor (private elm, private attrs, private scope) {
-        // TODO: See why this was set. I remember something in the lines of not
-        // providing css if not needed but this being some of the basics
-        elm.css('position', 'relative');
-        elm.css('display', 'block');
-
         // Save the overlay element in the controller so child directives can use it
         // TODO: check this out again
         this.setOverlayElement(elm);
