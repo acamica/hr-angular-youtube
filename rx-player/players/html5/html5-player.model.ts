@@ -37,6 +37,11 @@ export class HTML5Player
 
     constructor (elm: HTML5Player, public options: IHTML5PlayerOptions) {
         const $video = angular.element(this.video);
+
+        $video.css('display', 'block');
+        $video.css('height', `${options.height || 360}px`);
+        $video.css('width', `${options.width || 640}px`);
+
         options.sources
             .map(source => angular.element(`<source src="${source.src}" type="${source.type}">`))
             .forEach(sourceElm => $video.append(sourceElm));

@@ -100,6 +100,7 @@ export class RxPlayerComponent {
                                 // .info('setting width and height')
                                 .do(player => {
                                     // TODO: Need to see where to put this after refactor
+                                    this.elm.css('display', 'block');
                                     this.elm.css('height', convertToUnits(player.options.height));
                                     this.elm.css('width', convertToUnits(player.options.width));
                                 }),
