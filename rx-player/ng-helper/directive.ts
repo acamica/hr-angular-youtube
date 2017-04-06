@@ -1,5 +1,4 @@
-import * as angular from 'angular';
-import './module';
+import module from './module';
 
 export interface IDirectiveDefinition {
     selector: string;
@@ -19,9 +18,7 @@ export interface IDirectiveDefinition {
 
 export function Directive (definition: IDirectiveDefinition) {
     return function (target) {
-        angular
-            .module('rxPlayer')
-            .directive(definition.selector, function () {
+        module.directive(definition.selector, function () {
                 let require = [definition.selector];
                 if (definition.require) {
                     require = require.concat(definition.require);

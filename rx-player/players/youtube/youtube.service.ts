@@ -2,7 +2,7 @@ import {Observable, ReplaySubject} from '../../util/rx/facade';
 import {YoutubePlayer} from '../../players/youtube/youtube-player.model';
 import {IVideoPlayer} from '../../players/video-player.model';
 import {registerVideoPlayer} from '../player-factory.service';
-import {getInjector} from '../../ng-helper/facade';
+import {getService} from '../../ng-helper/facade';
 
 const youtubeApiLoaded$ = new ReplaySubject(1);
 
@@ -11,10 +11,8 @@ function createYoutubePlayer$ (element, options): Observable<YoutubePlayer> {
         // console.info('createYoutubePlayer: starting promise');
         let player: YoutubePlayer;
 
-        // Get the angular 1 injector
-        getInjector()
-            // Get the YoutubePlayer constructor
-            .then(injector => injector.get('YoutubePlayer') as typeof YoutubePlayer)
+        // Get the YoutubePlayer constructor
+        getService<typeof YoutubePlayer>('YoutubePlayer')
             // Create an instance of the player
             .then(YoutubePlayer => new YoutubePlayer(element, options))
             .then(p => {

@@ -2,7 +2,7 @@ import {Observable} from '../../util/rx/facade';
 import {HTML5Player, IHTML5PlayerOptions} from '../../players/html5/html5-player.model';
 import {IVideoPlayer} from '../../players/video-player.model';
 import {registerVideoPlayer} from '../player-factory.service';
-import {getInjector} from '../../ng-helper/facade';
+import {getService} from '../../ng-helper/facade';
 
 HTML5Player; // Hack to make typescript fetch that file
 const Factory = {
@@ -13,10 +13,8 @@ registerVideoPlayer('HTML5Player', Factory);
 
 export function loadPlayer (elm, options: IHTML5PlayerOptions): Promise<HTML5Player> {
         // TODO: Refactor to observables
-        // Get the angular 1 injector
-        return getInjector()
-            // Get the YoutubePlayer constructor
-            .then(injector => injector.get('HTML5Player') as typeof HTML5Player)
+        // Get the YoutubePlayer constructor
+        return getService<typeof HTML5Player>('HTML5Player')
             // Create an instance of the player
             .then(HTML5Player => new HTML5Player(elm, options))
             // When the player says its ready, so do we

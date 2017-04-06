@@ -1,4 +1,4 @@
-import * as angular from 'angular';
+import module from './module';
 
 export interface IServiceOptions {
     name: string;
@@ -10,9 +10,7 @@ export function PlainModel (options: IServiceOptions) {
     return function (target) {
         const ng1Injects = Object.keys(options.$inject || {});
 
-        angular
-            .module('rxPlayer')
-            .factory(options.name, factory);
+        module.factory(options.name, factory);
 
         factory.$inject = ng1Injects;
         function factory (...deps) {

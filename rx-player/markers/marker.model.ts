@@ -1,9 +1,9 @@
-
+import {IVideoPlayer} from '../players/video-player.model';
 export interface IMarker {
     startTime: number;
     endTime: number;
-    onStart: (player) => void;
-    onEnd?: (player) => void;
+    onStart: (player: IVideoPlayer) => void;
+    onEnd?: (player: IVideoPlayer) => void;
 }
 
 export type Range = [number, number];

@@ -14,9 +14,7 @@ export * from './overlay/player-set-speed.directive';
 export * from './overlay/player-total-time.directive';
 export * from './overlay/player-volume-horizontal.component';
 // Reenable once the markers are refactored
-// export * from './service/youtube-marker-list.model';
-// export * from './service/youtube-marker.model';
-// export * from './service/youtube-template-marker.model';
+export * from './markers/facade';
 export * from './players/rx-player.component';
 export * from './players/youtube/youtube-player.model';
 export * from './players/video-player.model';
