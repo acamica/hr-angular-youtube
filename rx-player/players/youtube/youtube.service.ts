@@ -53,8 +53,8 @@ let defaultOptions: YT.PlayerOptions = {
         origin: location.origin + '/',
         enablejsapi: 1
     },
-    height: '360',
-    width: '640'
+    height: '100%',
+    width: '100%'
 };
 
 export type IYoutubePlayerOptions = YT.PlayerOptions;

@@ -39,8 +39,8 @@ export class HTML5Player
         const $video = angular.element(this.video);
 
         $video.css('display', 'block');
-        $video.css('height', `${options.height || 360}px`);
-        $video.css('width', `${options.width || 640}px`);
+        $video.css('height', '100%');
+        $video.css('width', '100%');
 
         options.sources
             .map(source => angular.element(`<source src="${source.src}" type="${source.type}">`))
