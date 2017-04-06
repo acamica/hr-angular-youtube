@@ -28,7 +28,7 @@ export function loadPlayer (elm, options: IHTML5PlayerOptions): Promise<HTML5Pla
 export function createVideoPlayer (options: IHTML5PlayerOptions, $videoDiv): Observable<IVideoPlayer> {
     return Observable.create(observer => {
         options.height = options.height || '100%';
-        options.width = options.height || '100%';
+        options.width = options.width || '100%';
 
         // TODO: Need to see where to put this after refactor
         // this.elm.css('height', convertToUnits(options.height));
