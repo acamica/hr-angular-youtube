@@ -1,9 +1,15 @@
 import * as angular from 'angular';
+import {Observable} from 'rx-player/util/rx/facade';
 import {Component, mockNgOnInitLink} from 'rx-player/ng-helper/facade';
 import {PlayPauseComponent, TimeControlComponent} from '../common-controls/facade';
-import {Observable} from 'rx-player/util/rx/facade';
-import {setPlayerVarDefaultOption, IVideoPlayer, MarkerRunner, RxPlayerComponent, ComponentMarker} from 'rx-player/main';
-// import {setPlayerVarDefaultOption} from 'rx-player/main';
+import {
+    setPlayerVarDefaultOption,
+    IVideoPlayer,
+    MarkerRunner,
+    RxPlayerComponent,
+    ComponentMarker, IMarker
+} from 'rx-player/main';
+
 import 'ui.bootstrap';
 import 'rx-player/ng-helper/async.filter';
 
@@ -22,21 +28,22 @@ setPlayerVarDefaultOption('modestbranding', 1);
     directives: [RxPlayerComponent, PlayPauseComponent, TimeControlComponent],
 })
 export class ControlsDemoComponent {
-    // videoSource = {
-    //     player: 'HTML5Player',
-    //     sources: [{
-    //         src: 'https://media.w3.org/2010/05/sintel/trailer.ogv',
-    //         type: 'video/ogg'
-    //     }]
-    // };
     videoSource = {
-        player: 'YoutubePlayer',
-        youtubeId: 'QjX9Wu-MJ-s'
+        player: 'HTML5Player',
+        sources: [{
+            src: 'https://media.w3.org/2010/05/sintel/trailer.ogv',
+            type: 'video/ogg'
+        }]
     };
+    // videoSource = {
+    //     player: 'YoutubePlayer',
+    //     youtubeId: 'QjX9Wu-MJ-s'
+    // };
 
     static $inject = ['$scope', '$element'];
     constructor (private $scope, private elm) {
     }
+    markersToShow: IMarker[];
 
     ngOnInit () {
         const player$ = this.$scope['playerCtrl'].player$ as Observable<IVideoPlayer>;
@@ -59,6 +66,9 @@ export class ControlsDemoComponent {
                 parentElm: this.elm
             })
         ];
+
+        // Select a subset of the markers to show in the progress bar
+        this.markersToShow = [markers[0], markers[1]];
         player$
             .subscribe(player => {
                 player.mute();

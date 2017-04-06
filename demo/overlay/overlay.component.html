@@ -1,7 +1,10 @@
  <!--ng-model="video" -->
 <rx-player video-source="ctrl.videoSource" #player-ctrl yt-fullscreen>
     <player-panel  class="bottom-panel ng-show">
-        <player-progress-bar hover-indicator></player-progress-bar>
+        <player-progress-bar
+            hover-indicator
+            player="playerCtrl.player$">
+        </player-progress-bar>
         <div class="controls">
             <play-pause-control player="playerCtrl.player$"></play-pause-control>
             <volume-control player="playerCtrl.player$"></volume-control>

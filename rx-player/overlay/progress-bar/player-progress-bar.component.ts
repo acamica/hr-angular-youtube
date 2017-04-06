@@ -1,6 +1,6 @@
 import {Observable, observeScopeDestroy, Subject} from '../../util/rx/facade';
-import {Component, bindToCtrlCallOnInit} from '../../ng-helper/facade';
-import {RxPlayerComponent} from '../../players/rx-player.component';
+import {Component} from '../../ng-helper/facade';
+import {IVideoPlayer} from '../../players/facade';
 import {Store} from '../../util/store.util';
 import * as angular from 'angular';
 
@@ -47,11 +47,13 @@ function progressBarStateReducer (state = initialState, action: IProgressBarActi
 @Component({
     selector: 'playerProgressBar',
     templateUrl: '/template/overlay/progress-bar/player-progress-bar.component.html',
-    link: bindToCtrlCallOnInit(['rxPlayer']),
-    require: ['^rxPlayer']
+    scope: {
+        markers: '=',
+        player: '<'
+    }
 })
 export class PlayerProgressBar {
-    private rxPlayer: RxPlayerComponent;
+    private player: Observable<IVideoPlayer>;
 
     static $inject = ['$element', '$scope'];
     constructor (private elm, private scope) {
@@ -61,12 +63,11 @@ export class PlayerProgressBar {
     sliderMove$ = new Subject<number>();
     sliderUp$ = new Subject<number>();
 
-    ngOnInit () {
+    $onInit () {
         const $played = angular.element(this.elm[0].querySelector('.hr-yt-played'));
         const $loaded = angular.element(this.elm[0].querySelector('.hr-yt-loaded'));
         const $handle = angular.element(this.elm[0].querySelector('.hr-yt-handle'));
         // const $bar = angular.element(this.elm[0].querySelector('.hr-yt-bar'));
-
 
         const updateProgressBar = (sec: number, duration: number, loaded: number) => {
             const played = 100 * sec / duration;
@@ -80,8 +81,6 @@ export class PlayerProgressBar {
             $handle.css('left', handleX + 'px');
         };
 
-        // When someone seeks the video update the progress to the intended seek time
-        // player.on('seekToBegin', (seekTime) => updateProgress(seekTime.newTime));
 
         // TODO: Reenable once the markers are refactored
         // this.scope.markers = player.getMarkers();
@@ -97,7 +96,7 @@ export class PlayerProgressBar {
             .distinctUntilChanged((s1, s2) => s1.isSeeking === s2.isSeeking);
 
         // Recipy for updating the progress bar when the player is playing
-        const updateWhenPlayer$ = this.rxPlayer.player$
+        const updateWhenPlayer$ = this.player
             .switchMap(player =>
                 Observable
                     // The events that cause a progress bar update are:
@@ -126,7 +125,7 @@ export class PlayerProgressBar {
                 }
             })
             // Get the progress from the mouse move percentage and player data
-            .withLatestFrom(this.rxPlayer.player$, (percentage, player) => ({
+            .withLatestFrom(this.player, (percentage, player) => ({
                 time: Math.round(player.getDuration() * percentage),
                 duration: player.getDuration(),
                 loaded: player.getLoadedPercent()
@@ -145,7 +144,7 @@ export class PlayerProgressBar {
                     return Observable.empty<boolean>();
                 } else {
                     // If it's not seeking, then every time the play state changes, see if its playing
-                    return this.rxPlayer.player$
+                    return this.player
                                 .switchMap(player => player.playState$)
                                 .map(ev => ev.isPlaying);
                 }
@@ -164,7 +163,7 @@ export class PlayerProgressBar {
         // When seeking ends go to the selected percentage and start playing if it was playing before
         stateWhenSeekingChange$
             // Get the player as well
-            .withLatestFrom(this.rxPlayer.player$, (state, player) => ({state, player}))
+            .withLatestFrom(this.player, (state, player) => ({state, player}))
             .takeUntil(scopeDestroy$)
             .subscribe(({state, player}) => {
                 // If it starts seeking, pause the feed
