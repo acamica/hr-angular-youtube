@@ -50,16 +50,21 @@ export class MarkerRunner {
                         return [action.payload, action.payload];
                 }
             }, [-1, -1])
+            // If its not really a range, don't pass it trough
+            .filter(range => range[0] !== range[1])
             .share();
 
         const idleMarkers$ = this.state.select().map(({idle}) => idle);
         const runningMarkers$ = this.state.select().map(({running}) => running);
 
-        // Recipy to know when to start an idle marker
-        const markerStart$ =
-            // While the video is playing, see if in the current range the marker
+        // *************************
+        // * MARKER START RECIPIES *
+        // *************************
+        const startWhenPlayerPlaysTrough$ =
+            // While the video is playing, see if which markers have started
+            // in the playing range
             progressRange$
-                .mergeMap(
+                .mergeMap( // TODO: change to withLatestFrom?
                 (range: Range) => idleMarkers$
                     .take(1)
                     .map(markers =>
@@ -67,10 +72,30 @@ export class MarkerRunner {
                     )
                     .filter(markersToStart => markersToStart.length > 0)
             )
+        ;
+
+        const startWhenPlayerSeeksInto$ =
+            seekTo$
+                // Join the seek time with the idle markers
+                .withLatestFrom(idleMarkers$, (time, markers) => ({time, markers}))
+                // Get a list of markers that have started in this range
+                .map(({time, markers}) => markers.filter(marker => timeInMarkerRange(time, marker)))
+                // Only fire an event when we have markers
+                .filter(markersToStart => markersToStart.length > 0);
+
+        // Recipy to know when to start an idle marker
+        const markerStart$ = Observable.merge(
+                startWhenPlayerPlaysTrough$,
+                startWhenPlayerSeeksInto$
+            )
             .share()
         ;
 
-        // Recipy to know when a running marker should stop
+        // ***********************
+        // * MARKER END RECIPIES *
+        // ***********************
+
+
         const endWhenPlayerPlaysTrough$ =  progressRange$.mergeMap(
                 (range: Range) => runningMarkers$
                                         .take(1)
@@ -90,11 +115,13 @@ export class MarkerRunner {
                                         // .takeUntil(Observable.timer(100))
         );
 
+        // Recipy to know when a running marker should stop
         const markerEnd$ = Observable.merge(
                 endWhenPlayerPlaysTrough$, // .debug('play trough'),
                 endWhenPlayerSeeksOutOf$ // .info('seeks out')
             )
-            .share();
+            .share()
+        ;
 
         // currentMarkerRange$.subscribe();
         Observable.merge(
@@ -105,12 +132,14 @@ export class MarkerRunner {
 
         markerStart$
             .switchMap(values => Observable.from(values))
-            .subscribe(marker => marker.onStart(player));
+            .subscribe(marker => marker.onStart(player))
+        ;
 
         markerEnd$
             .switchMap(values => Observable.from(values))
             .filter(marker => typeof marker.onEnd === 'function')
-            .subscribe(marker => marker.onEnd(player));
+            .subscribe(marker => marker.onEnd(player))
+        ;
 
         // this.state.select().map(state => state.idle).debug('idle').subscribe();
         // this.state.select().map(state => state.running).debug('running').subscribe();
@@ -170,6 +199,7 @@ function createMarkerRunnerReducers (markers: IMarker[]) {
     return combineReducers({idle, running});
 }
 
+// TODO: Move into an array util
 function concatUnique<T> (a: T[], b: T[]): T[] {
     return a.concat(b.filter(item => a.indexOf(item) === -1));
 }
