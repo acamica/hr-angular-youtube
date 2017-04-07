@@ -28,17 +28,17 @@ setPlayerVarDefaultOption('modestbranding', 1);
     directives: [RxPlayerComponent, PlayPauseComponent, TimeControlComponent],
 })
 export class ControlsDemoComponent {
-    videoSource = {
-        player: 'HTML5Player',
-        sources: [{
-            src: 'https://media.w3.org/2010/05/sintel/trailer.ogv',
-            type: 'video/ogg'
-        }]
-    };
     // videoSource = {
-    //     player: 'YoutubePlayer',
-    //     youtubeId: 'QjX9Wu-MJ-s'
+    //     player: 'HTML5Player',
+    //     sources: [{
+    //         src: 'https://media.w3.org/2010/05/sintel/trailer.ogv',
+    //         type: 'video/ogg'
+    //     }]
     // };
+    videoSource = {
+        player: 'YoutubePlayer',
+        youtubeId: 'QjX9Wu-MJ-s'
+    };
 
     static $inject = ['$scope', '$element'];
     constructor (private $scope, private elm) {
@@ -50,30 +50,32 @@ export class ControlsDemoComponent {
         const markers = [
             {
                 startTime: 3,
-                endTime: 4,
-                onStart: () => console.log('first marker started'),
-                onEnd: () => console.log('first marker ended')
+                endTime: 7,
+                onStart: () => console.log('from 3'),
+                onEnd: () => console.log('end from 3 to 7')
             },
             {
-                startTime: 4,
-                endTime: 5,
-                onStart: () => console.log('second marker (without onEnd)')
+                startTime: 10,
+                endTime: 12,
+                onStart: () => console.log('from 10 to 12 (without onEnd)')
             },
             new ComponentMarker({
                 startTime: 2,
                 endTime: 6,
-                template: '<h1>Hello component</h1>',
+                template: '<h1>from 2 to 6</h1>',
                 parentElm: this.elm
             })
         ];
 
         // Select a subset of the markers to show in the progress bar
-        this.markersToShow = [markers[0], markers[1]];
+        // this.markersToShow = [markers[0], markers[1]];
+        // this.markersToShow = [markers[0]];
+        this.markersToShow = markers;
         player$
             .subscribe(player => {
                 player.mute();
-                player.play();
-                new MarkerRunner(player, markers);
+                // player.play();
+                new MarkerRunner(player, this.markersToShow);
             });
         // $scope.$watch('player1', function (player) {
         // player.mute();
