@@ -23,8 +23,8 @@ export class MarkerRunner {
         const reducers = createMarkerRunnerReducers(markers);
 
         this.state = new Store<IState, IActions>(reducers);
-        this.state.select().subscribe(); // TODO: I need to subscribe here to mantain the state
-                                        // I should add a destroy maybe?
+
+
 
         // While video playing, generate a range consisting of the last value
         // and the current time, like so [lastValue, currentTime]
@@ -38,6 +38,7 @@ export class MarkerRunner {
         //     .share();
         const seekTo$ = this.player.seeked$.map(ev => ev.player.getCurrentTime())
             ; // .debug('seeked');
+        // TODO: Move this state into the reducers
         const progressRange$ = Observable.merge(
                 this.player.progress$.map(ev => ({type: 'PROGRESS_UPDATE', payload: ev.time})),
                 seekTo$.map(time => ({type: 'SEEK_FINISHED', payload: time}))
@@ -60,28 +61,28 @@ export class MarkerRunner {
         // *************************
         // * MARKER START RECIPIES *
         // *************************
+        // While the video is playing, see if which markers have started in the playing range
         const startWhenPlayerPlaysTrough$ =
-            // While the video is playing, see if which markers have started
-            // in the playing range
+            // While playing
             progressRange$
-                .mergeMap( // TODO: change to withLatestFrom?
-                (range: Range) => idleMarkers$
-                    .take(1)
-                    .map(markers =>
-                        markers.filter(marker => startedIn(marker, range))
-                    )
-                    .filter(markersToStart => markersToStart.length > 0)
-            )
+                // Join the playing range with the idle markers
+                .withLatestFrom(idleMarkers$, (range: Range, markers) => ({range, markers}))
+                // Get a list of markers that have started in this range
+                .map(({range, markers}) => markers.filter(marker => startedIn(marker, range)))
+                // Only fire an event when we have markers that met the condition
+                .filter(markersToStart => markersToStart.length > 0)
         ;
 
         const startWhenPlayerSeeksInto$ =
+            // When seeked
             seekTo$
                 // Join the seek time with the idle markers
                 .withLatestFrom(idleMarkers$, (time, markers) => ({time, markers}))
                 // Get a list of markers that have started in this range
                 .map(({time, markers}) => markers.filter(marker => timeInMarkerRange(time, marker)))
-                // Only fire an event when we have markers
-                .filter(markersToStart => markersToStart.length > 0);
+                // Only fire an event when we have markers that met the condition
+                .filter(markersToStart => markersToStart.length > 0)
+        ;
 
         // Recipy to know when to start an idle marker
         const markerStart$ = Observable.merge(
@@ -94,26 +95,26 @@ export class MarkerRunner {
         // ***********************
         // * MARKER END RECIPIES *
         // ***********************
+        // While video is playing end the markers once we pass the end mark
+        const endWhenPlayerPlaysTrough$ =
+            progressRange$
+                // Join the range with the running markers
+                .withLatestFrom(runningMarkers$, (range: Range, markers) => ({range, markers}))
+                // Get a list of markers that have ended in this range
+                .map(({markers, range}) => markers.filter(marker => endedIn(marker, range)))
+                // Only fire an event when we have markers that met the condition
+                .filter(markersToEnd => markersToEnd.length > 0)
+        ;
 
-
-        const endWhenPlayerPlaysTrough$ =  progressRange$.mergeMap(
-                (range: Range) => runningMarkers$
-                                        .take(1)
-                                        .map(markers =>
-                                            markers.filter(marker => endedIn(marker, range))
-                                        )
-                                        .filter(markersToEnd => markersToEnd.length > 0)
-        );
-
-        const endWhenPlayerSeeksOutOf$ = seekTo$.mergeMap(
-                (time: number) => runningMarkers$
-                                        .take(1)
-                                        .map(markers =>
-                                            markers.filter(marker => !timeInMarkerRange(time, marker))
-                                        )
-                                        .filter(markersToEnd => markersToEnd.length > 0)
-                                        // .takeUntil(Observable.timer(100))
-        );
+        // When the video seeks, end all markers that fell out of range
+        const endWhenPlayerSeeksOutOf$ = seekTo$
+                // Join the time with the running markers
+                .withLatestFrom(runningMarkers$, (time, markers) => ({time, markers}))
+                // Get a list of markers that are no longer in range
+                .map(({markers, time}) => markers.filter(marker => !timeInMarkerRange(time, marker)))
+                // Only fire an event when we have markers that met the condition
+                .filter(markersToEnd => markersToEnd.length > 0)
+        ;
 
         // Recipy to know when a running marker should stop
         const markerEnd$ = Observable.merge(
@@ -123,10 +124,11 @@ export class MarkerRunner {
             .share()
         ;
 
+
+        // TODO: I should probably add a destroy to stop the subscribe
         // currentMarkerRange$.subscribe();
         Observable.merge(
-            markerEnd$.map(markers => ({type: 'END_MARKERS', payload: {markers}} as IEndMarkersAction))
-                , // .debug('marker_end'),
+            markerEnd$.map(markers => ({type: 'END_MARKERS', payload: {markers}} as IEndMarkersAction)), // .debug('marker_end'),
             markerStart$.map(markers => ({type: 'START_MARKERS', payload: {markers}} as IStartMarkersAction)) // .debug('MARKER_START')
         ).subscribe(action => this.state.dispatch(action));
 
