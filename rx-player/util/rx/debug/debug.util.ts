@@ -6,14 +6,19 @@ export interface IFnMsg<T> {
 
 export type IMsgOrFnMsg<T> = string | IFnMsg<T>;
 
-export function debugOperator<T> (this: Observable<T>, msgOrFnMsg: IMsgOrFnMsg<T>, thisArg?: any) {
+export interface IMapFn<I, O> {
+    (input: I): O;
+}
+const identity = x => x;
+
+export function debugOperator<T> (this: Observable<T>, msgOrFnMsg: IMsgOrFnMsg<T>, mapFn: IMapFn<T, any> = identity) {
     // return this.lift(new TakeUntilScopeDestroyOperator(scope, thisArg));
     // TODO: Change the way this is done.
     return this.do(x => {
         if (typeof msgOrFnMsg === 'string') {
-            console.debug(msgOrFnMsg, x);
+            console.debug(msgOrFnMsg, mapFn(x));
         } else {
-            console.debug(msgOrFnMsg(x));
+            console.debug(msgOrFnMsg(mapFn(x)));
         }
     });
 }

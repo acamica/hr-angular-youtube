@@ -25,8 +25,28 @@ export class Store<S, A extends IAction> {
         this._dispacher.next(action);
     }
 
-    select () {
-        return this._state;
+    // select () {
+    //     return this._state;
+    // }
+
+
+    select (): Observable<S>;
+    select<K1 extends keyof S> (arg1: K1): Observable<S[K1]>;
+    select<K1 extends keyof S, K2 extends keyof S[K1]> (arg1: K1, arg2: K2): Observable<S[K1][K2]>;
+    select<K1 extends keyof S, K2 extends keyof S[K1], K3 extends keyof S[K1][K2]> (arg1: K1, arg2: K2, arg3: K3): Observable<S[K1][K2][K3]>;
+    select<K1 extends keyof S, K2 extends keyof S[K1], K3 extends keyof S[K1][K2], K4 extends keyof S[K1][K2][K3]> (arg1: K1, arg2: K2, arg3: K3, arg4: K4): Observable<S[K1][K2][K3][K4]>;
+    select<K1 extends keyof S, K2 extends keyof S[K1], K3 extends keyof S[K1][K2], K4 extends keyof S[K1][K2][K3], K5 extends keyof S[K1][K2][K3][K4]> (arg1: K1, arg2: K2, arg3: K3, arg4: K4, arg5: K5): Observable<S[K1][K2][K3][K4][K5]>;
+    select<K1 extends keyof S, K2 extends keyof S[K1], K3 extends keyof S[K1][K2], K4 extends keyof S[K1][K2][K3], K5 extends keyof S[K1][K2][K3][K4], K6 extends keyof S[K1][K2][K3][K4][K5]> (arg1: K1, arg2: K2, arg3: K3, arg4: K4, arg5: K5, arg6: K6): Observable<S[K1][K2][K3][K4][K5][K6]>;
+    select (...args) {
+        return this._state.map(state => {
+            return args.reduce((subState, key) => {
+                if (typeof subState === 'object') {
+                    return subState[key];
+                } else {
+                    return subState;
+                }
+            }, state);
+        }).distinctUntilChanged();
     }
 }
 

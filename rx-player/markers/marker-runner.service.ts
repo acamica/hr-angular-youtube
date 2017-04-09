@@ -2,6 +2,7 @@ import {IVideoPlayer} from '../players/video-player.model';
 import {IMarker, startedIn, endedIn, Range, timeInMarkerRange} from './marker.model';
 import {Observable} from 'rxjs/Observable';
 import {Store, combineReducers} from '../util/store.util';
+import {concatUnique} from '../util/immutable/facade';
 
 // TODO: REMOVE THIS
 // TODO: REMOVE THIS
@@ -14,49 +15,29 @@ import {Store, combineReducers} from '../util/store.util';
 // TODO: REMOVE THIS
 // TODO: REMOVE THIS
 
+interface IMarkerRunnerState {
+    idle: IMarker[];
+    running: IMarker[];
+    progressRange: [number, number];
+}
+
 export class MarkerRunner {
-    private state: Store<IState, IActions>;
+    private state: Store<IMarkerRunnerState, IActions>;
 
     constructor (private player: IVideoPlayer, markers: IMarker[]) {
-        // Create the reducers that manage the state of which marker
-        // is running and which is idle starting with the given markers
+        // Create the reducers that manage the service state
         const reducers = createMarkerRunnerReducers(markers);
+        this.state = new Store<IMarkerRunnerState, IActions>(reducers);
 
-        this.state = new Store<IState, IActions>(reducers);
+        const idleMarkers$ = this.state.select('idle');
+        const runningMarkers$ = this.state.select('running');
+        const progressRange$ = this.state.select('progressRange')
+            // If its a point more than a range, don't pass it trough
+            .filter(range => range[0] !== range[1]);
 
-
-
-        // While video playing, generate a range consisting of the last value
-        // and the current time, like so [lastValue, currentTime]
-        // eg [-1, 0.2]
-        //    [0.2, 0.4]
-        //    [0.4, 0.6]
-        // const progressRange$ = this.player
-        //     .progress$
-        //     .map(ev => ev.time)
-        //     .scan((range, currentTime) => [range[1], currentTime], [-1, -1])
-        //     .share();
         const seekTo$ = this.player.seeked$.map(ev => ev.player.getCurrentTime())
-            ; // .debug('seeked');
-        // TODO: Move this state into the reducers
-        const progressRange$ = Observable.merge(
-                this.player.progress$.map(ev => ({type: 'PROGRESS_UPDATE', payload: ev.time})),
-                seekTo$.map(time => ({type: 'SEEK_FINISHED', payload: time}))
-            )
-            .scan((range, action) => {
-                switch (action.type) {
-                    case 'PROGRESS_UPDATE':
-                        return [range[1], action.payload];
-                    case 'SEEK_FINISHED':
-                        return [action.payload, action.payload];
-                }
-            }, [-1, -1])
-            // If its not really a range, don't pass it trough
-            .filter(range => range[0] !== range[1])
-            .share();
+        ; // .debug('seeked');
 
-        const idleMarkers$ = this.state.select().map(({idle}) => idle);
-        const runningMarkers$ = this.state.select().map(({running}) => running);
 
         // *************************
         // * MARKER START RECIPIES *
@@ -124,14 +105,45 @@ export class MarkerRunner {
             .share()
         ;
 
+        // ***********
+        // * ACTIONS *
+        // ***********
+        const markerEndActions$ =
+            markerEnd$
+                .map(markers => ({type: 'END_MARKERS', payload: {markers}} as IEndMarkersAction))
+                // .debug('marker_end')
+        ;
+
+        const markerStartActions$ =
+            markerStart$
+                .map(markers => ({type: 'START_MARKERS', payload: {markers}} as IStartMarkersAction))
+                // .debug('marker_start', (markers) => markers.payload.markers)
+        ;
+
+        const progressUpdateActions$ =
+            this.player.progress$
+                .map(ev => ({type: 'PROGRESS_UPDATE', payload: {time: ev.time}} as IProgressUpdateAction))
+        ;
+
+        const seekFinishedActions$ =
+            seekTo$
+                .map(time => ({type: 'SEEK_FINISHED', payload: {time}} as ISeekFinishedAction))
+        ;
+
+        // ****************
+        // * SIDE EFFECTS *
+        // ****************
 
         // TODO: I should probably add a destroy to stop the subscribe
         // currentMarkerRange$.subscribe();
         Observable.merge(
-            markerEnd$.map(markers => ({type: 'END_MARKERS', payload: {markers}} as IEndMarkersAction)), // .debug('marker_end'),
-            markerStart$.map(markers => ({type: 'START_MARKERS', payload: {markers}} as IStartMarkersAction)) // .debug('MARKER_START')
+            markerEndActions$,
+            markerStartActions$,
+            progressUpdateActions$,
+            seekFinishedActions$
         ).subscribe(action => this.state.dispatch(action));
 
+        // When a marker starts call its onStart method
         markerStart$
             .switchMap(values => Observable.from(values))
             .subscribe(marker => marker.onStart(player))
@@ -162,11 +174,21 @@ interface IEndMarkersAction {
     };
 }
 
-type IActions = IStartMarkersAction | IEndMarkersAction;
-interface IState {
-    idle: IMarker[];
-    running: IMarker[];
+interface IProgressUpdateAction {
+    type: 'PROGRESS_UPDATE';
+    payload: {
+        time: number;
+    };
 }
+
+interface ISeekFinishedAction {
+    type: 'SEEK_FINISHED';
+    payload: {
+        time: number;
+    };
+}
+
+type IActions = IStartMarkersAction | IEndMarkersAction | IProgressUpdateAction | ISeekFinishedAction;
 
 // TODO: Tengo que evitar repetidos, y ver tema de checkeo por identidad
 function createMarkerRunnerReducers (markers: IMarker[]) {
@@ -177,7 +199,6 @@ function createMarkerRunnerReducers (markers: IMarker[]) {
                 return idleMarkers.filter(marker => action.payload.markers.indexOf(marker) === -1);
             case 'END_MARKERS':
                 // Add the ended markers into the idle state once again
-                // return [...idleMarkers, ...action.payload.markers];
                 return concatUnique(idleMarkers, action.payload.markers);
             default:
                 return idleMarkers;
@@ -187,9 +208,7 @@ function createMarkerRunnerReducers (markers: IMarker[]) {
     function running (runningMarkers = [], action: IActions) {
         switch (action.type) {
             case 'START_MARKERS':
-                // console.log('WWWWAT');
                 // Add the started markers into the running state
-                // return [...runningMarkers, ...action.payload.markers];
                 return concatUnique(runningMarkers, action.payload.markers);
             case 'END_MARKERS':
                 // Remove the ended markers from the running state
@@ -198,23 +217,24 @@ function createMarkerRunnerReducers (markers: IMarker[]) {
                 return runningMarkers;
         }
     }
-    return combineReducers({idle, running});
-}
 
-// TODO: Move into an array util
-function concatUnique<T> (a: T[], b: T[]): T[] {
-    return a.concat(b.filter(item => a.indexOf(item) === -1));
-}
+    // While video playing, generate a range consisting of the last value
+    // and the current time, like so [lastValue, currentTime]
+    // eg [-1, -1]
+    //    [-1, 0.2]
+    //    [0.2, 0.4]
+    //    [0.4, 0.6]
+    function progressRange (range = [-1, -1] as Range, action: IActions): Range {
+        switch (action.type) {
+            case 'PROGRESS_UPDATE':
+                return [range[1], action.payload.time];
+            case 'SEEK_FINISHED':
+                return [action.payload.time, action.payload.time];
+            default:
+                return range;
+        }
+    }
 
-// function removeItem<T> (item: T, list: T[]) {
-//     const index = list.indexOf(item);
-//     if (index === -1) {
-//         return list;
-//     } else {
-//         return [
-//             ...list.slice(0, index),
-//             ...list.slice(index + 1)
-//         ];
-//     }
-// }
+    return combineReducers({idle, running, progressRange});
+}
 
