@@ -1,5 +1,5 @@
 import {Observable} from 'rxjs/Observable';
-
+import {createInfo} from './console.util';
 export interface IFnMsg<T> {
     (x: T): string;
 }
@@ -7,6 +7,7 @@ export interface IFnMsg<T> {
 export type IMsgOrFnMsg<T> = string | IFnMsg<T>;
 
 export function infoOperator<T> (this: Observable<T>, msgOrFnMsg: IMsgOrFnMsg<T>, thisArg?: any) {
+    const info = createInfo(msgOrFnMsg);
     return this.do(x => {
         let msg: string;
         if (typeof msgOrFnMsg === 'string') {
@@ -14,7 +15,7 @@ export function infoOperator<T> (this: Observable<T>, msgOrFnMsg: IMsgOrFnMsg<T>
         } else {
             msg = msgOrFnMsg(x);
         }
-        console.info(msg);
+        info(msg);
     });
 }
 
