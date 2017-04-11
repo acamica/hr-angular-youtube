@@ -33,7 +33,9 @@ export class MarkerRunner {
         const runningMarkers$ = this.state.select('running');
         const progressRange$ = this.state.select('progressRange')
             // If its a point more than a range, don't pass it trough
-            .filter(range => range[0] !== range[1]);
+            .filter(range => range[0] !== range[1])
+            // .debug('progressRange$')
+        ;
 
         const seekTo$ = this.player.seeked$.map(ev => ev.player.getCurrentTime())
         ; // .debug('seeked');
@@ -111,13 +113,14 @@ export class MarkerRunner {
         const markerEndActions$ =
             markerEnd$
                 .map(markers => ({type: 'END_MARKERS', payload: {markers}} as IEndMarkersAction))
-                // .debug('marker_end')
+                // .debug('marker_end', (action) => action.payload.markers)
         ;
 
         const markerStartActions$ =
             markerStart$
                 .map(markers => ({type: 'START_MARKERS', payload: {markers}} as IStartMarkersAction))
-                // .debug('marker_start', (markers) => markers.payload.markers)
+                // .debug('marker_start', (action) => action.payload.markers)
+
         ;
 
         const progressUpdateActions$ =
@@ -128,6 +131,7 @@ export class MarkerRunner {
         const seekFinishedActions$ =
             seekTo$
                 .map(time => ({type: 'SEEK_FINISHED', payload: {time}} as ISeekFinishedAction))
+                // .info(action => `seek_finished: ${action.payload.time}`)
         ;
 
         // ****************
@@ -141,7 +145,10 @@ export class MarkerRunner {
             markerStartActions$,
             progressUpdateActions$,
             seekFinishedActions$
-        ).subscribe(action => this.state.dispatch(action));
+        )
+            // .info(action => `dispatch ${action.type}`)
+            .subscribe(action => this.state.dispatch(action))
+        ;
 
         // When a marker starts call its onStart method
         markerStart$
@@ -155,8 +162,11 @@ export class MarkerRunner {
             .subscribe(marker => marker.onEnd(player))
         ;
 
-        // this.state.select().map(state => state.idle).debug('idle').subscribe();
-        // this.state.select().map(state => state.running).debug('running').subscribe();
+        // this.state.select()
+        //     .map(({idle, running}) => ({idle, running}))
+        //     .distinctUntilChanged((a, b) => a.idle === b.idle && a.running === b.running)
+        //     .debug('runningState')
+        //     .subscribe();
     }
 }
 
@@ -234,7 +244,6 @@ function createMarkerRunnerReducers (markers: IMarker[]) {
                 return range;
         }
     }
-
     return combineReducers({idle, running, progressRange});
 }
 

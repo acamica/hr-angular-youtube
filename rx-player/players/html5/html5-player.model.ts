@@ -100,16 +100,22 @@ export class HTML5Player
 
     );
 
-    progress$ = Observable
-        .fromEvent(this.video, 'timeupdate')
-        .map(_ => {
-            const event = {
-                player: this,
-                type: 'videoprogress',
-                time: this.getCurrentTime()
-            } as IProgressStateEvent;
-            return event;
-        });
+    progress$ = this.playState$.switchMap(state => {
+        if (state.isPlaying) {
+            return Observable
+                .fromEvent(this.video, 'timeupdate')
+                .map(_ => {
+                    const event = {
+                        player: this,
+                        type: 'videoprogress',
+                        time: this.getCurrentTime()
+                    } as IProgressStateEvent;
+                    return event;
+                });
+        } else {
+            return Observable.empty();
+        }
+    });
 
     loaded$ = Observable
         .fromEvent(this.video, 'progress')

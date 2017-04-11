@@ -1,7 +1,8 @@
-import {Subject} from 'rxjs/Subject';
+// import {Subject} from 'rxjs/Subject';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 
-export interface IReducer<S, A> {
+export interface IReducer<S, A extends IAction> {
     (state: S, action?: A): S;
 }
 
@@ -11,23 +12,32 @@ export interface IAction {
 }
 
 export class Store<S, A extends IAction> {
-    private _dispacher = new Subject();
+    // private _dispacher = new Subject();
     private _state: Observable<S>;
-    constructor (reducer: IReducer<S, A>) {
-        this._state = this._dispacher
+    private _dispacher: BehaviorSubject<S>;
+
+    constructor (private reducer: IReducer<S, A>) {
+        // this._state = this._dispacher
+        //     // Starts with an initial action that shouldn't be mapped
+        //     .startWith({type: 'INITIAL_ACTION'})
+        //     .scan(reducer, undefined) // Pass undefined as accu/state so it can use the default
+        //     .publishReplay(1).refCount();
+        // this._state = Observable.of({type: 'INITIAL_ACTION'})
             // Starts with an initial action that shouldn't be mapped
-            .startWith({type: 'INITIAL_ACTION'})
-            .scan(reducer, undefined) // Pass undefined as accu/state so it can use the default
-            .publishReplay(1).refCount();
+            // .scan(reducer, undefined) // Pass undefined as accu/state so it can use the default
+            // .publish(1).refCount();
+        const action = {type: '___INITIAL_ACTION___'} as A;
+        this._dispacher = new BehaviorSubject(reducer(undefined, action));
+        this._state = this._dispacher
+            .delay(0) // I need to add this to avoid "circular dependencies" in the suscription chain
+                      // Basically it forces the action to be fired in a different context than the current
+            ;
+
     }
 
     dispatch (action: A) {
-        this._dispacher.next(action);
+        this._dispacher.next(this.reducer(this._dispacher.value, action));
     }
-
-    // select () {
-    //     return this._state;
-    // }
 
 
     select (): Observable<S>;
@@ -50,11 +60,11 @@ export class Store<S, A extends IAction> {
     }
 }
 
-export type IReducerMap<ST, A> = {
+export type IReducerMap<ST, A extends IAction> = {
     [K in keyof ST]: IReducer<ST[K], A>;
 };
 
-export function combineReducers<ST, A> (reducers: IReducerMap<ST, A>): IReducer<ST, A> {
+export function combineReducers<ST, A extends IAction> (reducers: IReducerMap<ST, A>): IReducer<ST, A> {
     return (state = {} as ST, action: A) => {
         return Object.keys(reducers).reduce(
             (nextState, key) => {
