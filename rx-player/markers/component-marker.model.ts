@@ -9,7 +9,7 @@ export interface IComponentMarkerOptions {
     startTime: number;
     endTime: number;
     template: string;
-    parentElm: JQuery;
+    parentElm?: JQuery;
     parentScope?: ng.IScope;
 }
 
@@ -30,11 +30,8 @@ export class ComponentMarker implements IMarker {
         this.options.endTime = time;
     }
 
-
-
-    constructor (private options: IComponentMarkerOptions) {
+    constructor (public options: IComponentMarkerOptions) {
     }
-
 
     private parentScope = this.options.parentScope ?
                                 Promise.resolve(this.options.parentScope) :
@@ -44,9 +41,19 @@ export class ComponentMarker implements IMarker {
     private scope: ng.IScope;
 
     onStart (player: IVideoPlayer) {
+        if (this.options.parentElm) {
+            this.render(this.options.parentElm);
+        } else {
+            // TODO: Improve error handling returning an either or a promise with possible errors
+            //       making the user be responsible for the error
+            console.error('Component marker needs a parent element', this.options.template);
+        }
+    }
+
+    render (parentElm: JQuery) {
         // Add the element where its supposed to be and compile it
         this.elm = angular.element(this.options.template);
-        this.options.parentElm.append(this.elm);
+        parentElm.append(this.elm);
         const componentLinkFn = $compile.then($compile => $compile(this.elm));
 
         // Once its compiled

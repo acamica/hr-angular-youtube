@@ -28,17 +28,17 @@ setPlayerVarDefaultOption('modestbranding', 1);
     directives: [RxPlayerComponent, PlayPauseComponent, TimeControlComponent],
 })
 export class ControlsDemoComponent {
-    videoSource = {
-        player: 'HTML5Player',
-        sources: [{
-            src: 'https://media.w3.org/2010/05/sintel/trailer.ogv',
-            type: 'video/ogg'
-        }]
-    };
     // videoSource = {
-    //     player: 'YoutubePlayer',
-    //     youtubeId: 'QjX9Wu-MJ-s'
+    //     player: 'HTML5Player',
+    //     sources: [{
+    //         src: 'https://media.w3.org/2010/05/sintel/trailer.ogv',
+    //         type: 'video/ogg'
+    //     }]
     // };
+    videoSource = {
+        player: 'YoutubePlayer',
+        youtubeId: 'QjX9Wu-MJ-s'
+    };
 
     static $inject = ['$scope', '$element'];
     constructor (private $scope, private elm) {
@@ -62,10 +62,20 @@ export class ControlsDemoComponent {
             new ComponentMarker({
                 startTime: 2,
                 endTime: 6,
-                template: '<h1>from 2 to 6</h1>',
+                template: '<h1>from 2 to 6!!</h1>',
                 parentElm: this.elm
-            })
+            }),
+            new ComponentMarker({
+                startTime: 13,
+                endTime: 15,
+                template: '<h1>from 13 to 15 with lazy element</h1>'
+            }),
         ];
+        const markerWithoutParent = markers[3] as ComponentMarker;
+        const self = this;
+        markerWithoutParent.onStart = function () {
+            this.render(self.elm);
+        };
 
         // Select a subset of the markers to show in the progress bar
         // this.markersToShow = [markers[0], markers[1]];
