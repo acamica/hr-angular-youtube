@@ -19,3 +19,8 @@
     padding: 10px;
     z-index: 20;
 }
+
+
+rx-player .hr-yt-marker.red {
+    background-color: red;
+}

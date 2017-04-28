@@ -7,7 +7,7 @@ import {
     IVideoPlayer,
     MarkerRunner,
     RxPlayerComponent,
-    ComponentMarker, IMarker
+    ComponentMarker, IMarker, IProgressBarMarker
 } from 'rx-player/main';
 
 import 'ui.bootstrap';
@@ -43,11 +43,11 @@ export class ControlsDemoComponent {
     static $inject = ['$scope', '$element'];
     constructor (private $scope, private elm) {
     }
-    markersToShow: IMarker[];
+    markersToShow: IProgressBarMarker[];
 
     ngOnInit () {
         const player$ = this.$scope['playerCtrl'].player$ as Observable<IVideoPlayer>;
-        const markers = [
+        const markers: IMarker[] = [
             {
                 startTime: 3,
                 endTime: 7,
@@ -69,23 +69,32 @@ export class ControlsDemoComponent {
                 startTime: 13,
                 endTime: 15,
                 template: '<h1>from 13 to 15 with lazy element</h1>'
-            }),
+            })
         ];
+
+
+        // Select a subset of the markers to show in the progress bar
+        // this.markersToShow = [markers[0], markers[1]];
+        // this.markersToShow = [markers[0]];
+        // Convert the markers into the progress bar format
+        this.markersToShow = markers.map(m => ({
+            marker: m
+        }));
+
+        // Bind the 3rd marker parent
         const markerWithoutParent = markers[3] as ComponentMarker;
         const self = this;
         markerWithoutParent.onStart = function () {
             this.render(self.elm);
         };
+        // Set red colour to the 3rd marker
+        this.markersToShow[3].barCssClass = 'red';
 
-        // Select a subset of the markers to show in the progress bar
-        // this.markersToShow = [markers[0], markers[1]];
-        // this.markersToShow = [markers[0]];
-        this.markersToShow = markers;
         player$
             .subscribe(player => {
                 player.mute();
                 // player.play();
-                new MarkerRunner(player, this.markersToShow);
+                new MarkerRunner(player, markers);
             });
         // $scope.$watch('player1', function (player) {
         // player.mute();

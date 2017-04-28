@@ -1,7 +1,7 @@
 import {IVideoPlayer} from '../players/video-player.model';
 import {IMarker, startedIn, endedIn, Range, timeInMarkerRange} from './marker.model';
 import {Observable} from 'rxjs/Observable';
-import {Store, combineReducers} from '../util/store.util';
+import {Store, combineReducers, IPayloadAction} from '../util/store.util';
 import {concatUnique} from '../util/immutable/facade';
 
 // TODO: REMOVE THIS
@@ -162,6 +162,7 @@ export class MarkerRunner {
             .subscribe(marker => marker.onEnd(player))
         ;
 
+        // TODO: Comment or delete this
         // this.state.select()
         //     .map(({idle, running}) => ({idle, running}))
         //     .distinctUntilChanged((a, b) => a.idle === b.idle && a.running === b.running)
@@ -177,26 +178,9 @@ interface IStartMarkersAction {
     };
 }
 
-interface IEndMarkersAction {
-    type: 'END_MARKERS';
-    payload: {
-        markers: IMarker[];
-    };
-}
-
-interface IProgressUpdateAction {
-    type: 'PROGRESS_UPDATE';
-    payload: {
-        time: number;
-    };
-}
-
-interface ISeekFinishedAction {
-    type: 'SEEK_FINISHED';
-    payload: {
-        time: number;
-    };
-}
+type IEndMarkersAction = IPayloadAction<'END_MARKERS', {markers: IMarker[]}>;
+type IProgressUpdateAction = IPayloadAction<'PROGRESS_UPDATE', {time: number}>;
+type ISeekFinishedAction = IPayloadAction<'SEEK_FINISHED', {time: number}>;
 
 type IActions = IStartMarkersAction | IEndMarkersAction | IProgressUpdateAction | ISeekFinishedAction;
 

@@ -7,12 +7,14 @@ import {IMarker} from '../../markers/facade';
     selector: 'progressBarMarker',
     scope: {
         player: '<',
-        marker: '='
+        marker: '<',
+        barCssClass: '<?'
     }
 })
 export class ProgressBarMarker {
     private player: Observable<IVideoPlayer>;
     private marker: IMarker;
+    private barCssClass: string;
 
     static $inject = ['$element', '$scope'];
     constructor (private elm, private scope) {
@@ -24,10 +26,10 @@ export class ProgressBarMarker {
             .takeUntil(scopeDestroy$)
             .subscribe(player => {
                 const duration = player.getDuration();
-                // If the marker has extra css, add it
-                // if (marker.barCss !== '') {
-                //     this.elm.addClass(marker.barCss);
-                // }
+
+                if (this.barCssClass) {
+                    this.elm.addClass(this.barCssClass);
+                }
 
                 const setRelativeTime = () => {
                     const relativeTime = 100 * this.marker.startTime / duration;

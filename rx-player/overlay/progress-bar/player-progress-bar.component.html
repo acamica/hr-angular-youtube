@@ -7,8 +7,9 @@
         <div class="hr-yt-handle"></div>
 </div>
 <progress-bar-marker
-    ng-repeat="marker in ctrl.markers"
-    marker="marker"
+    ng-repeat="m in ctrl.markers"
+    marker="m.marker"
+    bar-css-class="m.barCssClass"
     player="ctrl.player"
     class="hr-yt-marker" >
 </progress-bar-marker>

@@ -1,7 +1,8 @@
 import {Observable, observeScopeDestroy, Subject} from '../../util/rx/facade';
-import {Component} from '../../ng-helper/facade';
+import {Component, mockNgOnInitLink} from '../../ng-helper/facade';
 import {IVideoPlayer} from '../../players/facade';
-import {Store} from '../../util/store.util';
+import {IMarker} from '../../markers/facade';
+import {Store, IPayloadAction, ISimpleAction} from '../../util/store.util';
 import * as angular from 'angular';
 
 interface IProgressBarState {
@@ -16,54 +17,36 @@ const initialState = {
     seekPercentage: 0
 };
 
-interface ISetWasPlaying {
-    type: 'SET_WAS_PLAYING';
-    payload: boolean;
-}
 
-interface IStartSeeking {
-    type: 'START_SEEKING';
-}
-
-interface IStopSeeking {
-    type: 'STOP_SEEKING';
-    payload: number;
-}
-
-type IProgressBarActions = ISetWasPlaying | IStartSeeking | IStopSeeking;
-function progressBarStateReducer (state = initialState, action: IProgressBarActions): IProgressBarState {
-    switch (action.type) {
-        case 'SET_WAS_PLAYING':
-            return {...state, wasPlaying: action.payload};
-        case 'START_SEEKING':
-            return {...state, isSeeking: true};
-        case 'STOP_SEEKING':
-            return {...state, isSeeking: false, seekPercentage: action.payload};
-        default:
-            return state;
-    }
+export interface IProgressBarMarker {
+    marker: IMarker;
+    barCssClass?: string;
 }
 
 @Component({
     selector: 'playerProgressBar',
     templateUrl: '/template/overlay/progress-bar/player-progress-bar.component.html',
     scope: {
-        markers: '=',
+        markers: '<?',
         player: '<'
-    }
+    },
+    link: mockNgOnInitLink(['player'])
 })
 export class PlayerProgressBar {
     private player: Observable<IVideoPlayer>;
 
+    markers: IProgressBarMarker[] | null;
+
     static $inject = ['$element', '$scope'];
     constructor (private elm, private scope) {
+
     }
 
     sliderDown$ = new Subject<void>();
     sliderMove$ = new Subject<number>();
     sliderUp$ = new Subject<number>();
 
-    $onInit () {
+    ngOnInit () {
         const $played = angular.element(this.elm[0].querySelector('.hr-yt-played'));
         const $loaded = angular.element(this.elm[0].querySelector('.hr-yt-loaded'));
         const $handle = angular.element(this.elm[0].querySelector('.hr-yt-handle'));
@@ -80,11 +63,6 @@ export class PlayerProgressBar {
             $played.css('width', played + '%');
             $handle.css('left', handleX + 'px');
         };
-
-
-        // TODO: Reenable once the markers are refactored
-        // this.scope.markers = player.getMarkers();
-        // player.on('markerListChanged', () =>  this.scope.markers = player.getMarkers());
 
         const stateStore = new Store(progressBarStateReducer);
 
@@ -193,4 +171,23 @@ export class PlayerProgressBar {
 
 }
 
+
+type ISetWasPlaying = IPayloadAction<'SET_WAS_PLAYING', boolean>;
+type IStartSeeking = ISimpleAction<'START_SEEKING'>;
+type IStopSeeking = IPayloadAction<'STOP_SEEKING', number>;
+
+type IProgressBarActions = ISetWasPlaying | IStartSeeking | IStopSeeking;
+
+function progressBarStateReducer (state = initialState, action: IProgressBarActions): IProgressBarState {
+    switch (action.type) {
+        case 'SET_WAS_PLAYING':
+            return {...state, wasPlaying: action.payload};
+        case 'START_SEEKING':
+            return {...state, isSeeking: true};
+        case 'STOP_SEEKING':
+            return {...state, isSeeking: false, seekPercentage: action.payload};
+        default:
+            return state;
+    }
+}
 
