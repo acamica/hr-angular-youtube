@@ -5,12 +5,17 @@ import {getService} from '../ng-helper/facade';
 
 const $compile = getService<ng.ICompileService>('$compile');
 
+export interface IBindingMap {
+    [key: string]: any;
+}
+
 export interface IComponentMarkerOptions {
     startTime: number;
     endTime: number;
     template: string;
     parentElm?: JQuery;
     parentScope?: ng.IScope;
+    bindings?: IBindingMap;
 }
 
 export class ComponentMarker implements IMarker {
@@ -42,7 +47,7 @@ export class ComponentMarker implements IMarker {
 
     onStart (player: IVideoPlayer) {
         if (this.options.parentElm) {
-            this.render(this.options.parentElm);
+            this.render(player, this.options.parentElm);
         } else {
             // TODO: Improve error handling returning an either or a promise with possible errors
             //       making the user be responsible for the error
@@ -50,7 +55,7 @@ export class ComponentMarker implements IMarker {
         }
     }
 
-    render (parentElm: JQuery) {
+    render (player: IVideoPlayer, parentElm: JQuery) {
         // Add the element where its supposed to be and compile it
         this.elm = angular.element(this.options.template);
         parentElm.append(this.elm);
@@ -61,6 +66,12 @@ export class ComponentMarker implements IMarker {
             .then(([linkFn, parentScope]) => {
                 // create a new scope for it and link it
                 this.scope = parentScope.$new(true);
+                // Bind the player to the scope
+                this.scope['$player'] = player;
+                // Add optional bindings to the scope
+                Object
+                    .keys(this.options.bindings || {})
+                    .forEach(key => this.scope[key] = this.options.bindings[key]);
                 linkFn(this.scope);
             })
             .catch(err => console.error('Cant create marker component', err));

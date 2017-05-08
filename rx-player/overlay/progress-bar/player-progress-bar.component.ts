@@ -17,7 +17,8 @@ const initialState = {
     seekPercentage: 0
 };
 
-
+// TODO: see if we want to have the whole marker or if we can
+// get by just by using the start time
 export interface IProgressBarMarker {
     marker: IMarker;
     barCssClass?: string;
