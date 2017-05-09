@@ -47,8 +47,8 @@ registerVideoPlayer('YoutubePlayer', {
     createVideoPlayer
 });
 
-
-let defaultOptions: YT.PlayerOptions = {
+// : YT.PlayerOptions
+let defaultOptions: any = {
     playerVars: {
         origin: location.origin + '/',
         enablejsapi: 1

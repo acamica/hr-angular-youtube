@@ -79,7 +79,7 @@ export class YoutubePlayer
      */
     // TODO: type youtube source
     load (source): Observable<YoutubePlayer> {
-        const loadVideo$ = this.fromEvent('onStateChange')
+        const loadVideo$ = this.fromEvent<YT.OnStateChangeEvent>('onStateChange')
             // .do(x => console.log('state', x.data))
             .filter(x => x.data === YT.PlayerState.PLAYING)
             // Count the number of times the player start playing
@@ -115,7 +115,7 @@ export class YoutubePlayer
 
     // TODO: need to map this event to a common interface once defined
     playState$ = this
-        .fromEvent('onStateChange')
+        .fromEvent<YT.OnStateChangeEvent>('onStateChange')
         .filter(ev => [YT.PlayerState.PLAYING, YT.PlayerState.ENDED, YT.PlayerState.PAUSED].indexOf(ev.data) !== -1)
         .map(ev => ({
             player: this,
@@ -124,7 +124,7 @@ export class YoutubePlayer
             hasEnded: ev.data === YT.PlayerState.ENDED // TODO: Add practically finished?
         } as IPlayStateEvent));
 
-    progress$ = this.fromEvent('onStateChange')
+    progress$ = this.fromEvent<YT.OnStateChangeEvent>('onStateChange')
                     .switchMap(event => {
                         if (event.data !== YT.PlayerState.PLAYING) {
                             return Observable.empty();
@@ -217,7 +217,7 @@ export class YoutubePlayer
         return this.seeked$.take(1).toPromise();
     }
 
-    ended$ = this.fromEvent('onStateChange')
+    ended$ = this.fromEvent<YT.OnStateChangeEvent>('onStateChange')
         .map(ev => {
             // If youtube says its ended, we ended
             if (ev.data === YT.PlayerState.ENDED) {
@@ -471,7 +471,7 @@ export class YoutubePlayer
         this._eventHash = uuid();
         const events = ['onStateChange', 'onPlaybackQualityChange', 'onPlaybackRateChange',
                         'onError', 'onApiChange', 'onReady'];
-        angular.forEach(events, name => {
+        angular.forEach(events, (name: keyof YT.Events) => {
             this.player.addEventListener(name, data => {
                 this.emit(name, data);
             });
@@ -522,12 +522,12 @@ export class YoutubePlayer
     }
 
     // TODO: Deprecated in favour of load?
-    loadVideoById (videoId: string, startSeconds?: number, suggestedQuality?: string) {
+    loadVideoById (videoId: string, startSeconds?: number, suggestedQuality?: YT.SuggestedVideoQuality) {
         this.player.loadVideoById(videoId, startSeconds, suggestedQuality);
         return this;
     }
 
-    fromEvent (eventName: string): Observable<YT.EventArgs> {
+    fromEvent <T extends YT.Events> (eventName: keyof YT.Events): Observable<T> {
         const addHandler = (h) => this.player.addEventListener(eventName, h);
         const removeHandler = (h) => {
             if (!this.destroyed) {
