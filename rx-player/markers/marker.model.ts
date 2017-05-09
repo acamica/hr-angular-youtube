@@ -13,6 +13,10 @@ function numberInRange (n: number, range: Range) {
     return n > start && n < end;
 }
 
+function numberInRangeInclusive (n: number, range: Range) {
+    const [start, end] = range;
+    return n >= start && n <= end;
+}
 //
 export const startedIn =
     (marker: IMarker, range: Range) => numberInRange(marker.startTime, range);
@@ -21,4 +25,4 @@ export const endedIn =
     (marker: IMarker, range: Range) => numberInRange(marker.endTime, range);
 
 export const timeInMarkerRange =
-    (time: number, marker: IMarker) => numberInRange(time, [marker.startTime, marker.endTime]);
+    (time: number, marker: IMarker) => numberInRangeInclusive(time, [marker.startTime, marker.endTime]);
