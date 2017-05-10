@@ -1,5 +1,5 @@
 import {IVideoPlayer} from '../players/video-player.model';
-import {IMarker, startedIn, endedIn, Range, timeInMarkerRange} from './marker.model';
+import {IMarker, startedIn, Range, timeInMarkerRange} from './marker.model';
 import {Observable} from 'rxjs/Observable';
 import {Store, combineReducers, IPayloadAction} from '../util/store.util';
 import {concatUnique} from '../util/immutable/facade';
@@ -33,9 +33,15 @@ export class MarkerRunner {
         const runningMarkers$ = this.state.select('running');
         const progressRange$ = this.state.select('progressRange')
             // If its a point more than a range, don't pass it trough
-            .filter(range => range[0] !== range[1])
+            // .filter(range => range[0] !== range[1])
             // .debug('progressRange$')
         ;
+        // TODO: There is still a "bug" with progressRange being called multiple times after
+        // a seek https://app.asana.com/0/240284596047949/339201762226565
+        // progressRange$
+        //     .debug('progressRange$')
+        //     .subscribe();
+
 
         const seekTo$ = this.player.seeked$.map(ev => ev.player.getCurrentTime())
         ; // .debug('seeked');
@@ -81,10 +87,12 @@ export class MarkerRunner {
         // While video is playing end the markers once we pass the end mark
         const endWhenPlayerPlaysTrough$ =
             progressRange$
-                // Join the range with the running markers
-                .withLatestFrom(runningMarkers$, (range: Range, markers) => ({range, markers}))
-                // Get a list of markers that have ended in this range
-                .map(({markers, range}) => markers.filter(marker => endedIn(marker, range)))
+                // Get the current time
+                .map(range => range[1])
+                // Join the time with the running markers
+                .withLatestFrom(runningMarkers$, (time, markers) => ({time, markers}))
+                // Get a list of markers that are no longer in range
+                .map(({markers, time}) => markers.filter(marker => !timeInMarkerRange(time, marker)))
                 // Only fire an event when we have markers that met the condition
                 .filter(markersToEnd => markersToEnd.length > 0)
         ;
@@ -171,13 +179,7 @@ export class MarkerRunner {
     }
 }
 
-interface IStartMarkersAction {
-    type: 'START_MARKERS';
-    payload: {
-        markers: IMarker[];
-    };
-}
-
+type IStartMarkersAction = IPayloadAction<'START_MARKERS', {markers: IMarker[]}>;
 type IEndMarkersAction = IPayloadAction<'END_MARKERS', {markers: IMarker[]}>;
 type IProgressUpdateAction = IPayloadAction<'PROGRESS_UPDATE', {time: number}>;
 type ISeekFinishedAction = IPayloadAction<'SEEK_FINISHED', {time: number}>;
@@ -221,7 +223,8 @@ function createMarkerRunnerReducers (markers: IMarker[]) {
     function progressRange (range = [-1, -1] as Range, action: IActions): Range {
         switch (action.type) {
             case 'PROGRESS_UPDATE':
-                return [range[1], action.payload.time];
+                const lastTime = Math.max(range[1], action.payload.time - 1);
+                return [lastTime, action.payload.time];
             case 'SEEK_FINISHED':
                 return [action.payload.time, action.payload.time];
             default:

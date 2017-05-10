@@ -100,22 +100,23 @@ export class HTML5Player
 
     );
 
-    progress$ = this.playState$.switchMap(state => {
-        if (state.isPlaying) {
-            return Observable
-                .fromEvent(this.video, 'timeupdate')
-                .map(_ => {
-                    const event = {
-                        player: this,
-                        type: 'videoprogress',
-                        time: this.getCurrentTime()
-                    } as IProgressStateEvent;
-                    return event;
-                });
-        } else {
-            return Observable.empty();
-        }
-    });
+    // TODO: This is the same as in youtube player. Chance to refactor
+    progress$ = this.playState$
+                    .switchMap(state => {
+                        if (state.isPlaying) {
+                            return Observable.interval(100);
+                        } else {
+                            return Observable.empty();
+                        }
+                     })
+                    .map(_ => {
+                        const event = {
+                            player: this,
+                            type: 'videoprogress',
+                            time: this.getCurrentTime()
+                        } as IProgressStateEvent;
+                        return event;
+                    });
 
     loaded$ = Observable
         .fromEvent(this.video, 'progress')

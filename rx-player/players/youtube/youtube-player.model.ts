@@ -124,12 +124,13 @@ export class YoutubePlayer
             hasEnded: ev.data === YT.PlayerState.ENDED // TODO: Add practically finished?
         } as IPlayStateEvent));
 
-    progress$ = this.fromEvent<YT.OnStateChangeEvent>('onStateChange')
-                    .switchMap(event => {
-                        if (event.data !== YT.PlayerState.PLAYING) {
-                            return Observable.empty();
-                        } else {
+    // TODO: This is the same as in html5 player. Chance to refactor
+    progress$ = this.playState$
+                    .switchMap(state => {
+                        if (state.isPlaying) {
                             return Observable.interval(100);
+                        } else {
+                            return Observable.empty();
                         }
                      })
                     .map(_ => {
