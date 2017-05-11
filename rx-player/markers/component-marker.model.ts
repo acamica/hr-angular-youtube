@@ -9,14 +9,6 @@ export interface IBindingMap {
     [key: string]: any;
 }
 
-export interface IComponentMarkerOptions {
-    startTime: number;
-    endTime: number;
-    template: string;
-    parentElm?: JQuery;
-    parentScope?: ng.IScope;
-    bindings?: IBindingMap;
-}
 
 export class ComponentMarker implements IMarker {
     get startTime () {
@@ -47,7 +39,7 @@ export class ComponentMarker implements IMarker {
 
     onStart (player: IVideoPlayer) {
         if (this.options.parentElm) {
-            this.render(player, this.options.parentElm);
+            this.render({player, parentElm: this.options.parentElm});
         } else {
             // TODO: Improve error handling returning an either or a promise with possible errors
             //       making the user be responsible for the error
@@ -55,22 +47,29 @@ export class ComponentMarker implements IMarker {
         }
     }
 
-    render (player: IVideoPlayer, parentElm: JQuery) {
+    render (renderOptions: IRenderOptions) {
+        // See which parent scope to use
+        const parentScope = renderOptions.parentScope ?
+            Promise.resolve(renderOptions.parentScope) : this.parentScope;
+
+        // Construct the bindings
+        const bindings = {...this.options.bindings, ...renderOptions.bindings};
+
         // Add the element where its supposed to be and compile it
         this.elm = angular.element(this.options.template);
-        parentElm.append(this.elm);
+        renderOptions.parentElm.append(this.elm);
         const componentLinkFn = $compile.then($compile => $compile(this.elm));
 
         // Once its compiled
-        Promise.all([componentLinkFn, this.parentScope])
+        Promise.all([componentLinkFn, parentScope])
             .then(([linkFn, parentScope]) => {
                 // create a new scope for it and link it
                 this.scope = parentScope.$new(true);
                 // Bind the player to the scope
-                this.scope['$player'] = player;
+                this.scope['$player'] = renderOptions.player;
                 // Add optional bindings to the scope
                 Object
-                    .keys(this.options.bindings || {})
+                    .keys(bindings || {})
                     .forEach(key => this.scope[key] = this.options.bindings[key]);
                 linkFn(this.scope);
             })
@@ -87,3 +86,19 @@ export class ComponentMarker implements IMarker {
     }
 
 }
+export interface IRenderOptions {
+    player: IVideoPlayer;
+    parentElm: JQuery;
+    parentScope?: ng.IScope;
+    bindings?: IBindingMap;
+}
+
+export interface IComponentMarkerOptions {
+    startTime: number;
+    endTime: number;
+    template: string;
+    parentElm?: JQuery;
+    parentScope?: ng.IScope;
+    bindings?: IBindingMap;
+}
+

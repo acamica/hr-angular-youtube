@@ -67,8 +67,8 @@ export class ControlsDemoComponent {
             }),
             new ComponentMarker({
                 startTime: 14,
-                endTime: 14.01,
-                template: '<h1>from 13 to 13.1 with lazy element</h1>'
+                endTime: 14.1,
+                template: '<h1>from 14 to 14.1 with lazy element</h1>'
             })
         ];
 
@@ -85,7 +85,7 @@ export class ControlsDemoComponent {
         const markerWithoutParent = markers[3] as ComponentMarker;
         const self = this;
         markerWithoutParent.onStart = function (player) {
-            this.render(player, self.elm);
+            this.render({player, parentElm: self.elm});
         };
         // Set red colour to the 3rd marker
         this.markersToShow[3].barCssClass = 'red';
