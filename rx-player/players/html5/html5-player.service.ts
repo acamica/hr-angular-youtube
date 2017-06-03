@@ -1,6 +1,6 @@
 import {Observable} from '../../util/rx/facade';
-import {HTML5Player, IHTML5PlayerOptions} from '../../players/html5/html5-player.model';
-import {IVideoPlayer} from '../../players/video-player.model';
+import {HTML5Player} from '../../players/html5/html5-player.model';
+import {IVideoPlayer, IHTML5PlayerOptions} from '../../players/video-player.model';
 import {registerVideoPlayer} from '../player-factory.service';
 import {getService} from '../../ng-helper/facade';
 

@@ -13,15 +13,14 @@ interface IPlayerRegistry {
 
 const Registry: IPlayerRegistry = {};
 
-export function registerVideoPlayer<T extends IVideoPlayer>
-                    (name: string, player: IPlayerFactory<T>) {
+export function registerVideoPlayer<T extends IVideoPlayer> (name: string, player: IPlayerFactory<T>) {
     Registry[name] = player;
 }
 
 export function createVideoPlayer<T extends IVideoPlayer> (
                     name: string,
                     options: any,
-                    videoDiv$: HTMLElement
+                    videoDiv$: Element
                 ): Observable<T> {
     return Maybe
                 .fromNullable(Registry[name] as IPlayerFactory<T>)

@@ -28,17 +28,17 @@ setPlayerVarDefaultOption('modestbranding', 1);
     directives: [RxPlayerComponent, PlayPauseComponent, TimeControlComponent],
 })
 export class ControlsDemoComponent {
-    // videoSource = {
-    //     player: 'HTML5Player',
-    //     sources: [{
-    //         src: 'https://media.w3.org/2010/05/sintel/trailer.ogv',
-    //         type: 'video/ogg'
-    //     }]
-    // };
     videoSource = {
-        player: 'YoutubePlayer',
-        youtubeId: 'QjX9Wu-MJ-s'
+        player: 'HTML5Player',
+        sources: [{
+            src: 'https://media.w3.org/2010/05/sintel/trailer.ogv',
+            type: 'video/ogg'
+        }]
     };
+    // videoSource = {
+    //     player: 'YoutubePlayer',
+    //     youtubeId: 'QjX9Wu-MJ-s'
+    // };
 
     static $inject = ['$scope', '$element'];
     constructor (private $scope, private elm) {

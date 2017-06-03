@@ -1,11 +1,14 @@
 import * as angular from 'angular';
 import {Observable} from '../../util/rx/facade';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 import {PlainModel} from '../../ng-helper/plain-model';
 // import {convertToYoutube, convertFromYoutube} from 'src/service/youtube-quality-map.service';
 // import {youtubeReadableTime} from 'src/service/youtube-readable-time.service';
 // import {uuid} from 'src/util/uuid.service';
 import {
+    IHTML5VideoSource,
+    IHTML5PlayerOptions,
     IVideoPlayer,
     IVolumeStateEvent,
     IProgressStateEvent,
@@ -17,15 +20,6 @@ import {
     IEndedEvent
 } from '../../players/video-player.model';
 
-export interface IHTML5Source {
-    src: string;
-    type: string;
-}
-export interface IHTML5PlayerOptions {
-    height: string;
-    width: string;
-    sources: IHTML5Source[];
-}
 
 @PlainModel({
     name: 'HTML5Player',
@@ -42,17 +36,15 @@ export class HTML5Player
         $video.css('height', '100%');
         $video.css('width', '100%');
 
-        options.sources
-            .map(source => angular.element(`<source src="${source.src}" type="${source.type}">`))
-            .forEach(sourceElm => $video.append(sourceElm));
-
         angular.element(elm).replaceWith($video);
     }
+
 
     // -------------------
     // -     Loading     -
     // -------------------
-    load ({sources}): Observable<HTML5Player> {
+    load (source: IHTML5VideoSource): Observable<HTML5Player> {
+        this.setVideoSources(source);
         // this.video.load();
         // this.video.preload = 'metadata';
         return Observable
@@ -60,9 +52,19 @@ export class HTML5Player
             .mapTo(this);
     }
 
-    ready$ = Observable
-                .fromEvent(this.video, 'loadstart')
-                .mapTo(this);
+    private setVideoSources (source: IHTML5VideoSource) {
+        const $video = angular.element(this.video);
+        $video.empty();
+
+        source.sources
+            .map(source => angular.element(`<source src="${source.src}" type="${source.type}">`))
+            .forEach(sourceElm => $video.append(sourceElm));
+    }
+    ready$ = new BehaviorSubject(this);
+
+    // ready$ = Observable
+    //             .fromEvent(this.video, 'loadstart')
+    //             .mapTo(this);
 
     // -------------------
     // -     Playing     -

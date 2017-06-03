@@ -3,8 +3,8 @@ import {Observable, Subject} from '../../util/rx/facade';
 import {PlainModel} from '../../ng-helper/plain-model';
 import {convertToYoutube, convertFromYoutube} from '../../players/youtube/youtube-quality-map.service';
 import {uuid} from '../../util/uuid.service';
-import {IYoutubePlayerOptions} from './youtube.service';
 import {
+    IYoutubePlayerOptions,
     IVideoPlayer,
     IVolumeStateEvent,
     IProgressStateEvent,

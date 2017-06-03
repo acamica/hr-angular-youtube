@@ -1,6 +1,6 @@
 import {Observable, ReplaySubject} from '../../util/rx/facade';
 import {YoutubePlayer} from '../../players/youtube/youtube-player.model';
-import {IVideoPlayer} from '../../players/video-player.model';
+import {IVideoPlayer, IYoutubePlayerOptions} from '../../players/video-player.model';
 import {registerVideoPlayer} from '../player-factory.service';
 import {getService} from '../../ng-helper/facade';
 
@@ -57,7 +57,7 @@ let defaultOptions: any = {
     width: '100%'
 };
 
-export type IYoutubePlayerOptions = YT.PlayerOptions;
+
 
 // TODO: Find better names
 function normalizeOptions (options): IYoutubePlayerOptions {

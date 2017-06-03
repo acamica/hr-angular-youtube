@@ -1,29 +1,16 @@
-// TODO: Move this into players folder
 import {Observable, fromAngularWatch, observeScopeDestroy} from '../util/rx/facade';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
-
 import {Component, localTemplateVariableLink} from '../ng-helper/facade';
-
-// TODO: Put all video interfaces in a facade
-// import {YoutubePlayer} from 'src/players/youtube/youtube-player.model';
-
-import {IVideoPlayer} from '../players/video-player.model';
-
 import {createVideoPlayer} from '../players/player-factory.service';
+import {
+    IVideoPlayer,
+    IVideoSource,
+    IVideoOptions,
+    IYoutubePlayerOptions,
+    IHTML5PlayerOptions
+} from '../players/video-player.model';
 
-// TODO: Try to redefine as an algebraic data type, but see if that can be extended
-export interface IVideoSource {
-    player: string;
-    youtubeId: string; // TODO: THIS SHOULD NOT BE HERE!
-    sources: any; // TODO: THIS SHOULD NOT BE HERE!
-}
 
-// YOUTUBE specifics, TODO: see how to refactor
-const playerAttrs = ['id', 'height', 'width'];
-const playerVarAttrs = ['autohide', 'autoplay', 'ccLoadPolicy', 'color', 'controls',
-                        'disablekb', 'enablejsapi', 'end', 'fs', 'ivLoadPolicy',
-                        'list', 'listType', 'loop', 'modestbranding', 'origin', 'playerapiid',
-                        'playlist', 'playsinline', 'rel', 'showinfo', 'start', 'theme'];
 
 @Component({
     selector: 'rxPlayer',
@@ -39,7 +26,7 @@ export class RxPlayerComponent {
 
     static $inject = ['$element', '$attrs', '$scope'];
 
-    constructor (private elm, private attrs, private scope) {
+    constructor (private elm: ng.IAugmentedJQuery, private attrs: ng.IAttributes, private scope: ng.IScope) {
         // Save the overlay element in the controller so child directives can use it
         // TODO: check this out again
         this.setOverlayElement(elm);
@@ -58,26 +45,10 @@ export class RxPlayerComponent {
 
     $onInit () {
         // TODO: Type this
-        const $videoDiv: HTMLElement = this.elm[0].querySelector('.hr-yt-video-place-holder');
+        const $videoDiv = this.elm[0].querySelector('.hr-yt-video-place-holder');
         // const $overlayElm = angular.element(this.elm[0].querySelector('.hr-yt-overlay'));
 
-        // TODO: Fix this options
-        const options: any = {
-            playerVars: {}
-        };
 
-        // TODO: Specific to youtube, move where needed
-        playerAttrs.forEach(name => {
-            if (this.attrs.hasOwnProperty(name)) {
-                options[name] = this.attrs[name];
-            }
-        });
-
-        playerVarAttrs.forEach(name => {
-            if (this.attrs.hasOwnProperty(name)) {
-                options.playerVars[name] = this.attrs[name];
-            }
-        });
 
         // Watch whenever watchVideoSource changes
         const watchVideoSource$ = fromAngularWatch(() => this.videoSource, this.scope)
@@ -91,8 +62,7 @@ export class RxPlayerComponent {
                         // .debug('new video source')
                         .map(source => ({
                             playerClass: source.player,
-                            // TODO: Hardcoded to HTML5 sources :/
-                            options: {...options, sources: source.sources}
+                            options: getOptionsFromAttrs(source.player, this.attrs)
                         }))
                         // Create a video player of the provided type
                         .switchMap(({playerClass, options}) =>
@@ -122,7 +92,59 @@ export class RxPlayerComponent {
         );
     }
 }
+    // IHTML5PlayerOptions
 
+const YTPlayerAttrs = ['id', 'height', 'width'];
+const YTPlayerVarAttrs = ['autohide', 'autoplay', 'ccLoadPolicy', 'color', 'controls',
+                        'disablekb', 'enablejsapi', 'end', 'fs', 'ivLoadPolicy',
+                        'list', 'listType', 'loop', 'modestbranding', 'origin', 'playerapiid',
+                        'playlist', 'playsinline', 'rel', 'showinfo', 'start', 'theme'];
+
+function getYoutubeOptionsFromAttrs ($attrs: ng.IAttributes): IYoutubePlayerOptions {
+    const options: IYoutubePlayerOptions = {
+        player: 'YoutubePlayer',
+        videoId: null,
+        playerVars: {}
+    };
+
+    YTPlayerAttrs.forEach(name => {
+        if ($attrs.hasOwnProperty(name)) {
+            options[name] = $attrs[name];
+        }
+    });
+
+    YTPlayerVarAttrs.forEach(name => {
+        if ($attrs.hasOwnProperty(name)) {
+            options.playerVars[name] = $attrs[name];
+        }
+    });
+    return options;
+}
+
+const HTML5PlayerAttrs = ['height', 'width'];
+
+function getHTML5OptionsFromAttrs ($attrs: ng.IAttributes): IHTML5PlayerOptions {
+    const options: IHTML5PlayerOptions = {
+        player: 'HTML5Player',
+    };
+
+    HTML5PlayerAttrs.forEach(name => {
+        if ($attrs.hasOwnProperty(name)) {
+            options[name] = $attrs[name];
+        }
+    });
+
+    return options;
+}
+
+function getOptionsFromAttrs (player: string, $attrs: ng.IAttributes): IVideoOptions {
+    switch (player) {
+        case 'HTML5Player':
+            return getHTML5OptionsFromAttrs($attrs);
+        case 'YoutubePlayer':
+            return getYoutubeOptionsFromAttrs($attrs);
+    }
+}
 function convertToUnits (u: number|string): string {
     // If its numbers, interpret pixels
     if (typeof u === 'number' || /^\d+$/.test(u)) {

@@ -56,6 +56,36 @@ export interface IVideoPlayer {
     destroy (): void;
 }
 
+export interface IYoutubeVideoSource {
+    player: 'YoutubePlayer';
+    youtubeId: string;
+}
+
+export interface IHTML5VideoSource {
+    player: 'HTML5Player';
+    sources: IHTML5Source[];
+}
+
+export interface IHTML5Source {
+    src: string;
+    type: string;
+}
+
+// TODO: See if this can be extended with custom data sources
+export type IVideoSource = IYoutubeVideoSource | IHTML5VideoSource;
+
+export interface IHTML5PlayerOptions {
+    player: 'HTML5Player';
+    height?: string;
+    width?: string;
+}
+export interface IYoutubePlayerOptions extends YT.PlayerOptions {
+    player: 'YoutubePlayer';
+}
+
+// TODO: See if this can be extended with custom data sources
+export type IVideoOptions = IYoutubePlayerOptions | IHTML5PlayerOptions;
+
 // type IPlayStateEvent = any; // TODO: Minify to selected events
     // StartEvent | PauseEvent | StopEvent
 export interface IPlayStateEvent {

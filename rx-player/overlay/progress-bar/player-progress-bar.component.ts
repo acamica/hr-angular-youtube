@@ -39,8 +39,7 @@ export class PlayerProgressBar {
     markers: IProgressBarMarker[] | null;
 
     static $inject = ['$element', '$scope'];
-    constructor (private elm, private scope) {
-
+    constructor (private elm, private scope: ng.IScope) {
     }
 
     sliderDown$ = new Subject<void>();
