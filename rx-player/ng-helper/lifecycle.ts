@@ -1,16 +1,16 @@
 function getter (accesor: string) {
     const parts = accesor.split('.');
-     function doGet (obj: any, p: string[]) {
+     function doGet (obj: any, p: string[]): any {
         if (obj === undefined || p.length === 0) {
             return obj;
         }
         return doGet(obj[p[0]], p.slice(1));
     }
-    return (obj) => doGet(obj, parts);
+    return (obj: any) => doGet(obj, parts);
 }
 
 function watchAndCall (watchers: string[], hook: string) {
-    return function (scope: ng.IScope, elm, attr, ctrls) {
+    return function (scope: ng.IScope, elm: ng.IAugmentedJQuery, attr: ng.IAttributes, ctrls: any[]) {
         const ctrl = ctrls[0];
         const watcherGetter = watchers.map(w => getter(w));
         if (typeof ctrl[hook] !== 'function') {
@@ -73,7 +73,7 @@ export function mockNgAfterContentInit (watchers: string[]) {
 
 
 export function mockNgOnInitFromAttr (attribute: string) {
-    return function (scope, elm, attr, ctrls) {
+    return function (scope: ng.IScope, elm: ng.IAugmentedJQuery, attr: ng.IAttributes, ctrls: any[]) {
         const u = scope.$watch(attr[attribute], function (attributeWatched) {
             if (typeof attributeWatched !== 'undefined') {
                 u();

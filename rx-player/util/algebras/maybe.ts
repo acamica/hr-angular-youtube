@@ -1,20 +1,12 @@
 import {ICurry1, ICurry2} from './curry';
 
-export interface IMapFn<E, S> {
-    (entrada: E): S;
-}
+export type IMapFn<E, S> = (entrada: E) => S;
 
-export interface IMaybeChainFn<E, S> {
-    (entrada: E): Maybe<S>;
-}
+export type IMaybeChainFn<E, S> = (entrada: E) => Maybe<S>;
 
-export interface IReduceFn<V, A> {
-    (accu: A, value: V): A;
-}
+export type IReduceFn<V, A> = (accu: A, value: V) => A;
 
-export interface IElseFn<T> {
-    (): Maybe<T>;
-}
+export type IElseFn<T> = () => Maybe<T>;
 
 
 export abstract class Maybe<T> {
@@ -49,7 +41,7 @@ export abstract class Maybe<T> {
 
 
     // Foldable
-    abstract reduce<A> (fn: IReduceFn<T, A>, accu: A);
+    abstract reduce<A> (fn: IReduceFn<T, A>, accu: A): A;
 
     // Maybe specific
     abstract isJust (): boolean;

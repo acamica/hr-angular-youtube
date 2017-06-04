@@ -17,7 +17,7 @@ export interface IDirectiveDefinition {
 }
 
 export function Directive (definition: IDirectiveDefinition) {
-    return function (target) {
+    return function (target: any) {
         module.directive(definition.selector, function () {
                 let require = [definition.selector];
                 if (definition.require) {

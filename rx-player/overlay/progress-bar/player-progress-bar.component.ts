@@ -39,7 +39,7 @@ export class PlayerProgressBar {
     markers: IProgressBarMarker[] | null;
 
     static $inject = ['$element', '$scope'];
-    constructor (private elm, private scope: ng.IScope) {
+    constructor (private elm: ng.IAugmentedJQuery, private scope: ng.IScope) {
     }
 
     sliderDown$ = new Subject<void>();

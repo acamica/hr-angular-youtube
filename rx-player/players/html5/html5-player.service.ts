@@ -1,4 +1,5 @@
 import {Observable} from '../../util/rx/facade';
+import {Observer} from 'rxjs/Observer';
 import {HTML5Player} from '../../players/html5/html5-player.model';
 import {IVideoPlayer, IHTML5PlayerOptions} from '../../players/video-player.model';
 import {registerVideoPlayer} from '../player-factory.service';
@@ -11,7 +12,7 @@ const Factory = {
 registerVideoPlayer('HTML5Player', Factory);
 
 
-export function loadPlayer (elm, options: IHTML5PlayerOptions): Promise<HTML5Player> {
+export function loadPlayer (elm: ng.IAugmentedJQuery, options: IHTML5PlayerOptions): Promise<HTML5Player> {
         // TODO: Refactor to observables
         // Get the YoutubePlayer constructor
         return getService<typeof HTML5Player>('HTML5Player')
@@ -25,8 +26,8 @@ export function loadPlayer (elm, options: IHTML5PlayerOptions): Promise<HTML5Pla
 
 
 // TODO: This is so far equal to the YoutubePlayer fn
-export function createVideoPlayer (options: IHTML5PlayerOptions, $videoDiv): Observable<IVideoPlayer> {
-    return Observable.create(observer => {
+export function createVideoPlayer (options: IHTML5PlayerOptions, $videoDiv: ng.IAugmentedJQuery): Observable<IVideoPlayer> {
+    return Observable.create((observer: Observer<IVideoPlayer>) => {
         options.height = options.height || '100%';
         options.width = options.width || '100%';
 

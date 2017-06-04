@@ -5,6 +5,7 @@ import {convertToYoutube, convertFromYoutube} from '../../players/youtube/youtub
 import {uuid} from '../../util/uuid.service';
 import {
     IYoutubePlayerOptions,
+    IYoutubeVideoSource,
     IVideoPlayer,
     IVolumeStateEvent,
     IProgressStateEvent,
@@ -42,7 +43,7 @@ export class YoutubePlayer
     // TODO: Improve, maybe add a store
     private eventEmmiter = new Subject<IPlayerEvent>();
 
-    constructor (elmOrId, public options: IYoutubePlayerOptions) {
+    constructor (elm: ng.IAugmentedJQuery, public options: IYoutubePlayerOptions) {
         const op = angular.copy(this.options);
         // TODO: Add a fit to parent or something like that
 
@@ -51,9 +52,9 @@ export class YoutubePlayer
         op.width = options.width;
         op.height = options.height;
         // console.debug('YoutubePlayer: creating underliying youtube player with options', op);
-        this.player = new YT.Player(elmOrId, op);
+        this.player = new YT.Player(elm[0], op);
 
-        this.on('onStateChange', (event) => {
+        this.on('onStateChange', (event: YT.OnStateChangeEvent) => {
             if (event.data === YT.PlayerState.PLAYING) {
                 this.setVolume(this.player.getVolume());
                 this._setMuted(this.player.isMuted());
@@ -78,7 +79,7 @@ export class YoutubePlayer
      * Loads a source and emit a single value when the video is loaded
      */
     // TODO: type youtube source
-    load (source): Observable<YoutubePlayer> {
+    load (source: IYoutubeVideoSource): Observable<YoutubePlayer> {
         const loadVideo$ = this.fromEvent<YT.OnStateChangeEvent>('onStateChange')
             // .do(x => console.log('state', x.data))
             .filter(x => x.data === YT.PlayerState.PLAYING)
@@ -114,7 +115,7 @@ export class YoutubePlayer
     }
 
     // TODO: need to map this event to a common interface once defined
-    playState$ = this
+    playState$: Observable<IPlayStateEvent> = this
         .fromEvent<YT.OnStateChangeEvent>('onStateChange')
         .filter(ev => [YT.PlayerState.PLAYING, YT.PlayerState.ENDED, YT.PlayerState.PAUSED].indexOf(ev.data) !== -1)
         .map(ev => ({
@@ -125,7 +126,7 @@ export class YoutubePlayer
         } as IPlayStateEvent));
 
     // TODO: This is the same as in html5 player. Chance to refactor
-    progress$ = this.playState$
+    progress$: Observable<IProgressStateEvent> = this.playState$
                     .switchMap(state => {
                         if (state.isPlaying) {
                             return Observable.interval(100);
@@ -145,7 +146,7 @@ export class YoutubePlayer
     // TODO: There is no specific event from youtube to indicate that the video is
     // being loaded, for now this recipe is disabled. Eventually we can combine onStateChange with
     // an interval to poll when the event happens
-    loaded$ = Observable.empty<ILoadedStateEvent>();
+    loaded$: Observable<ILoadedStateEvent> = Observable.empty<ILoadedStateEvent>();
         // .fromEvent('progress')
         // .map(_ => {
         //     const event = {
@@ -170,7 +171,7 @@ export class YoutubePlayer
     seeking$ = new Subject<ISeekingEvent>();
     seeked$ = new Subject<ISeekedEvent>();
 
-    seekTo (sec): Promise<any> {
+    seekTo (sec: number): Promise<ISeekedEvent> {
         const initialTime = this.getCurrentTime();
 
         // Seek to sec
@@ -218,7 +219,7 @@ export class YoutubePlayer
         return this.seeked$.take(1).toPromise();
     }
 
-    ended$ = this.fromEvent<YT.OnStateChangeEvent>('onStateChange')
+    ended$: Observable<IEndedEvent> = this.fromEvent<YT.OnStateChangeEvent>('onStateChange')
         .map(ev => {
             // If youtube says its ended, we ended
             if (ev.data === YT.PlayerState.ENDED) {
@@ -246,7 +247,7 @@ export class YoutubePlayer
     // -------------------
     // -     Rate     -
     // -------------------
-    playbackRate$ = this.fromEvent('onPlaybackRateChange')
+    playbackRate$: Observable<IRateChangeEvent> = this.fromEvent('onPlaybackRateChange')
                         .map(_ => {
                             const event = {
                                 player: this,
@@ -294,7 +295,7 @@ export class YoutubePlayer
         this._setMuted(false); // This triggers event
     }
 
-    setVolume (volume) {
+    setVolume (volume: number) {
         const changed = this._volume !== volume;
         // If volume is 0, then set as muted, if not is unmuted
         this._setMuted(volume === 0);
@@ -312,7 +313,7 @@ export class YoutubePlayer
         return this._volume;
     };
 
-    volumeState$ = this.eventEmmiter
+    volumeState$: Observable<IVolumeStateEvent> = this.eventEmmiter
         .filter(event => event.type === 'volumechange')
         .map(_ => {
             const event = {
@@ -325,7 +326,7 @@ export class YoutubePlayer
         });
 
     // TODO: Maybe refactor into property setter
-    private _setMuted (muted) {
+    private _setMuted (muted: boolean) {
         const changed = this._muted !== muted;
         this._muted = muted;
         // If its muted and with no volume, unmuting sets to half volume
@@ -347,7 +348,7 @@ export class YoutubePlayer
     // -------------------
 
 
-    setOverlayElement (elm) {
+    setOverlayElement (elm: Element) {
         this._element = elm;
     }
 
@@ -356,11 +357,11 @@ export class YoutubePlayer
     }
 
     // TODO: Deprecate
-    onProgress (fn, resolution?) {
+    onProgress (fn: any, resolution?: any) {
         if (typeof resolution === 'undefined') {
             resolution = 100;
         }
-        let promise = null;
+        let promise: any = null;
         const startInterval = () => {
             if (promise === null) {
                 promise = imports.$interval(fn, resolution);
@@ -376,7 +377,7 @@ export class YoutubePlayer
             // TODO: something more to destroy / release stuff.
         };
 
-        this.on('onStateChange', (event) => {
+        this.on('onStateChange', (event: any) => {
             if (event.data === YT.PlayerState.PLAYING) {
                 startInterval();
             } else {
@@ -448,9 +449,9 @@ export class YoutubePlayer
         return seekPromise.promise;
     }*/
 
-    startLoading (sec) {
-        let unregister;
-        const pauseAfterStart =  event => {
+    startLoading (sec: number) {
+        let unregister: any;
+        const pauseAfterStart =  (event: any) => {
             if (event.data === YT.PlayerState.PLAYING) {
                 if (typeof sec === 'number') {
                     this.seekTo(sec);
@@ -481,7 +482,7 @@ export class YoutubePlayer
     }
 
     // TODO: Deprecate this shit
-    on (name, handler) {
+    on (name: any, handler: any) {
         this._initializeEventListener();
 
         return imports.$rootScope.$on(this._eventHash + name, (e, eventData) => {
@@ -489,7 +490,7 @@ export class YoutubePlayer
         });
     };
     // TODO: Deprecate this shit
-    emit (name, data?) {
+    emit (name: any, data?: any) {
         imports.$rootScope.$emit(this._eventHash + name, data);
     };
 
@@ -497,7 +498,7 @@ export class YoutubePlayer
         return convertToYoutube(this.player.getPlaybackQuality());
     };
 
-    getHumanIntendedPlaybackQuality (showRealAuto) {
+    getHumanIntendedPlaybackQuality (showRealAuto: any) {
         let ans = convertToYoutube(this._intendedQuality);
         if (ans === 'Auto' && showRealAuto && this.getHumanPlaybackQuality() !== 'Auto') {
             ans += ' (' + this.getHumanPlaybackQuality() + ')';
@@ -505,8 +506,8 @@ export class YoutubePlayer
         return ans;
     };
 
-    setHumanPlaybackQuality (q) {
-        const quality = convertFromYoutube(q);
+    setHumanPlaybackQuality (q: any) {
+        const quality: any = convertFromYoutube(q);
         this.setPlaybackQuality(quality);
         this.emit('onIntentPlaybackQualityChange');
     };
@@ -529,8 +530,8 @@ export class YoutubePlayer
     }
 
     fromEvent <T extends YT.Events> (eventName: keyof YT.Events): Observable<T> {
-        const addHandler = (h) => this.player.addEventListener(eventName, h);
-        const removeHandler = (h) => {
+        const addHandler = (h: any) => this.player.addEventListener(eventName, h);
+        const removeHandler = (h: any) => {
             if (!this.destroyed) {
                 this.player.removeEventListener(eventName, h);
             }

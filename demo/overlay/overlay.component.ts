@@ -1,7 +1,6 @@
 import * as angular from 'angular';
-import {Component, mockNgOnInitLink} from 'rx-player/ng-helper/facade';
+import {Component} from 'rx-player/ng-helper/facade';
 import {RxPlayerComponent} from 'rx-player/main';
-import {Observable} from 'rx-player/util/rx/facade';
 import {setPlayerVarDefaultOption} from 'rx-player/players/youtube/youtube.service';
 import {PlayPauseComponent, TimeControlComponent} from '../common-controls/facade';
 
@@ -24,38 +23,15 @@ setPlayerVarDefaultOption('modestbranding', 1);
 @Component({
     selector: 'overlayDemo',
     templateUrl: '/demo/overlay/overlay.component.html',
-    link: mockNgOnInitLink(['playerCtrl']),
     directives: [RxPlayerComponent, PlayPauseComponent, TimeControlComponent],
 })
-export class ControlsDemoComponent {
+export class OverlayDemoComponent {
     videoSource = {
         player: 'YoutubePlayer',
         youtubeId: 'QjX9Wu-MJ-s'
     };
-    static $inject = ['$scope'];
-    constructor (private $scope) {
 
-    }
-
-    play () {
-        this.$scope['playerCtrl'].player$
-            .take(1)
-            .subscribe(player => player.play());
-    }
-
-    pause () {
-        this.$scope['playerCtrl'].player$
-            .take(1)
-            .subscribe(player => player.pause());
-    }
-
-    isPlaying: Observable<boolean>;
-    ngOnInit () {
-        this.isPlaying = this.$scope['playerCtrl'].player$
-                    .switchMap(player => player.playState$.mapTo(player))
-                    .map(player => player.isPlaying())
-                    .startWith(false);
-    }
+    playerCtrl: RxPlayerComponent;
 }
 
 

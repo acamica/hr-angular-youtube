@@ -1,3 +1,4 @@
+import * as angular from 'angular';
 import {Observable, fromAngularWatch, observeScopeDestroy} from '../util/rx/facade';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Component, localTemplateVariableLink} from '../ng-helper/facade';
@@ -32,8 +33,8 @@ export class RxPlayerComponent {
         this.setOverlayElement(elm);
     }
 
-    private $overlayElm;
-    setOverlayElement (elm) {
+    private $overlayElm: ng.IAugmentedJQuery;
+    setOverlayElement (elm: ng.IAugmentedJQuery) {
         this.$overlayElm = elm;
     }
 
@@ -45,7 +46,7 @@ export class RxPlayerComponent {
 
     $onInit () {
         // TODO: Type this
-        const $videoDiv = this.elm[0].querySelector('.hr-yt-video-place-holder');
+        const $videoDiv = angular.element(this.elm[0].querySelector('.hr-yt-video-place-holder'));
         // const $overlayElm = angular.element(this.elm[0].querySelector('.hr-yt-overlay'));
 
 
@@ -94,11 +95,11 @@ export class RxPlayerComponent {
 }
     // IHTML5PlayerOptions
 
-const YTPlayerAttrs = ['id', 'height', 'width'];
-const YTPlayerVarAttrs = ['autohide', 'autoplay', 'ccLoadPolicy', 'color', 'controls',
-                        'disablekb', 'enablejsapi', 'end', 'fs', 'ivLoadPolicy',
-                        'list', 'listType', 'loop', 'modestbranding', 'origin', 'playerapiid',
-                        'playlist', 'playsinline', 'rel', 'showinfo', 'start', 'theme'];
+const YTPlayerAttrs: Array<keyof IYoutubePlayerOptions> = ['height', 'width'];
+const YTPlayerVarAttrs: Array<keyof IYoutubePlayerOptions['playerVars']> =
+    ['autohide', 'autoplay', 'color', 'controls', 'disablekb', 'enablejsapi', 'end', 'fs',
+    'list', 'listType', 'loop', 'modestbranding', 'origin', 'playlist', 'rel', 'showinfo', 'start'
+    ];
 
 function getYoutubeOptionsFromAttrs ($attrs: ng.IAttributes): IYoutubePlayerOptions {
     const options: IYoutubePlayerOptions = {
@@ -121,14 +122,14 @@ function getYoutubeOptionsFromAttrs ($attrs: ng.IAttributes): IYoutubePlayerOpti
     return options;
 }
 
-const HTML5PlayerAttrs = ['height', 'width'];
+const HTML5PlayerAttrs: Array<keyof IHTML5PlayerOptions> = ['height', 'width'];
 
 function getHTML5OptionsFromAttrs ($attrs: ng.IAttributes): IHTML5PlayerOptions {
     const options: IHTML5PlayerOptions = {
         player: 'HTML5Player',
     };
 
-    HTML5PlayerAttrs.forEach(name => {
+    HTML5PlayerAttrs.forEach((name: keyof IHTML5PlayerOptions) => {
         if ($attrs.hasOwnProperty(name)) {
             options[name] = $attrs[name];
         }

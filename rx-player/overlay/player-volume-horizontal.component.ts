@@ -21,14 +21,14 @@ export class PlayerVolumeHorizontalComponent {
     isMuted: Observable<boolean>;
 
     static $inject = ['$element', '$scope'];
-    constructor (private elm, private $scope) {
+    constructor (private elm: ng.IAugmentedJQuery, private $scope: ng.IScope) {
     }
 
     private $volumeBar = angular.element(this.elm[0].querySelector('.hr-yt-volume-hr-bar'));
     private $settedBar = angular.element(this.elm[0].querySelector('.hr-yt-setted'));
     private $handle    = angular.element(this.elm[0].querySelector('.hr-yt-handle'));
 
-    private updateVolumeBar (volume) {
+    private updateVolumeBar (volume: number) {
         let handleX = volume * this.$volumeBar[0].clientWidth - this.$handle[0].clientWidth / 2  ;
         handleX = Math.min(Math.max(0, handleX), this.$volumeBar[0].clientWidth - this.$handle[0].clientWidth / 2);
         this.$settedBar.css('width', volume * 100 + '%');
@@ -62,12 +62,12 @@ export class PlayerVolumeHorizontalComponent {
                             .takeUntil(scopeDestroy$);
     }
 
-    updateVolume (volume) {
+    updateVolume (volume: number) {
         this.setVolume(volume);
         this.updateVolumeBar(volume);
     }
 
-    setVolume (volume) {
+    setVolume (volume: number) {
         this.player
             .take(1)
             .subscribe(player => player.setVolume(volume * 100));

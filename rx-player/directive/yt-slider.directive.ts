@@ -7,16 +7,21 @@ import * as angular from 'angular';
 export class YoutubeSliderDirective {
 
     static $inject = ['$element', '$attrs', '$scope', '$parse', '$document'];
-    constructor (private elm, private attrs, private scope, private $parse, private $document) {
+    constructor (
+        private elm: ng.IAugmentedJQuery,
+        private attrs: ng.IAttributes,
+        private scope: ng.IScope,
+        private $parse: ng.IParseService,
+        private $document: ng.IDocumentService) {
         this.ngOnInit(); // TODO: Remove after upgrade to ng 1.6
     }
 
     ngOnInit () {
-        const slideDown  = this.$parse(this.attrs.ytSliderDown);
-        const sliderMove = this.$parse(this.attrs.ytSliderMove);
-        const sliderUp   = this.$parse(this.attrs.ytSlider);
+        const slideDown  = this.$parse(this.attrs['ytSliderDown']);
+        const sliderMove = this.$parse(this.attrs['ytSliderMove']);
+        const sliderUp   = this.$parse(this.attrs['ytSlider']);
 
-        const getPercentageFromPageX = (pagex) => {
+        const getPercentageFromPageX = (pagex: number) => {
             // Get the player bar x from the page x
             const left =  this.elm[0].getBoundingClientRect().left;
             const x = Math.min(Math.max(0, pagex - left), this.elm[0].clientWidth);
@@ -45,14 +50,14 @@ export class YoutubeSliderDirective {
             $blocker.css('top', '0');
             document.body.appendChild($blocker[0]);
 
-            const documentMouseMove = (event) => {
+            const documentMouseMove = (event: any) => {
                 this.scope.$apply(() => {
                     const p = getPercentageFromPageX(event.pageX);
                     sliderMove(this.scope, {$percentage: p});
                 });
             };
 
-            const documentMouseUp = (event) => {
+            const documentMouseUp = (event: any) => {
                 this.scope.$apply(() => {
                     const p = getPercentageFromPageX(event.pageX);
 

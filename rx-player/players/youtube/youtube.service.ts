@@ -1,4 +1,4 @@
-import {Observable, ReplaySubject} from '../../util/rx/facade';
+import {Observable, ReplaySubject, Observer} from '../../util/rx/facade';
 import {YoutubePlayer} from '../../players/youtube/youtube-player.model';
 import {IVideoPlayer, IYoutubePlayerOptions} from '../../players/video-player.model';
 import {registerVideoPlayer} from '../player-factory.service';
@@ -6,8 +6,8 @@ import {getService} from '../../ng-helper/facade';
 
 const youtubeApiLoaded$ = new ReplaySubject(1);
 
-function createYoutubePlayer$ (element, options): Observable<YoutubePlayer> {
-    return Observable.create(observer => {
+function createYoutubePlayer$ (element: ng.IAugmentedJQuery, options: IYoutubePlayerOptions): Observable<YoutubePlayer> {
+    return Observable.create((observer: Observer<IVideoPlayer>) => {
         // console.info('createYoutubePlayer: starting promise');
         let player: YoutubePlayer;
 
@@ -29,7 +29,7 @@ function createYoutubePlayer$ (element, options): Observable<YoutubePlayer> {
     });
 }
 
-export function createVideoPlayer (options: IYoutubePlayerOptions, $videoDiv): Observable<IVideoPlayer> {
+export function createVideoPlayer (options: IYoutubePlayerOptions, $videoDiv: ng.IAugmentedJQuery): Observable<IVideoPlayer> {
     const newOptions = normalizeOptions(options);
     // console.info('createVideoPlayer: creating new recipy!');
             // Wait until the youtube api is loaded
@@ -60,7 +60,7 @@ let defaultOptions: any = {
 
 
 // TODO: Find better names
-function normalizeOptions (options): IYoutubePlayerOptions {
+function normalizeOptions (options: IYoutubePlayerOptions): IYoutubePlayerOptions {
 
     // const newOptions: any = {};
     // // Override main options
@@ -100,6 +100,9 @@ export function setPlayerVarDefaultOptions (playerVars: any) {
 
 // When the youtube API loads it executes this function that emits a value in a
 // shared subject
+declare var window: {
+    onYouTubeIframeAPIReady: () => void;
+};
 window['onYouTubeIframeAPIReady'] = () => {
     youtubeApiLoaded$.next(null);
 };

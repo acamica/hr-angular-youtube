@@ -1,9 +1,10 @@
 import {Observable} from '../util/rx/facade';
-import {IVideoPlayer} from '../players/video-player.model';
+import {IVideoPlayer, IVideoOptions} from '../players/video-player.model';
 import {Maybe} from '../util/algebras/maybe';
 import '../util/algebras/maybe-rx';
+
 export interface IPlayerFactory<T extends IVideoPlayer> {
-    createVideoPlayer (options, elm): Observable<T>;
+    createVideoPlayer (options: IVideoOptions, elm: ng.IAugmentedJQuery): Observable<T>;
 }
 
 // TODO: replace with angular injector
@@ -19,8 +20,8 @@ export function registerVideoPlayer<T extends IVideoPlayer> (name: string, playe
 
 export function createVideoPlayer<T extends IVideoPlayer> (
                     name: string,
-                    options: any,
-                    videoDiv$: Element
+                    options: IVideoOptions,
+                    videoDiv$: ng.IAugmentedJQuery
                 ): Observable<T> {
     return Maybe
                 .fromNullable(Registry[name] as IPlayerFactory<T>)

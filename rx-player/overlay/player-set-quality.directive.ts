@@ -11,7 +11,11 @@ export class PlayerSetQualityDirective {
     private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$parse', '$attrs', '$scope'];
-    constructor (private elm, private $parse, private attrs, private scope) {
+    constructor (
+            private elm: ng.IAugmentedJQuery,
+            private $parse: ng.IParseService,
+            private attrs: ng.IAttributes,
+            private scope: ng.IScope) {
     }
 
     ngOnInit () {

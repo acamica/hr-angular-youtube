@@ -55,7 +55,7 @@ function storeName<T> (msgOrFnMsg: IMsgOrFnMsg<T>, name: string) {
 // }
 class Logger<T> {
 
-    constructor (private msgOrFnMsg: IMsgOrFnMsg<T>, private logFn: (...args) => void) {
+    constructor (private msgOrFnMsg: IMsgOrFnMsg<T>, private logFn: (...args: any[]) => void) {
 
     }
 
@@ -79,7 +79,7 @@ class Logger<T> {
             .get();
     }
 
-    log (...args) {
+    log (...args: any[]) {
         if (this.enabled) {
             this.logFn(...args);
         }
@@ -144,6 +144,10 @@ function nameLogger (n: (number|string), name: string) {
         .map(logger => logger.name = name);
 }
 
+declare var window: {
+    rxdbg: any;
+};
+
 window['rxdbg'] = {
     // disable: (msg) => ({status: 'Debug disabled', fn: debug}),
     disable: disableLoggers,
@@ -158,25 +162,23 @@ window['rxdbg'] = {
 
 // const loggersLastMsg = [];
 
-export interface IFnMsg<T> {
-    (x: T): string;
-}
+export type IFnMsg<T> = (x: T) => string;
 
 export type IMsgOrFnMsg<T> = string | IFnMsg<T>;
 
 export function createDebugger<T> (msgOrFnMsg: IMsgOrFnMsg<T>) {
     const logger = new Logger(msgOrFnMsg, console.debug);
     loggers.push(logger);
-    return (...args) => logger.log(...args);
+    return (...args: any[]) => logger.log(...args);
 }
 
 export function createInfo<T> (msgOrFnMsg: IMsgOrFnMsg<T>) {
     const logger = new Logger(msgOrFnMsg, console.info);
     loggers.push(logger);
-    return (...args) => logger.log(...args);
+    return (...args: any[]) => logger.log(...args);
 }
 
-export function debug (msg: string, ...args) {
+export function debug (msg: string, ...args: any[]) {
     console.debug(msg, ...args);
 }
 

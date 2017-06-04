@@ -2,10 +2,9 @@ import {Observable} from 'rxjs/Observable';
 import {createDebugger, IMsgOrFnMsg} from './console.util';
 
 
-export interface IMapFn<I, O> {
-    (input: I): O;
-}
-const identity = x => x;
+export type IMapFn<I, O> = (input: I) => O;
+
+const identity = <T>(x: T) => x;
 
 export function debugOperator<T> (this: Observable<T>, msgOrFnMsg: IMsgOrFnMsg<T>, mapFn: IMapFn<T, any> = identity) {
     const debug = createDebugger(msgOrFnMsg);

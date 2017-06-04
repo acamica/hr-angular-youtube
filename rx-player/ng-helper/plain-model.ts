@@ -7,13 +7,13 @@ export interface IServiceOptions {
 }
 
 export function PlainModel (options: IServiceOptions) {
-    return function (target) {
+    return function (target: any) {
         const ng1Injects = Object.keys(options.$inject || {});
 
         module.factory(options.name, factory);
 
         factory.$inject = ng1Injects;
-        function factory (...deps) {
+        function factory (...deps: any[]) {
             ng1Injects.forEach((dep, i) => {
                 options.$inject[dep] = deps[i];
             });

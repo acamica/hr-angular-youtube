@@ -15,7 +15,7 @@ import {mockNgOnInitLink} from './lifecycle';
 export function bindRequireToCtrl (ctrlsAliases: string[]): IDirectiveLinkFn {
     return (scope, elm, attrs, ctrls) => {
         const mainCtrl = ctrls[0];
-        ctrls.splice(1).forEach((ctrl, index) => {
+        ctrls.splice(1).forEach((ctrl: any, index: number) => {
             if (ctrl) {
                 mainCtrl[ctrlsAliases[index]] = ctrl;
             }

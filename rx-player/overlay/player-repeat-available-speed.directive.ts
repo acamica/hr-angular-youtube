@@ -22,7 +22,7 @@ export class PlayerRepeatAvailableSpeedDirective {
     private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$scope', '$attrs'];
-    constructor (private scope, private attrs) {
+    constructor (private scope: ng.IScope, private attrs: ng.IAttributes) {
     }
 
     ngOnInit () {

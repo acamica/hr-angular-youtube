@@ -2,6 +2,8 @@ import {Component, bindToCtrlCallOnInit} from '../ng-helper/facade';
 import {YoutubePlayer} from '../players/youtube/youtube-player.model';
 import {RxPlayerComponent} from '../players/rx-player.component';
 
+type IShowReason = 'showOnHover' | 'showOnPause';
+
 @Component({
     selector: 'playerPanel',
     link: bindToCtrlCallOnInit(['rxPlayer']),
@@ -13,7 +15,11 @@ export class PlayerPanelComponent {
     private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$attrs', '$animate', '$timeout'];
-    constructor (private elm, private attrs, private $animate, private $timeout) {
+    constructor (
+            private elm: ng.IAugmentedJQuery,
+            private attrs: ng.IAttributes,
+            private $animate: any,
+            private $timeout: ng.ITimeoutService) {
     }
 
     ngOnInit () {
@@ -21,14 +27,14 @@ export class PlayerPanelComponent {
         this.rxPlayer
             .player$
             .subscribe((player: YoutubePlayer) => {
-                const whoWantsToShow = {};
+                const whoWantsToShow: any = {};
 
-                const show = (cause) => {
+                const show = (cause: IShowReason) => {
                     whoWantsToShow[cause] = true;
                     this.$animate.addClass(this.elm, 'ng-show');
                 };
 
-                const hide = (cause) => {
+                const hide = (cause: IShowReason) => {
                     delete whoWantsToShow[cause];
                     if (Object.keys(whoWantsToShow).length === 0 ) {
                         this.$animate.removeClass(this.elm, 'ng-show');
@@ -37,7 +43,7 @@ export class PlayerPanelComponent {
 
                 if ('showOnHover' in this.attrs && this.attrs.showOnHover !== false) {
                     const showOnHover = parseInt(this.attrs.showOnHover);
-                    let cancelTimerFn = null;
+                    let cancelTimerFn: ng.IPromise<void> = null;
                     const cancelTimer = () => {
                         if (cancelTimerFn !== null) {
                             this.$timeout.cancel(cancelTimerFn);
@@ -59,7 +65,7 @@ export class PlayerPanelComponent {
                     });
                 }
 
-                const showOnPause = (event) => {
+                const showOnPause = (event: {data: YT.PlayerState}) => {
                     if (event.data === YT.PlayerState.PLAYING) {
                         hide('showOnPause');
                     } else {

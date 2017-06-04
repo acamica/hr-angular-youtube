@@ -36,7 +36,7 @@ export class Store<S, A extends IAction> {
     select<K1 extends keyof S, K2 extends keyof S[K1], K3 extends keyof S[K1][K2], K4 extends keyof S[K1][K2][K3]> (arg1: K1, arg2: K2, arg3: K3, arg4: K4): Observable<S[K1][K2][K3][K4]>;
     select<K1 extends keyof S, K2 extends keyof S[K1], K3 extends keyof S[K1][K2], K4 extends keyof S[K1][K2][K3], K5 extends keyof S[K1][K2][K3][K4]> (arg1: K1, arg2: K2, arg3: K3, arg4: K4, arg5: K5): Observable<S[K1][K2][K3][K4][K5]>;
     select<K1 extends keyof S, K2 extends keyof S[K1], K3 extends keyof S[K1][K2], K4 extends keyof S[K1][K2][K3], K5 extends keyof S[K1][K2][K3][K4], K6 extends keyof S[K1][K2][K3][K4][K5]> (arg1: K1, arg2: K2, arg3: K3, arg4: K4, arg5: K5, arg6: K6): Observable<S[K1][K2][K3][K4][K5][K6]>;
-    select (...args) {
+    select (...args: any[]) {
         return this._state.map(state => {
             return args.reduce((subState, key) => {
                 if (typeof subState === 'object') {
@@ -52,8 +52,10 @@ export class Store<S, A extends IAction> {
 export type IReducerMap<ST, A extends IAction> = {
     [K in keyof ST]: IReducer<ST[K], A>;
 };
-
-export function combineReducers<ST, A extends IAction> (reducers: IReducerMap<ST, A>): IReducer<ST, A> {
+export interface IStateObj {
+    [key: string]: any;
+}
+export function combineReducers<ST extends IStateObj, A extends IAction> (reducers: IReducerMap<ST, A>): IReducer<ST, A> {
     return (state = {} as ST, action: A) => {
         return Object.keys(reducers).reduce(
             (nextState, key) => {

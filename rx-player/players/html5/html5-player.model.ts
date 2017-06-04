@@ -29,7 +29,7 @@ export class HTML5Player
 
     private video = document.createElement('video') as HTMLVideoElement;
 
-    constructor (elm: HTML5Player, public options: IHTML5PlayerOptions) {
+    constructor (elm: ng.IAugmentedJQuery, public options: IHTML5PlayerOptions) {
         const $video = angular.element(this.video);
 
         $video.css('display', 'block');
@@ -81,7 +81,7 @@ export class HTML5Player
         return !this.video.paused;
     }
 
-    playState$ = Observable.merge(
+    playState$: Observable<IPlayStateEvent> = Observable.merge(
         Observable
             .fromEvent(this.video, 'play')
             .mapTo({
@@ -103,7 +103,7 @@ export class HTML5Player
     );
 
     // TODO: This is the same as in youtube player. Chance to refactor
-    progress$ = this.playState$
+    progress$: Observable<IProgressStateEvent> = this.playState$
                     .switchMap(state => {
                         if (state.isPlaying) {
                             return Observable.interval(100);
@@ -120,7 +120,7 @@ export class HTML5Player
                         return event;
                     });
 
-    loaded$ = Observable
+    loaded$: Observable<ILoadedStateEvent> = Observable
         .fromEvent(this.video, 'progress')
         .map(_ => {
             const event = {
@@ -152,7 +152,7 @@ export class HTML5Player
         return end / this.getDuration() * 100;
     };
 
-    seeking$ = Observable
+    seeking$: Observable<ISeekingEvent> = Observable
         .fromEvent(this.video, 'seeking')
         .map(_ => {
             const event = {
@@ -162,7 +162,7 @@ export class HTML5Player
             return event;
         });
 
-    seeked$ = Observable
+    seeked$: Observable<ISeekedEvent> = Observable
         .fromEvent(this.video, 'seeked')
         .map(_ => {
             const event = {
@@ -172,12 +172,12 @@ export class HTML5Player
             return event;
         });
 
-    seekTo (sec: number): Promise<boolean> {
+    seekTo (sec: number): Promise<ISeekedEvent> {
         this.video.currentTime = sec;
         return this.seeked$.take(1).toPromise();
     }
 
-    ended$ = Observable
+    ended$: Observable<IEndedEvent> = Observable
         .fromEvent(this.video, 'ended')
         .map(_ => {
             const event = {
@@ -190,7 +190,7 @@ export class HTML5Player
     // -------------------
     // -     Rate     -
     // -------------------
-    playbackRate$ = Observable
+    playbackRate$: Observable<IRateChangeEvent> = Observable
         .fromEvent(this.video, 'ratechange')
         .map(_ => {
             const event = {
@@ -250,7 +250,7 @@ export class HTML5Player
         return this.video.muted ? 0 : this.video.volume * 100;
     };
 
-    volumeState$ = Observable
+    volumeState$: Observable<IVolumeStateEvent> = Observable
         .fromEvent(this.video, 'volumechange')
         .map(_ => {
             const event = {

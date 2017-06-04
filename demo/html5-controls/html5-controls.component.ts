@@ -20,20 +20,16 @@ export class Html5ControlsDemoComponent {
             type: 'video/ogg'
         }]
     };
-
-    static $inject = ['$scope'];
-    constructor (private $scope) {
-
-    }
+    playerCtrl: RxPlayerComponent;
 
     play () {
-        this.$scope['playerCtrl'].player$
+        this.playerCtrl.player$
             .take(1)
             .subscribe(player => player.play());
     }
 
     pause () {
-        this.$scope['playerCtrl'].player$
+        this.playerCtrl.player$
             .take(1)
             .subscribe(player => player.pause());
     }

@@ -1,4 +1,5 @@
 export * from 'rxjs/Observable';
+export * from 'rxjs/Observer';
 export * from 'rxjs/Subject';
 export * from 'rxjs/ReplaySubject';
 export * from './from-angular-watch.util';

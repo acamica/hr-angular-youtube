@@ -9,7 +9,10 @@ import {Directive, mockNgOnInitFromAttr} from '../ng-helper/facade';
 export class PlayerCurrentSpeedDirective {
 
     static $inject = ['$scope', '$element', '$attrs', '$parse'];
-    constructor (private $scope, private elm, private attr, private $parse) {
+    constructor (private $scope: ng.IScope,
+                private elm: ng.IAugmentedJQuery,
+                private attr: ng.IAttributes,
+                private $parse: ng.IParseService) {
     }
 
     ngOnInit () {
@@ -20,7 +23,7 @@ export class PlayerCurrentSpeedDirective {
             .map(event => event.rate)
             .takeUntil(scopeDestroy$)
             .subscribe(rate => {
-                this.elm.html(rate);
+                this.elm.html(rate.toString());
             });
     }
 }

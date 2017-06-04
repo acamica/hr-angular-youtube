@@ -11,7 +11,7 @@ export class PlayerCurrentQualityComponent {
     private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$attrs'];
-    constructor (private elm, private attrs) {
+    constructor (private elm: ng.IAugmentedJQuery, private attrs: ng.IAttributes) {
     }
 
     ngOnInit () {

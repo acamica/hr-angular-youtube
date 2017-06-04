@@ -201,7 +201,7 @@ function createMarkerRunnerReducers (markers: IMarker[]) {
         }
     }
 
-    function running (runningMarkers = [], action: IActions) {
+    function running (runningMarkers: IMarker[] = [], action: IActions) {
         switch (action.type) {
             case 'START_MARKERS':
                 // Add the started markers into the running state

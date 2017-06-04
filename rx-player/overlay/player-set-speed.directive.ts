@@ -11,7 +11,11 @@ export class PlayerSetSpeedDirective {
     private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$element', '$attrs', '$parse', '$scope'];
-    constructor (private elm, private attrs, private $parse, private scope) {
+    constructor (
+            private elm: ng.IAugmentedJQuery,
+            private attrs: ng.IAttributes,
+            private $parse: ng.IParseService,
+            private scope: ng.IScope) {
     }
 
     ngOnInit () {
@@ -20,7 +24,8 @@ export class PlayerSetSpeedDirective {
         this.rxPlayer
             .player$
             .subscribe((player: YoutubePlayer) =>
-                this.elm.on('click', () =>
+                this.elm.on('click',
+                () =>
                     this.scope.$apply(() => {
                         const speed = speedFn(this.scope);
                         player.setPlaybackRate(speed);

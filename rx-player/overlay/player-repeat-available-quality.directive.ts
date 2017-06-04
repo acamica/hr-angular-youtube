@@ -23,7 +23,7 @@ export class PlayerRepeatAvailableQualityDirective {
     private rxPlayer: RxPlayerComponent;
 
     static $inject = ['$scope', '$attrs'];
-    constructor (private scope, private attrs) {
+    constructor (private scope: ng.IScope, private attrs: ng.IAttributes) {
     }
 
     ngOnInit () {
@@ -31,7 +31,7 @@ export class PlayerRepeatAvailableQualityDirective {
             .player$
             .subscribe((player: YoutubePlayer) => {
                 // Youtube doesnt inform you on the available qualities until loading video
-                const unbind = player.on('onStateChange', (event) => {
+                const unbind = player.on('onStateChange', (event: YT.OnStateChangeEvent ) => {
                     if (event.data === YT.PlayerState.PLAYING) {
                         unbind();
                         this.scope.availableQuality = convertToYoutubeArray(player.getAvailableQualityLevels());

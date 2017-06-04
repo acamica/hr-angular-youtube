@@ -41,7 +41,7 @@ export class ControlsDemoComponent {
     // };
 
     static $inject = ['$scope', '$element'];
-    constructor (private $scope, private elm) {
+    constructor (private $scope: ng.IScope, private elm: ng.IAugmentedJQuery) {
     }
     markersToShow: IProgressBarMarker[];
 
@@ -96,48 +96,7 @@ export class ControlsDemoComponent {
                 // player.play();
                 new MarkerRunner(player, markers);
             });
-        // $scope.$watch('player1', function (player) {
-        // player.mute();
-        // player.addMarker(new YoutubeMarker({
-        //     startTime: 3,
-        //     showMarker: false,
-        //     handler: function () {
-        //         console.log('Basic marker!');
-        //     }
-        // }));
 
-
-        // player.addMarker(new YoutubeTemplateMarker({
-        //     startTime: 10,
-        //     duration: 3,
-        //     template: '<div class="example-marker">This only shows when the video passes normally</div>',
-        // }));
-
-        // player.addMarker(new YoutubeTemplateMarker({
-        //     startTime: 15,
-        //     duration: 3,
-        //     launchOnSeek: true,
-        //     template: '<div class="example-marker">This shows even if you seek trough</div>'
-        // }));
-
-        // player.addMarker(new YoutubeTemplateMarker({
-        //     startTime: 30,
-        //     blockFF: true,
-        //     fireOnce: true,
-        //     template: '<div class="full-screen-marker-example">This blocks your seek, but only once' +
-        //               '<button ng-click="closeMarker()">close</button></div>',
-        //     link: function (player, $scope) {
-        //         console.log('linkin!');
-        //         let self = this;
-        //         $scope.closeMarker = function () {
-        //             self.destroy();
-        //             player.playVideo();
-        //         };
-        //         player.pauseVideo();
-        //     }
-        // }));
-
-    // });
     }
 }
 

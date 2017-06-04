@@ -11,7 +11,11 @@ import {readableTime} from '../util/readable-time.util';
 export class PlayerTotalTimeDirective {
 
     static $inject = ['$scope', '$element', '$attrs', '$parse'];
-    constructor (private $scope, private elm, private attr, private $parse) {
+    constructor (
+            private $scope: ng.IScope,
+            private elm: ng.IAugmentedJQuery,
+            private attr: ng.IAttributes,
+            private $parse: ng.IParseService) {
     }
 
     ngOnInit () {

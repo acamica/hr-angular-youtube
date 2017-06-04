@@ -3,10 +3,10 @@ import * as angular from 'angular';
 angular.module('rxPlayer').filter('async', asyncFilter);
 
 function asyncFilter () {
-    const values = {};
-    const subscriptions = {};
+    const values: any = {};
+    const subscriptions: any = {};
 
-    function async (input, scope) {
+    function async (input: any, scope: ng.IScope) {
         // Make sure we have an Observable or a Promise
         if (!input || !(input.subscribe || input.then)) {
             return input;
@@ -17,7 +17,7 @@ function asyncFilter () {
                 || input.success && input.success.bind(input) // To make it work with HttpPromise
                 || input.then.bind(input);
 
-            subscriptions[inputId] = subscriptionStrategy(value => {
+            subscriptions[inputId] = subscriptionStrategy((value: any) => {
                 values[inputId] = value;
 
                 if (scope && scope.$applyAsync) {
@@ -42,7 +42,7 @@ function asyncFilter () {
 
     // Need a way to tell the input objects apart from each other (so we only subscribe to them once)
     let nextObjectID = 0;
-    function objectId (obj) {
+    function objectId (obj: any) {
         if (!obj.hasOwnProperty('__asyncFilterObjectID__')) {
             obj.__asyncFilterObjectID__ = ++nextObjectID;
         }
@@ -51,8 +51,10 @@ function asyncFilter () {
     }
 
     // So that Angular does not cache the return value
-    async['$stateful'] = true;
-
+    function setStateful (filter: any) {
+        filter['$stateful'] = true;
+    }
+    setStateful(async);
     return async;
 };
 

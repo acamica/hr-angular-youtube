@@ -25,7 +25,7 @@ export interface IVideoPlayer {
     getLoadedPercent (): number;
     seeking$: Observable<ISeekingEvent>;
     seeked$: Observable<ISeekedEvent>;
-    seekTo (sec: number): Promise<boolean>;
+    seekTo (sec: number): Promise<ISeekedEvent>;
     ended$: Observable<IEndedEvent>;
 
     // -------------------

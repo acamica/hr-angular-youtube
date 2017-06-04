@@ -17,7 +17,7 @@ export class ProgressBarMarker {
     private barCssClass: string;
 
     static $inject = ['$element', '$scope'];
-    constructor (private elm, private scope) {
+    constructor (private elm: ng.IAugmentedJQuery, private scope: ng.IScope) {
     }
 
     $onInit () {

@@ -1,8 +1,8 @@
 import * as angular from 'angular';
 import {Component} from 'rx-player/ng-helper/facade';
-import {RxPlayerComponent} from 'rx-player/players/rx-player.component';
 import {fromAngularWatch} from 'rx-player/util/rx/facade';
 import {setPlayerVarDefaultOption} from 'rx-player/players/youtube/youtube.service';
+import {IVideoSource, IYoutubeVideoSource, RxPlayerComponent} from 'rx-player/main';
 import 'rx-player/main';
 
 // TODO: Refactor to @Injectable and providers
@@ -41,28 +41,29 @@ setPlayerVarDefaultOption('nologo', 0);
 })
 export class ControlsDemoComponent {
     videoId = 'QjX9Wu-MJ-s';
-    videoSource: any;
+    videoSource: IVideoSource;
+    playerCtrl: RxPlayerComponent;
 
     static $inject = ['$scope'];
-    constructor (private $scope) {
+    constructor ($scope: ng.IScope) {
         fromAngularWatch(() => this.videoId, $scope)
             .map(videoId => {
                 return {
                     player: 'YoutubePlayer',
                     youtubeId: videoId
-                };
+                } as IYoutubeVideoSource;
             })
             .subscribe(source => this.videoSource = source);
     }
 
     play () {
-        this.$scope['playerCtrl'].player$
+        this.playerCtrl.player$
             .take(1)
             .subscribe(player => player.play());
     }
 
     pause () {
-        this.$scope['playerCtrl'].player$
+        this.playerCtrl.player$
             .take(1)
             .subscribe(player => player.pause());
     }

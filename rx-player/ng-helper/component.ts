@@ -13,7 +13,7 @@ export interface IComponentDefinition {
 }
 export function Component (definition: IComponentDefinition) {
 
-    return function (target) {
+    return function (target: any) {
         module.directive(definition.selector, function () {
                 let require = [definition.selector];
                 if (definition.require) {
