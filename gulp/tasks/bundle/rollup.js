@@ -14,7 +14,7 @@ module.exports = function (config) {
                 //     }),
                 // ]
             })
-            .pipe(source('rx-player.js'))
+            .pipe(source('pleier.js'))
             .pipe(gulp.dest('./dist/cjs/bundles'));
     };
 }

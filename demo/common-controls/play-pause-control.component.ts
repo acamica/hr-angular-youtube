@@ -1,6 +1,6 @@
-import {Component, mockNgOnInitLink} from 'rx-player/ng-helper/facade';
-import {Observable} from 'rx-player/util/rx/facade';
-import {IVideoPlayer} from 'rx-player/main';
+import {Component, mockNgOnInitLink} from 'pleier/ng-helper/facade';
+import {Observable} from 'pleier/util/rx/facade';
+import {IVideoPlayer} from 'pleier/main';
 @Component({
     selector: 'playPauseControl',
     template: `

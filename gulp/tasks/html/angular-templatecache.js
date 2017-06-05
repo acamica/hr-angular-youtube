@@ -12,29 +12,29 @@ function buildTemplatesInSystemJs () {
     var builder = new Builder('./dist');
     // Make sure angular isn't added to the list
     builder.invalidate('angular');
-    // Bundle rxPlayerTpls as a systemjs module
-    return builder.bundle('[rx-player-tpls.system.js]', './dist/templates.system.js');
+    // Bundle pleierTpls as a systemjs module
+    return builder.bundle('[pleier-tpls.system.js]', './dist/templates.system.js');
 
 }
 
 function processTemplates() {
-    var system$ = gulp.src('./rx-player/**/*.html')
+    var system$ = gulp.src('./pleier/**/*.html')
         .pipe(templateCache({
             root: '/template',
-            module: 'rxPlayerTpls',
+            module: 'pleierTpls',
             standalone: true,
             moduleSystem: 'ES6',
-            filename: 'rx-player-tpls.system.js'
+            filename: 'pleier-tpls.system.js'
         }))
         // .pipe(concat('templates.js'))
         .pipe(gulp.dest('./dist/'));
 
-    var global$ =  gulp.src('./rx-player/**/*.html')
+    var global$ =  gulp.src('./pleier/**/*.html')
         .pipe(templateCache({
             root: '/template',
-            module: 'rxPlayerTpls',
+            module: 'pleierTpls',
             standalone: true,
-            filename: 'rx-player-tpls.global.js'
+            filename: 'pleier-tpls.global.js'
         }))
         // .pipe(concat('templates.js'))
         .pipe(gulp.dest('./dist/'));

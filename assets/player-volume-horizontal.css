@@ -1,15 +1,15 @@
 /* component that shows the current video's volume */
-rx-player player-volume-horizontal {
+pleier player-volume-horizontal {
     display: block;
 }
 
 /* transcluded elements as 'inline-block' to fit better inside the container */
-rx-player player-volume-horizontal .ng-transclude {
+pleier player-volume-horizontal .ng-transclude {
     display: inline-block;
 }
 
 /* gray bar that represents the 100% of selectable volume for the video */
-rx-player player-volume-horizontal .hr-yt-volume-hr-bar {
+pleier player-volume-horizontal .hr-yt-volume-hr-bar {
     background-color: rgb(143, 143, 143);
     display: inline-block;
     height: 5px;
@@ -21,7 +21,7 @@ rx-player player-volume-horizontal .hr-yt-volume-hr-bar {
 
 /* small white line at the end of the red line */
 /* works as a handle to change the volume */
-rx-player player-volume-horizontal .hr-yt-volume-hr-bar .hr-yt-handle {
+pleier player-volume-horizontal .hr-yt-volume-hr-bar .hr-yt-handle {
     background-color: white;
     height: 11px;
     left: 0;
@@ -32,7 +32,7 @@ rx-player player-volume-horizontal .hr-yt-volume-hr-bar .hr-yt-handle {
 }
 
 /* red bar that represents the user selected amount of volume for the video */
-rx-player player-volume-horizontal .hr-yt-volume-hr-bar .hr-yt-setted {
+pleier player-volume-horizontal .hr-yt-volume-hr-bar .hr-yt-setted {
     background-color: red;
     height: 100%;
     position: absolute;

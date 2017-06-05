@@ -1,5 +1,5 @@
 /* tooltip that shows the seconds when hovering over the timeline of the video */
-rx-player .hr-hover-indicator {
+pleier .hr-hover-indicator {
     background-color: black;
     bottom: 35px;
     padding: 1px 6px;

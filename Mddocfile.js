@@ -7,12 +7,12 @@ module.exports = function(mddoc) {
     });
 
     mddoc.addGenerator('mddoc-angular-generator', {
-        'title' : 'rx-player',
+        'title' : 'pleier',
         'modules' : ['demo','treeControl'],
 //        'modules' : ['demo','demoOverlay', 'demoControls'],
 
         'inject-scripts' : [
-            'dist/rx-player-tpl.js',
+            'dist/pleier-tpl.js',
             'demo/controls/controls.js',
             'demo/fullscreen/fullscreen.js',
             'demo/overlay/overlay.js',
@@ -20,7 +20,7 @@ module.exports = function(mddoc) {
             'demo/assets/screenfull.min.js'
         ],
         'inject-styles'  : [
-            'dist/rx-player.css',
+            'dist/pleier.css',
             'demo/overlay/overlay.css',
             'demo/marker/marker.css',
             'demo/assets/font-awesome/css/font-awesome.min.css'

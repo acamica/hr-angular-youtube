@@ -1,6 +1,6 @@
 /* uncomment these styles in the case we want to stop using bootstrap's styles */
 /* for dropdown elements */
-/*rx-player .dropdown-control .dropdown-menu > li > a {
+/*pleier .dropdown-control .dropdown-menu > li > a {
     color: white;
     display: block;
     line-height: 20px;
@@ -8,12 +8,12 @@
     text-decoration: none;
 }
 
-rx-player .dropdown-control .dropdown-menu > li > a:hover,
-rx-player .dropdown-control .dropdown-menu > li > a:focus {
+pleier .dropdown-control .dropdown-menu > li > a:hover,
+pleier .dropdown-control .dropdown-menu > li > a:focus {
     background-color: rgb(90, 90, 90);
 }
 
-rx-player .dropdown-control-options {
+pleier .dropdown-control-options {
     background-color: black;
     bottom: 25px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
@@ -28,6 +28,6 @@ rx-player .dropdown-control-options {
     z-index: 10;
 }
 
-rx-player .open > .dropdown-menu {
+pleier .open > .dropdown-menu {
     display: block;
 }*/

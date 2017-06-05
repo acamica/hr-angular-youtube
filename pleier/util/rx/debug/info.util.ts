@@ -1,8 +1,6 @@
 import {Observable} from 'rxjs/Observable';
 import {createInfo} from './console.util';
-export interface IFnMsg<T> {
-    (x: T): string;
-}
+export type IFnMsg<T> = (x: T) => string;
 
 export type IMsgOrFnMsg<T> = string | IFnMsg<T>;
 

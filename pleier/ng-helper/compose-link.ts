@@ -1,12 +1,11 @@
-export interface IDirectiveLinkFn {
+export type IDirectiveLinkFn =
     (
         scope?: ng.IScope,
         instanceElement?: ng.IAugmentedJQuery,
         instanceAttributes?: ng.IAttributes,
         controller?: any,
         transclude?: ng.ITranscludeFunction
-    ): void;
-}
+    ) => void;
 
 /**
  * Calls multiple link functions

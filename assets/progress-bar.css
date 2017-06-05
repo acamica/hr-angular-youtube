@@ -1,5 +1,5 @@
 /* progress bar component */
-rx-player player-progress-bar {
+pleier player-progress-bar {
     background-color: rgb(70, 70, 70);
     cursor: pointer;
     display: block;
@@ -9,7 +9,7 @@ rx-player player-progress-bar {
 }
 
 /* white circle that represents the current position of the video */
-rx-player player-progress-bar .hr-yt-handle {
+pleier player-progress-bar .hr-yt-handle {
     background-color: white;
     border-radius: 50%;
     height: 16px;
@@ -21,7 +21,7 @@ rx-player player-progress-bar .hr-yt-handle {
 }
 
 /* gray line that represents the loaded portion of the video */
-rx-player player-progress-bar .hr-yt-loaded {
+pleier player-progress-bar .hr-yt-loaded {
     background-color: rgb(143, 143, 143);
     height: 100%;
     position: absolute;
@@ -31,7 +31,7 @@ rx-player player-progress-bar .hr-yt-loaded {
 }
 
 /* red line that indicated the reproduced part of the video */
-rx-player player-progress-bar .hr-yt-played {
+pleier player-progress-bar .hr-yt-played {
     background-color: red;
     height: 100%;
     position: absolute;

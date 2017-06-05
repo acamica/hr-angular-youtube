@@ -1,21 +1,21 @@
 import {Directive, bindToCtrlCallOnInit} from '../ng-helper/facade';
 import {YoutubePlayer} from '../players/youtube/youtube-player.model';
-import {RxPlayerComponent} from '../players/rx-player.component';
+import {PleierComponent} from '../players/pleier.component';
 
 @Directive({
     selector: 'playerCurrentQuality',
-    link: bindToCtrlCallOnInit(['rxPlayer']),
-    require: ['^rxPlayer']
+    link: bindToCtrlCallOnInit(['pleier']),
+    require: ['^pleier']
 })
 export class PlayerCurrentQualityComponent {
-    private rxPlayer: RxPlayerComponent;
+    private pleier: PleierComponent;
 
     static $inject = ['$element', '$attrs'];
     constructor (private elm: ng.IAugmentedJQuery, private attrs: ng.IAttributes) {
     }
 
     ngOnInit () {
-        this.rxPlayer
+        this.pleier
             .player$
             .subscribe((player: YoutubePlayer) => {
                 const setPlaybackQuality = () => {

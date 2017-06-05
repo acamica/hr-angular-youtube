@@ -4,7 +4,7 @@ Check if needed or add an option to add it separately or even separete this as a
 {:.alert .alert-danger }
 
 {%code_warning
-    "src" : "src/directive/rx-player.js",
+    "src" : "src/directive/pleier.js",
     "priority" : 1,
     "ref" : {
         "text" : "unit !== newUnit"

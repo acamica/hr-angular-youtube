@@ -42,7 +42,7 @@ module.exports = function (config) {
         return b.bundle()
 
         // give the file the name you want to output with
-        .pipe(source('rx-player.js'))
+        .pipe(source('pleier.js'))
 
         // and output to ./dist/app.js as normal.
         .pipe(gulp.dest('./dist/cjs/bundles'));

@@ -1,5 +1,5 @@
 /* main component */
-rx-player {
+pleier {
     display: block;
     position: relative;
     /* this css property makes the text inside the player non-selectable */
@@ -7,7 +7,7 @@ rx-player {
 }
 
 /* universal reset for elements inside the player */
-rx-player * {
+pleier * {
     /* uncomment for layout debugging purposes */
     /* box-shadow: 0 0 1px gold; */
     box-sizing: border-box;

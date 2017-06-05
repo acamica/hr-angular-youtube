@@ -41,9 +41,9 @@ gulp.task('process-templates-with-system', ['process-templates'], buildTemplates
 //gulp.task('process-scripts-with-tpl',['process-templates'], function() {
 gulp.task('process-scripts-with-tpl', ['process-templates-with-system', 'build-system'], function () {
     //
-    return gulp.src(['./dist/cjs/bundles/rx-player.system.js', './dist/templates.system.js'])
-        .pipe(concat('rx-player-tpl.system.js'))
-        .pipe(replace('/*!--TEMPLATE-DEPENDENCIES--*/',',\'rxPlayerTpls\''))
+    return gulp.src(['./dist/cjs/bundles/pleier.system.js', './dist/templates.system.js'])
+        .pipe(concat('pleier-tpl.system.js'))
+        .pipe(replace('/*!--TEMPLATE-DEPENDENCIES--*/',',\'pleierTpls\''))
         .pipe(gulp.dest('./dist/cjs/bundles'))
         .pipe(uglify())
         .pipe(rename({suffix: '.min'}))
@@ -53,7 +53,7 @@ gulp.task('process-scripts-with-tpl', ['process-templates-with-system', 'build-s
 
 gulp.task('process-styles', function() {
     return gulp.src('./assets/**/*.css')
-        .pipe(concat('rx-player.css'))
+        .pipe(concat('pleier.css'))
         .pipe(prefix('last 2 version'))
         .pipe(gulp.dest('./dist'))
         .pipe(minifycss())
@@ -66,8 +66,8 @@ gulp.task('build', ['process-scripts-with-tpl', 'build-cjs', 'process-styles']);
 
 gulp.task('watch', function() {
     // This should be process script, but for some reason is not updating :(
-    gulp.watch('./rx-player/**/*.ts', ['build']);
-    gulp.watch('./rx-player/**/*.html', ['build']);
+    gulp.watch('./pleier/**/*.ts', ['build']);
+    gulp.watch('./pleier/**/*.html', ['build']);
     gulp.watch('./demo/**/*.html', ['build']);
     // gulp.watch('./src/**/*.js', ['docs']);
 

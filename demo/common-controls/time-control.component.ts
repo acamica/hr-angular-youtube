@@ -1,4 +1,4 @@
-import {Component} from 'rx-player/ng-helper/facade';
+import {Component} from 'pleier/ng-helper/facade';
 @Component({
     selector: 'timeControl',
     template: `

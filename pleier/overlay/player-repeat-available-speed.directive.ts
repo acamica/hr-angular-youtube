@@ -1,13 +1,13 @@
 import {Directive, bindToCtrlCallOnInit} from '../ng-helper/facade';
-import {RxPlayerComponent} from '../players/rx-player.component';
+import {PleierComponent} from '../players/pleier.component';
 // TODO: this is similar to a behaviour directive, refactor so we don't
 // need to use the repeat logic
 // We could add the whole control into a component, expose the available speeds
 // and use a normal ng-repeat
 @Directive({
     selector: 'playerRepeatAvailableSpeed',
-    link: bindToCtrlCallOnInit(['rxPlayer']),
-    require: ['^rxPlayer'],
+    link: bindToCtrlCallOnInit(['pleier']),
+    require: ['^pleier'],
     replace: true,
     priority: 1000,
 
@@ -19,14 +19,14 @@ import {RxPlayerComponent} from '../players/rx-player.component';
     }
 })
 export class PlayerRepeatAvailableSpeedDirective {
-    private rxPlayer: RxPlayerComponent;
+    private pleier: PleierComponent;
 
     static $inject = ['$scope', '$attrs'];
     constructor (private scope: ng.IScope, private attrs: ng.IAttributes) {
     }
 
     ngOnInit () {
-        this.rxPlayer
+        this.pleier
             .player$
             .subscribe(player => {
                 this.scope.availableSpeeds = player.getAvailablePlaybackRates();

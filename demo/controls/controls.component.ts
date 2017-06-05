@@ -1,15 +1,15 @@
 import * as angular from 'angular';
-import {Component} from 'rx-player/ng-helper/facade';
-import {fromAngularWatch} from 'rx-player/util/rx/facade';
-import {setPlayerVarDefaultOption} from 'rx-player/players/youtube/youtube.service';
-import {IVideoSource, IYoutubeVideoSource, RxPlayerComponent} from 'rx-player/main';
-import 'rx-player/main';
+import {Component} from 'pleier/ng-helper/facade';
+import {fromAngularWatch} from 'pleier/util/rx/facade';
+import {setPlayerVarDefaultOption} from 'pleier/players/youtube/youtube.service';
+import {IVideoSource, IYoutubeVideoSource, PleierComponent} from 'pleier/main';
+import 'pleier/main';
 
 // TODO: Refactor to @Injectable and providers
 // http://blog.rangle.io/configurable-services-in-angular-2/
 // Create the app module and configure it
 angular
-    .module('demoControls', ['rxPlayer', 'rxPlayerTpls']);
+    .module('demoControls', ['pleier', 'pleierTpls']);
     // .config(['youtubeProvider', configureYoutubeProvider]);
 
 
@@ -37,12 +37,12 @@ setPlayerVarDefaultOption('nologo', 0);
 @Component({
     selector: 'controlsDemo',
     templateUrl: '/demo/controls/controls.component.html',
-    directives: [RxPlayerComponent],
+    directives: [PleierComponent],
 })
 export class ControlsDemoComponent {
     videoId = 'QjX9Wu-MJ-s';
     videoSource: IVideoSource;
-    playerCtrl: RxPlayerComponent;
+    playerCtrl: PleierComponent;
 
     static $inject = ['$scope'];
     constructor ($scope: ng.IScope) {

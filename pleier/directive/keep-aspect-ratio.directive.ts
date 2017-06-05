@@ -1,5 +1,5 @@
 /*
-TODO: Removed keep-aspect-ratio from rx-player, make it work later
+TODO: Removed keep-aspect-ratio from pleier, make it work later
         let aspectRatio = 16 / 9;
 
         // Maybe add some sort of debounce, but without adding a dependency

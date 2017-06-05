@@ -1,18 +1,18 @@
 import {Component, bindToCtrlCallOnInit} from '../ng-helper/facade';
 import {YoutubePlayer} from '../players/youtube/youtube-player.model';
-import {RxPlayerComponent} from '../players/rx-player.component';
+import {PleierComponent} from '../players/pleier.component';
 
 type IShowReason = 'showOnHover' | 'showOnPause';
 
 @Component({
     selector: 'playerPanel',
-    link: bindToCtrlCallOnInit(['rxPlayer']),
-    require: ['^rxPlayer'],
+    link: bindToCtrlCallOnInit(['pleier']),
+    require: ['^pleier'],
     transclude: true,
     templateUrl: '/template/overlay/player-panel.component.html',
 })
 export class PlayerPanelComponent {
-    private rxPlayer: RxPlayerComponent;
+    private pleier: PleierComponent;
 
     static $inject = ['$element', '$attrs', '$animate', '$timeout'];
     constructor (
@@ -23,8 +23,8 @@ export class PlayerPanelComponent {
     }
 
     ngOnInit () {
-        const $overlay = this.rxPlayer.getOverlayElement();
-        this.rxPlayer
+        const $overlay = this.pleier.getOverlayElement();
+        this.pleier
             .player$
             .subscribe((player: YoutubePlayer) => {
                 const whoWantsToShow: any = {};

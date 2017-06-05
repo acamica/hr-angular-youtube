@@ -6,7 +6,7 @@ import {readableTime} from '../util/readable-time.util';
 @Directive({
     selector: 'playerTotalTime',
     link: mockNgOnInitFromAttr('playerTotalTime'),
-    require: ['^rxPlayer']
+    require: ['^pleier']
 })
 export class PlayerTotalTimeDirective {
 

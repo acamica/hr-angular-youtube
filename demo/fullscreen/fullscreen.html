@@ -1,12 +1,12 @@
 <div  ng-controller="FullscreenDemoCtrl as ctrl">
-    <rx-player width="100%"
+    <pleier width="100%"
                     keep-aspect-ratio
                     player-factory="FullscreenVideoPlayer"
                     video-id="ctrl.id"
                     ng-model="ctrl.player"
                     yt-fullscreen="ctrl.fullScreenCtrl"
                     >
-    </rx-player>
+    </pleier>
     <div class="controls">
         <button ng-click="ctrl.player.playVideo()">Play</button>
         <button ng-click="ctrl.player.pauseVideo()">Pause</button>

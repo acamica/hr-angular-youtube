@@ -1,14 +1,14 @@
 import {Directive, bindToCtrlCallOnInit} from '../ng-helper/facade';
 import {YoutubePlayer} from '../players/youtube/youtube-player.model';
-import {RxPlayerComponent} from '../players/rx-player.component';
+import {PleierComponent} from '../players/pleier.component';
 
 @Directive({
     selector: 'playerSetQuality',
-    link: bindToCtrlCallOnInit(['rxPlayer']),
-    require: ['^rxPlayer']
+    link: bindToCtrlCallOnInit(['pleier']),
+    require: ['^pleier']
 })
 export class PlayerSetQualityDirective {
-    private rxPlayer: RxPlayerComponent;
+    private pleier: PleierComponent;
 
     static $inject = ['$element', '$parse', '$attrs', '$scope'];
     constructor (
@@ -21,7 +21,7 @@ export class PlayerSetQualityDirective {
     ngOnInit () {
         const fn = this.$parse(this.attrs.playerSetQuality);
 
-        this.rxPlayer
+        this.pleier
             .player$
             .subscribe((player: YoutubePlayer) =>
                 this.elm.on('click', () =>

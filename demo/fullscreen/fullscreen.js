@@ -1,5 +1,5 @@
 /* global angular */
-angular.module('demoFullscreen', ['rxPlayer'])
+angular.module('demoFullscreen', ['pleier'])
 // TODO: Move this into the FullscreenVideoPlayer in a fancy way
 .config(['youtubeProvider', function(youtubeProvider) {
     // This options are the ones from here

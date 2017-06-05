@@ -1,21 +1,21 @@
 import * as angular from 'angular';
-import {Observable} from 'rx-player/util/rx/facade';
-import {Component, mockNgOnInitLink} from 'rx-player/ng-helper/facade';
+import {Observable} from 'pleier/util/rx/facade';
+import {Component, mockNgOnInitLink} from 'pleier/ng-helper/facade';
 import {PlayPauseComponent, TimeControlComponent} from '../common-controls/facade';
 import {
     setPlayerVarDefaultOption,
     IVideoPlayer,
     MarkerRunner,
-    RxPlayerComponent,
+    PleierComponent,
     ComponentMarker, IMarker, IProgressBarMarker
-} from 'rx-player/main';
+} from 'pleier/main';
 
 import 'ui.bootstrap';
-import 'rx-player/ng-helper/async.filter';
+import 'pleier/ng-helper/async.filter';
 
 // Create the app module and configure it
 angular
-    .module('demoMarker', ['rxPlayer', 'rxPlayerTpls', 'ui.bootstrap']);
+    .module('demoMarker', ['pleier', 'pleierTpls', 'ui.bootstrap']);
 
 setPlayerVarDefaultOption('controls', 0);
 setPlayerVarDefaultOption('rel', 0);
@@ -25,7 +25,7 @@ setPlayerVarDefaultOption('modestbranding', 1);
     selector: 'markerDemo',
     templateUrl: '/demo/marker/marker.component.html',
     link: mockNgOnInitLink(['playerCtrl']),
-    directives: [RxPlayerComponent, PlayPauseComponent, TimeControlComponent],
+    directives: [PleierComponent, PlayPauseComponent, TimeControlComponent],
 })
 export class ControlsDemoComponent {
     videoSource = {

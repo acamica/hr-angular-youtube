@@ -14,15 +14,15 @@ import {
 
 
 @Component({
-    selector: 'rxPlayer',
-    templateUrl: '/template/players/rx-player.component.html',
+    selector: 'pleier',
+    templateUrl: '/template/players/pleier.component.html',
     transclude: true,
     link: localTemplateVariableLink,
     scope: {
         videoSource: '='
     },
 })
-export class RxPlayerComponent {
+export class PleierComponent {
     player$: Observable<IVideoPlayer>;
 
     static $inject = ['$element', '$attrs', '$scope'];

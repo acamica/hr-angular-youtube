@@ -3,7 +3,7 @@ var rimraf    = require('gulp-rimraf');
 
 // TODO: make one task to rule them all and call the shit needed
 function cleanSystem () {
-    // return gulp.src('./dist/cjs/bundles/rx-player.js', { read: false })
+    // return gulp.src('./dist/cjs/bundles/pleier.js', { read: false })
     //     .pipe(rimraf({force:true}))
     //     // For some reason I need to add a dest, or no end is triggered
     //     .pipe(gulp.dest('./dist/cjs/'));
@@ -14,7 +14,7 @@ const ts = require('gulp-typescript');
 const tsProject = ts.createProject('tsconfig.json', {
     target: 'es5',
     module: 'system',
-    outFile: 'rx-player.system.js',
+    outFile: 'pleier.system.js',
     // rootDir: 'src',
     typescript: require('typescript')
 });

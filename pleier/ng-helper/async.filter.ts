@@ -1,6 +1,6 @@
 import * as angular from 'angular';
 
-angular.module('rxPlayer').filter('async', asyncFilter);
+angular.module('pleier').filter('async', asyncFilter);
 
 function asyncFilter () {
     const values: any = {};

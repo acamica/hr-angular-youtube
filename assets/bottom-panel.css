@@ -1,6 +1,6 @@
 /* wrapper of the elements at the bottom of the player */
 /* (volume control, seconds, play/pause buttons, velocity, etc.) */
-rx-player .bottom-panel {
+pleier .bottom-panel {
     background: rgba(0,0,0,1);
     bottom: 0;
     color: rgb(255, 255, 255);
@@ -12,7 +12,7 @@ rx-player .bottom-panel {
 }
 
 /* .control-element: small wrapper around each component (volume control, seconds, etc.) */
-rx-player .bottom-panel .control-element {
+pleier .bottom-panel .control-element {
     cursor: pointer;
     float: left;
     min-width: 35px;
@@ -20,7 +20,7 @@ rx-player .bottom-panel .control-element {
 }
 
 /* wrapper of all .control-element */
-rx-player .bottom-panel .controls {
+pleier .bottom-panel .controls {
     height: 25px;
     line-height: 25px;
 }

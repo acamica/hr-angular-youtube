@@ -1,20 +1,20 @@
 import * as angular from 'angular';
-import {Component} from 'rx-player/ng-helper/facade';
-import {RxPlayerComponent} from 'rx-player/main';
+import {Component} from 'pleier/ng-helper/facade';
+import {PleierComponent} from 'pleier/main';
 import {PlayPauseComponent, TimeControlComponent} from '../common-controls/facade';
-import 'rx-player/players/html5/html5-player.service';
-import 'rx-player/ng-helper/async.filter';
+import 'pleier/players/html5/html5-player.service';
+import 'pleier/ng-helper/async.filter';
 import 'ui.bootstrap';
 
 // Create the app module and configure it
 angular
-    .module('demoOverlayHTML5', ['rxPlayer', 'rxPlayerTpls', 'ui.bootstrap']);
+    .module('demoOverlayHTML5', ['pleier', 'pleierTpls', 'ui.bootstrap']);
 
 
 @Component({
     selector: 'overlayDemoHtml5',
     templateUrl: '/demo/overlay-html5/overlay-html5.component.html',
-    directives: [RxPlayerComponent, PlayPauseComponent, TimeControlComponent],
+    directives: [PleierComponent, PlayPauseComponent, TimeControlComponent],
 })
 export class ControlsDemoHTML5Component {
     videoSource = {

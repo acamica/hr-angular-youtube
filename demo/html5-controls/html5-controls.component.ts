@@ -1,16 +1,16 @@
-import {Component} from 'rx-player/ng-helper/component';
+import {Component} from 'pleier/ng-helper/component';
 import * as angular from 'angular';
-import {RxPlayerComponent} from 'rx-player/players/rx-player.component';
-import 'rx-player/players/html5/html5-player.service';
-import 'rx-player/main';
+import {PleierComponent} from 'pleier/players/pleier.component';
+import 'pleier/players/html5/html5-player.service';
+import 'pleier/main';
 
 // Create the app module
-angular.module('demoHtml5Controls', ['rxPlayer', 'rxPlayerTpls']);
+angular.module('demoHtml5Controls', ['pleier', 'pleierTpls']);
 
 @Component({
     selector: 'html5ControlsDemo',
     templateUrl: '/demo/html5-controls/html5-controls.component.html',
-    directives: [RxPlayerComponent]
+    directives: [PleierComponent]
 })
 export class Html5ControlsDemoComponent {
     videoSource = {
@@ -20,7 +20,7 @@ export class Html5ControlsDemoComponent {
             type: 'video/ogg'
         }]
     };
-    playerCtrl: RxPlayerComponent;
+    playerCtrl: PleierComponent;
 
     play () {
         this.playerCtrl.player$

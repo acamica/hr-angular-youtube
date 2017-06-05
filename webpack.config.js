@@ -8,8 +8,8 @@ const {
 const entries = require('./webpack/entries');
 module.exports = {
     // entry: {
-    //     'controls': ['./demo/controls/controls.component.ts', path.join(dist, '/rx-player-tpls.global.js')],
-    //     'overlay-html5': ['./demo/overlay-html5/overlay-html5.component.ts', path.join(dist, '/rx-player-tpls.global.js')],
+    //     'controls': ['./demo/controls/controls.component.ts', path.join(dist, '/pleier-tpls.global.js')],
+    //     'overlay-html5': ['./demo/overlay-html5/overlay-html5.component.ts', path.join(dist, '/pleier-tpls.global.js')],
     // },
     entry: entries,
     output: {
@@ -28,7 +28,7 @@ module.exports = {
     },
     resolve: {
         alias: {
-            'rx-player': path.join(root, '/rx-player'),
+            'pleier': path.join(root, '/pleier'),
             'ui.bootstrap': path.join(node_modules, '/angular-ui-bootstrap/index.js')
         },
         extensions: [".ts", ".js"]

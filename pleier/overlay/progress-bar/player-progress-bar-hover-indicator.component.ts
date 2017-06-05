@@ -1,17 +1,17 @@
 import {Directive, bindToCtrlCallOnInit} from '../../ng-helper/facade';
 import {readableTime} from '../../util/readable-time.util';
-import {RxPlayerComponent} from '../../players/rx-player.component';
+import {PleierComponent} from '../../players/pleier.component';
 
 // TODO: This had restrict A so its a directive, but it also has an html template soooo its a
 // component? Refactor :D
 @Directive({
     selector: 'hoverIndicator',
     // templateUrl: '/template/overlay/player-progress-bar-hover-indicator.html',
-    link: bindToCtrlCallOnInit(['rxPlayer']),
-    require: ['^rxPlayer']
+    link: bindToCtrlCallOnInit(['pleier']),
+    require: ['^pleier']
 })
 export class HoverIndicatorComponent {
-    private rxPlayer: RxPlayerComponent;
+    private pleier: PleierComponent;
 
     static $inject = ['$element', '$document', '$compile', '$templateCache', '$http', '$scope'];
     constructor (
@@ -52,7 +52,7 @@ export class HoverIndicatorComponent {
         });
 
         // TODO: Refactor to rxjs
-        this.rxPlayer
+        this.pleier
             .player$
             .subscribe(player => {
                 const duration = player.getDuration();

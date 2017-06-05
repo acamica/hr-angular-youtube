@@ -1,5 +1,5 @@
 {
-  "name": "rx-player",
+  "name": "pleier",
   "version": "0.2.0",
   "description": "Multiple video sources with extendable controls for Angular",
   "main": "main.js",
@@ -56,15 +56,15 @@
     "vinyl-source-stream": "^1.1.0",
     "webpack": "^2.2.1"
   },
-  "private": true,
+  "private": false,
   "typings": "main.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://hrajchert@github.com/hrajchert/rx-player.git"
+    "url": "https://hrajchert@github.com/hrajchert/pleier.git"
   },
   "author": "Hernan Rajchert <hrajchert@gmail.com>",
   "bugs": {
-    "url": "https://github.com/hrajchert/rx-player/issues"
+    "url": "https://github.com/hrajchert/pleier/issues"
   },
-  "homepage": "https://github.com/hrajchert/rx-player"
+  "homepage": "https://github.com/hrajchert/pleier"
 }

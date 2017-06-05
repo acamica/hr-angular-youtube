@@ -1,7 +1,7 @@
 module.exports = {
     paths: {
         src: {
-            ts: './rx-player/**/*.ts'
+            ts: './pleier/**/*.ts'
         },
         dest: {
             cjs: './dist/cjs',
