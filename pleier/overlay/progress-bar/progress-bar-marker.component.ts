@@ -1,7 +1,7 @@
 import {Component} from '../../ng-helper/facade';
 import {Observable, observeScopeDestroy} from '../../util/rx/facade';
 import {IVideoPlayer} from '../../players/facade';
-import {IMarker} from '../../markers/facade';
+import {IMarkerLike} from '../../markers/facade';
 
 @Component({
     selector: 'progressBarMarker',
@@ -13,7 +13,7 @@ import {IMarker} from '../../markers/facade';
 })
 export class ProgressBarMarker {
     private player: Observable<IVideoPlayer>;
-    private marker: IMarker;
+    private marker: IMarkerLike;
     private barCssClass: string;
 
     static $inject = ['$element', '$scope'];

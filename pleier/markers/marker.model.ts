@@ -1,4 +1,11 @@
 import {IVideoPlayer} from '../players/video-player.model';
+export interface IMarkerLike {
+    startTime: number;
+    endTime: number;
+}
+// TODO: Revisit marker interface, try to remove onStart and onEnd to manage
+// the side effects separate from the data. Its prefered to have a type property in
+// the actual markers and to action outside the object
 export interface IMarker {
     startTime: number;
     endTime: number;
@@ -19,10 +26,10 @@ function numberInRangeInclusive (n: number, range: Range) {
 }
 //
 export const startedIn =
-    (marker: IMarker, range: Range) => numberInRange(marker.startTime, range);
+    (marker: IMarkerLike, range: Range) => numberInRange(marker.startTime, range);
 
 export const endedIn =
-    (marker: IMarker, range: Range) => numberInRange(marker.endTime, range);
+    (marker: IMarkerLike, range: Range) => numberInRange(marker.endTime, range);
 
 export const timeInMarkerRange =
-    (time: number, marker: IMarker) => numberInRangeInclusive(time, [marker.startTime, marker.endTime]);
+    (time: number, marker: IMarkerLike) => numberInRangeInclusive(time, [marker.startTime, marker.endTime]);

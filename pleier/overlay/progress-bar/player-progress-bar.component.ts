@@ -1,7 +1,7 @@
 import {Observable, observeScopeDestroy, Subject} from '../../util/rx/facade';
 import {Component, mockNgOnInitLink} from '../../ng-helper/facade';
 import {IVideoPlayer} from '../../players/facade';
-import {IMarker} from '../../markers/facade';
+import {IMarkerLike} from '../../markers/facade';
 import {Store, IPayloadAction, ISimpleAction} from '../../util/store.util';
 import * as angular from 'angular';
 
@@ -20,7 +20,7 @@ const initialState = {
 // TODO: see if we want to have the whole marker or if we can
 // get by just by using the start time
 export interface IProgressBarMarker {
-    marker: IMarker;
+    marker: IMarkerLike;
     barCssClass?: string;
 }
 
