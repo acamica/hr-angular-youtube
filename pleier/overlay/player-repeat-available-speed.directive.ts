@@ -4,6 +4,11 @@ import {PleierComponent} from '../players/pleier.component';
 // need to use the repeat logic
 // We could add the whole control into a component, expose the available speeds
 // and use a normal ng-repeat
+
+export interface IDirectiveScope extends ng.IScope {
+    availableSpeeds: number[];
+}
+
 @Directive({
     selector: 'playerRepeatAvailableSpeed',
     link: bindToCtrlCallOnInit(['pleier']),
@@ -15,14 +20,14 @@ import {PleierComponent} from '../players/pleier.component';
     template: function (tElm) {
         tElm.removeAttr('player-repeat-available-speed');
         tElm.attr('ng-repeat', '$speed in availableSpeeds');
-        return tElm[0].outerHTML;
+        return (tElm as any)[0].outerHTML;
     }
 })
 export class PlayerRepeatAvailableSpeedDirective {
     private pleier: PleierComponent;
 
     static $inject = ['$scope', '$attrs'];
-    constructor (private scope: ng.IScope, private attrs: ng.IAttributes) {
+    constructor (private scope: IDirectiveScope, private attrs: ng.IAttributes) {
     }
 
     ngOnInit () {

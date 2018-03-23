@@ -21,6 +21,9 @@ setPlayerVarDefaultOption('controls', 0);
 setPlayerVarDefaultOption('rel', 0);
 setPlayerVarDefaultOption('modestbranding', 1);
 
+export interface IDirectiveScope extends ng.IScope {
+    playerCtrl: any;
+}
 @Component({
     selector: 'markerDemo',
     templateUrl: '/demo/marker/marker.component.html',
@@ -41,12 +44,12 @@ export class ControlsDemoComponent {
     // };
 
     static $inject = ['$scope', '$element'];
-    constructor (private $scope: ng.IScope, private elm: ng.IAugmentedJQuery) {
+    constructor (private $scope: IDirectiveScope, private elm: ng.IAugmentedJQuery) {
     }
     markersToShow: IProgressBarMarker[];
 
     ngOnInit () {
-        const player$ = this.$scope['playerCtrl'].player$ as Observable<IVideoPlayer>;
+        const player$ = this.$scope.playerCtrl.player$ as Observable<IVideoPlayer>;
         const markers: IMarker[] = [
             {
                 startTime: 3,
@@ -99,6 +102,7 @@ export class ControlsDemoComponent {
 
     }
 }
+
 
 
 

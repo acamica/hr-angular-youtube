@@ -36,7 +36,7 @@ export function directiveLocalTemplateVariableLink (scope: ng.IScope, elm: ng.IA
         .forEach(a => applyToScopeAndCtrl(a, scope, ctrl[0]));
 }
 
-function applyToScopeAndCtrl (attr: string, scope: ng.IScope, ctrl: any) {
+function applyToScopeAndCtrl (attr: string, scope: any, ctrl: any) {
     // Add it to scope
     scope[attr] = ctrl;
     // See if there is a ctrl variable in scope and add it there

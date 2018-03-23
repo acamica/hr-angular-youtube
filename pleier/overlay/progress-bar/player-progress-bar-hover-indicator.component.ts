@@ -60,7 +60,7 @@ export class HoverIndicatorComponent {
                 const barMove = (event: any) => {
                     const p = getPercentageFromPageX(event.pageX);
                     indicatorScope.$apply(scope => {
-                        scope.time = readableTime(p * duration);
+                        (scope as any).time = readableTime(p * duration);
                     });
                     indicatorElm.css('left', (p * 100) + '%');
                 };

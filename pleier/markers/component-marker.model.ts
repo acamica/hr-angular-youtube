@@ -9,6 +9,9 @@ export interface IBindingMap {
     [key: string]: any;
 }
 
+export interface IComponentScope extends ng.IScope {
+    [key: string]: any;
+}
 
 export class ComponentMarker implements IMarker {
     get startTime () {
@@ -35,7 +38,7 @@ export class ComponentMarker implements IMarker {
                                 getService<ng.IScope>('$rootScope');
 
     private elm: JQuery;
-    private scope: ng.IScope;
+    private scope: IComponentScope;
 
     onStart (player: IVideoPlayer) {
         if (this.options.parentElm) {
@@ -101,4 +104,3 @@ export interface IComponentMarkerOptions {
     parentScope?: ng.IScope;
     bindings?: IBindingMap;
 }
-
